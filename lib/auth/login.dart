@@ -13,19 +13,26 @@ void login(email, password) async {
   const headers = {
     HttpHeaders.contentTypeHeader : 'application/json'
   };
-  var body = jsonEncode({
-    'email': email,
-    'username': email,
-    'password': password
-  });
+
+  var body;
+
+  if (EmailValidator.validate(email)) {
+    body = jsonEncode({
+      'email': email,
+      'password': password
+    });
+  } else {
+    body = jsonEncode({
+      'username': email,
+      'password': password
+    });
+  }
 
   var response = await http.post(
     url,
     headers: headers,
     body: body
   );
-
-  print(response);
 
   if (response.statusCode == 200) {
     var jsonResponse = jsonDecode(response.body);
@@ -44,7 +51,6 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool _isPasswordValid = true;
-  bool _isEmailValid = true;
 
   @override
   Widget build(BuildContext context) {
@@ -80,15 +86,9 @@ class _LoginPageState extends State<LoginPage> {
                 opacity: 0.8,
                 child: TextField(
                   style: new TextStyle(color: Colors.white),
-                  onChanged: (text) {
-                    setState(() {
-                      _isEmailValid = true;
-                    });
-                  },
                   decoration: InputDecoration(
                     hintText: 'Username or email',
                     hintStyle: TextStyle(fontSize: 14, color: Colors.white70),
-                    errorText: _isEmailValid ? null : "Invalid Email",
                     fillColor: Colors.white10,
                     filled: true,
                     enabledBorder: const OutlineInputBorder(
@@ -159,10 +159,9 @@ class _LoginPageState extends State<LoginPage> {
 
                 setState(() {
                   _isPasswordValid = passwordValidator.validate(password);
-                  _isEmailValid = EmailValidator.validate(email);
                 });
 
-                if (_isPasswordValid && _isEmailValid) {
+                if (_isPasswordValid && email != '') {
                   login(email, password);
                 }
               },
