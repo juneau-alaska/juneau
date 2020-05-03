@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:juneau/common/appBar.dart';
+
 import 'package:email_validator/email_validator.dart';
 import 'package:juneau/auth/validator.dart';
 
@@ -7,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 
-void signup(email, username, password) async {
+void signup(email, username, password, context) async {
   const url = 'http://localhost:4000/signup';
   const headers = {
     HttpHeaders.contentTypeHeader : 'application/json'
@@ -28,7 +31,12 @@ void signup(email, username, password) async {
 
   if (response.statusCode == 200) {
     var jsonResponse = jsonDecode(response.body);
-    print(jsonResponse);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isLoggedIn', true);
+    prefs.setBool('token', jsonResponse.token);
+
+    Navigator.pushNamed(context, '/home');
   } else {
     print('Request failed with status: ${response.statusCode}.');
   }
@@ -171,7 +179,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 });
 
                 if (_isPasswordValid && _isEmailValid) {
-                  signup(email, username, password);
+                  signup(email, username, password, context);
                 }
               },
               color: Colors.blue.shade500,

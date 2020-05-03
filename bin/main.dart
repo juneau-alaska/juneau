@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:juneau/common/appBar.dart';
 import 'package:juneau/auth/login.dart';
 import 'package:juneau/auth/signup.dart';
+import 'package:juneau/home.dart';
 
 void main() => runApp(new MyApp());
 
@@ -16,6 +17,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/splash',
       routes: {
         '/splash': (BuildContext context) => SplashScreen(),
+        '/home': (BuildContext context) => HomePage(),
         '/login': (BuildContext context) => LoginPage(),
         '/signup': (BuildContext context) => SignUpPage(),
       },
@@ -58,8 +60,9 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void startTimer() {
+    //It will redirect after 3 seconds
     Timer(Duration(seconds: 3), () {
-      navigateUser(); //It will redirect  after 3 seconds
+      navigateUser();
     });
   }
 
@@ -74,14 +77,3 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 }
-
-//void logoutUser() async {
-//  SharedPreferences prefs = await SharedPreferences.getInstance();
-//  prefs?.clear();
-//  Navigator.pushAndRemoveUntil(
-//      context,
-//      ModalRoute.withName("/splash"),
-//      ModalRoute.withName("/home")
-//  );
-//}
-
