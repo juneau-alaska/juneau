@@ -42,7 +42,7 @@ void login(email, password, context) async {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isLoggedIn', true);
-    prefs.setBool('token', jsonResponse.token);
+    prefs.setString('token', jsonResponse['token']);
 
     Navigator.pushNamed(context, '/home');
   } else {

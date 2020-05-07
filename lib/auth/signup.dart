@@ -27,14 +27,12 @@ void signup(email, username, password, context) async {
       body: body
   );
 
-  print(response);
-
   if (response.statusCode == 200) {
     var jsonResponse = jsonDecode(response.body);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isLoggedIn', true);
-    prefs.setBool('token', jsonResponse.token);
+    prefs.setString('token', jsonResponse['token']);
 
     Navigator.pushNamed(context, '/home');
   } else {

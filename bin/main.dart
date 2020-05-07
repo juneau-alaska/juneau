@@ -69,7 +69,6 @@ class _SplashScreenState extends State<SplashScreen> {
   void navigateUser() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var status = prefs.getBool('isLoggedIn') ?? false;
-    print(status);
     if (status) {
       Navigator.pushNamed(context, '/home');
     } else {
