@@ -81,7 +81,6 @@ class _PollWidgetState extends State<PollWidget> {
     if (choicesList.length > 0) {
       for (var i = 0; i < choicesList.length; i++) {
         var choice = choicesList[i];
-        print(choice['content']);
         widgets.add(
             FlatButton(
               color: Colors.red,
@@ -116,7 +115,9 @@ class _PollWidgetState extends State<PollWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (choices == null) {return new Container();}
+    if (choices == null) {
+      return new Container();
+    }
 
     List widgets = buildPoll(choices);
 

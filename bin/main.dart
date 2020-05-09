@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:juneau/common/appBar.dart';
 import 'package:juneau/auth/login.dart';
 import 'package:juneau/auth/signup.dart';
-import 'package:juneau/home.dart';
+import 'package:juneau/home/home.dart';
 
 void main() => runApp(new MyApp());
 
@@ -60,7 +60,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void startTimer() {
-    //It will redirect after 3 seconds
     Timer(Duration(seconds: 3), () {
       navigateUser();
     });
