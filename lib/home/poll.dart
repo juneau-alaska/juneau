@@ -68,7 +68,6 @@ class _PollWidgetState extends State<PollWidget> {
       Text(
         widget.poll['prompt'],
         style: TextStyle(
-            color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 20.0
         ),
@@ -125,7 +124,10 @@ class _PollWidgetState extends State<PollWidget> {
       padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 25.0),
       child: Container(
         height: 225.0,
-        color: const Color(0xff191919),
+        decoration: new BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(15.0),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(15.0),
           child: Column(

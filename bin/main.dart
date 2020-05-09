@@ -14,6 +14,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        primaryColor: Colors.black,
+        cardColor: const Color(0xff191919),
+        buttonColor: Colors.blue.shade500,
+        accentColor: Colors.white
+        // textTheme: TextTheme()
+      ),
       initialRoute: '/splash',
       routes: {
         '/splash': (BuildContext context) => SplashScreen(),
@@ -42,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).primaryColor,
       appBar: appBar,
       body: Center(
         child: Container(

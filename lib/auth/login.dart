@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).primaryColor,
       appBar: appBar,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -80,7 +80,6 @@ class _LoginPageState extends State<LoginPage> {
                 'JUNEAU',
                 style: TextStyle(
                   fontSize: 30,
-                  color: Colors.white,
                   fontWeight: FontWeight.bold
                 ),
               ),
@@ -93,7 +92,6 @@ class _LoginPageState extends State<LoginPage> {
               child: Opacity(
                 opacity: 0.8,
                 child: TextField(
-                  style: new TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Username or email',
                     hintStyle: TextStyle(fontSize: 14, color: Colors.white70),
@@ -117,7 +115,6 @@ class _LoginPageState extends State<LoginPage> {
                 child: TextField(
                   controller: passwordController,
                   obscureText: true,
-                  style: new TextStyle(color: Colors.white),
                   onChanged: (text) {
                     setState(() {
                       _isPasswordValid = true;
@@ -150,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Text(
                     'Forgot password?',
                     style: TextStyle(
-                      color: Colors.blue.shade500,
+                      color: Theme.of(context).buttonColor,
                       fontSize: 12.0,
                     ),
                   ),
@@ -173,7 +170,7 @@ class _LoginPageState extends State<LoginPage> {
                   login(email, password, context);
                 }
               },
-              color: Colors.blue.shade500,
+              color: Theme.of(context).buttonColor,
               shape: RoundedRectangleBorder(
                   borderRadius: new BorderRadius.circular(6.0)
               ),
@@ -181,9 +178,6 @@ class _LoginPageState extends State<LoginPage> {
                 padding: const EdgeInsets.all(15.0),
                 child: Text(
                   'Log In',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
                 ),
               ),
             ),
@@ -197,7 +191,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Text(
                 'Sign Up',
                 style: TextStyle(
-                  color: Colors.blue.shade500,
+                  color: Theme.of(context).buttonColor,
                 ),
               ),
             ),

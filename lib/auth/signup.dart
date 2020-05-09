@@ -73,7 +73,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 'SIGN UP',
                 style: TextStyle(
                   fontSize: 20,
-                  color: Colors.white,
                   fontWeight: FontWeight.bold
                 ),
               ),
@@ -86,7 +85,6 @@ class _SignUpPageState extends State<SignUpPage> {
               child: Opacity(
                 opacity: 0.8,
                 child: TextField(
-                  style: new TextStyle(color: Colors.white),
                   onChanged: (text) {
                     setState(() {
                       _isEmailValid = true;
@@ -114,7 +112,6 @@ class _SignUpPageState extends State<SignUpPage> {
               child: Opacity(
                 opacity: 0.8,
                 child: TextField(
-                  style: new TextStyle(color: Colors.white),
 //                  onChanged: (text) {
 //                    setState(() {
 //                      _isEmailValid = true;
@@ -143,7 +140,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 child: TextField(
                   controller: passwordController,
                   obscureText: true,
-                  style: new TextStyle(color: Colors.white),
                   onChanged: (text) {
                     setState(() {
                       _isPasswordValid = true;
@@ -180,7 +176,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   signup(email, username, password, context);
                 }
               },
-              color: Colors.blue.shade500,
+              color: Theme.of(context).buttonColor,
               shape: RoundedRectangleBorder(
                   borderRadius: new BorderRadius.circular(6.0)
               ),
@@ -188,9 +184,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 padding: const EdgeInsets.all(15.0),
                 child: Text(
                   'Sign Up',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
                 ),
               ),
             ),
@@ -204,7 +197,7 @@ class _SignUpPageState extends State<SignUpPage> {
               child: Text(
                 'Log In',
                 style: TextStyle(
-                  color: Colors.blue.shade500,
+                  color: Theme.of(context).buttonColor,
                 ),
               ),
             ),

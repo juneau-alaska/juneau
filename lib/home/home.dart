@@ -80,11 +80,26 @@ class _HomePageState extends State<HomePage> {
     List pages = createPages(polls);
 
     return Scaffold(
-        backgroundColor: Colors.black,
-        appBar: appBar,
-        body: PageView(
-          children: pages,
-        )
+      backgroundColor: Theme.of(context).primaryColor,
+      appBar: appBar,
+      body: PageView(
+        children: pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Theme.of(context).cardColor,
+        items: [
+          BottomNavigationBarItem(
+            icon: new Icon(Icons.mail_outline),
+            activeIcon: new Icon(Icons.mail),
+            title: new Text(''),
+          ),
+          BottomNavigationBarItem(
+            icon: new Icon(Icons.mail_outline),
+            activeIcon: new Icon(Icons.mail),
+            title: new Text(''),
+          ),
+        ]
+      ),
     );
   }
 }
