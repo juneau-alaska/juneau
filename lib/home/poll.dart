@@ -59,7 +59,6 @@ class PollWidget extends StatefulWidget {
 }
 
 class _PollWidgetState extends State<PollWidget> {
-
   var choices;
 
   List buildPoll(choicesList) {
@@ -120,21 +119,15 @@ class _PollWidgetState extends State<PollWidget> {
 
     List widgets = buildPoll(choices);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 25.0),
-      child: Container(
-        height: 225.0,
-        decoration: new BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: widgets,
-          ),
+    return Container(
+      height: 225.0,
+      color: Theme.of(context).primaryColor,
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: widgets,
         ),
       ),
     );

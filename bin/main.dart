@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,9 +16,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: Colors.black,
-        cardColor: const Color(0xff191919),
+        cardColor: const Color(0xff121212),
         buttonColor: Colors.blue.shade500,
-        accentColor: Colors.white
+        accentColor: const Color(0xff3B3B3B),
         // textTheme: TextTheme()
       ),
       initialRoute: '/splash',
@@ -51,7 +50,6 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
-      appBar: appBar,
       body: Center(
         child: Container(
           width: 300.0,

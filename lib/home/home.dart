@@ -56,7 +56,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   var polls;
 
   @override
@@ -85,20 +84,41 @@ class _HomePageState extends State<HomePage> {
       body: PageView(
         children: pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Theme.of(context).cardColor,
-        items: [
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.mail_outline),
-            activeIcon: new Icon(Icons.mail),
-            title: new Text(''),
+      bottomNavigationBar: Container(
+        decoration: new BoxDecoration(
+          border: Border(
+            top: BorderSide(width: 0.5, color: Theme.of(context).accentColor),
           ),
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.mail_outline),
-            activeIcon: new Icon(Icons.mail),
-            title: new Text(''),
-          ),
-        ]
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: Theme.of(context).cardColor,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          items: [
+            BottomNavigationBarItem(
+              icon: new Icon(
+                Icons.mail_outline,
+                color: Colors.white,
+              ),
+              activeIcon: new Icon(
+                Icons.mail,
+                color: Colors.white,
+              ),
+              title: new Text(''),
+            ),
+            BottomNavigationBarItem(
+              icon: new Icon(
+                Icons.mail_outline,
+                color: Colors.white,
+              ),
+              activeIcon: new Icon(
+                Icons.mail,
+                color: Colors.white,
+              ),
+              title: new Text(''),
+            ),
+          ],
+        ),
       ),
     );
   }
