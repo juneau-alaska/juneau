@@ -2,18 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:juneau/common/appBar.dart';
+import 'package:juneau/common/navBar.dart';
 import 'package:juneau/home/poll.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
-
-void logoutUser(context) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs?.clear();
-  Navigator.of(context)
-      .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
-}
 
 Future<List> _getPolls() async {
   const url = 'http://localhost:4000/polls';
@@ -75,7 +69,6 @@ class _HomePageState extends State<HomePage> {
     if (polls == null) {
       return new Container();
     }
-
     List pages = createPages(polls);
 
     return Scaffold(
@@ -84,42 +77,7 @@ class _HomePageState extends State<HomePage> {
       body: PageView(
         children: pages,
       ),
-      bottomNavigationBar: Container(
-        decoration: new BoxDecoration(
-          border: Border(
-            top: BorderSide(width: 0.5, color: Theme.of(context).accentColor),
-          ),
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: Theme.of(context).cardColor,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          items: [
-            BottomNavigationBarItem(
-              icon: new Icon(
-                Icons.mail_outline,
-                color: Colors.white,
-              ),
-              activeIcon: new Icon(
-                Icons.mail,
-                color: Colors.white,
-              ),
-              title: new Text(''),
-            ),
-            BottomNavigationBarItem(
-              icon: new Icon(
-                Icons.mail_outline,
-                color: Colors.white,
-              ),
-              activeIcon: new Icon(
-                Icons.mail,
-                color: Colors.white,
-              ),
-              title: new Text(''),
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: navBar(),
     );
   }
 }

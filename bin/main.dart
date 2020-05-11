@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
         cardColor: const Color(0xff121212),
         buttonColor: Colors.blue.shade500,
         accentColor: const Color(0xff3B3B3B),
+
         // textTheme: TextTheme()
       ),
       initialRoute: '/splash',

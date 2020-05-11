@@ -116,14 +116,13 @@ class _PollWidgetState extends State<PollWidget> {
     if (choices == null) {
       return new Container();
     }
-
     List widgets = buildPoll(choices);
 
     return Container(
       height: 225.0,
       color: Theme.of(context).primaryColor,
       child: Padding(
-        padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.fromLTRB(20.0, 25.0, 20.0, 25.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,

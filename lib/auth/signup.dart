@@ -57,7 +57,6 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: appBar,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -66,7 +65,7 @@ class _SignUpPageState extends State<SignUpPage> {
               height: 40.0
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(80.0, 0.0, 80.0, 40.0),
+            padding: const EdgeInsets.fromLTRB(80.0, 80.0, 80.0, 40.0),
             child: Align(
               alignment: Alignment.center,
               child: Text(

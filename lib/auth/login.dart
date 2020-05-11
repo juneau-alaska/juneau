@@ -64,7 +64,6 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
-      appBar: appBar,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -73,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
             height: 40.0
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(80.0, 0.0, 80.0, 40.0),
+            padding: const EdgeInsets.fromLTRB(80.0, 80.0, 80.0, 40.0),
             child: Align(
               alignment: Alignment.center,
               child: Text(
