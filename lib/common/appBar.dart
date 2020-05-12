@@ -1,20 +1,47 @@
 import 'package:flutter/material.dart';
 
-final appBar = AppBar(
-  leading: new Container(),
-  backgroundColor: const Color(0xff121212),
-  brightness: Brightness.dark,
-  bottom: PreferredSize(
-      child: Container(
-        decoration: new BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
+Widget appBar() {
+  return _AppBar(height: 50.0);
+}
+
+class _AppBar extends StatelessWidget implements PreferredSizeWidget {
+  final double height;
+
+  const _AppBar({
+    Key key,
+    @required this.height,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: new Container(),
+      title: Text(
+        'JUNEAU',
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold
+        ),
+      ),
+      centerTitle: true,
+      backgroundColor: Theme.of(context).cardColor,
+      brightness: Brightness.dark,
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(height),
+        child: Container(
+          decoration: new BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
                 width: 0.5,
-                color: const Color(0xff3B3B3B)
+                color: Theme.of(context).accentColor
+              ),
             ),
           ),
         ),
       ),
-      preferredSize: Size.fromHeight(4.0)
-  ),
-);
+    );
+  }
+
+  @override
+  Size get preferredSize => Size.fromHeight(height);
+}

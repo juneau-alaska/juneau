@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
-      appBar: appBar,
+      appBar: appBar(),
       body: PageView(
         children: pages,
       ),

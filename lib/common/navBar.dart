@@ -42,28 +42,28 @@ class _NavBarState extends State<NavBar> {
                 break;
               case 1:
                 showModalBottomSheet(
-                    isScrollControlled: true,
-                    context: context,
-                    builder: (BuildContext context) {
-                      return Container(
-                          height: MediaQuery.of(context).size.height*0.94,
-                          color: Theme.of(context).primaryColor,
-                          child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  const Text('Modal BottomSheet'),
-                                  RaisedButton(
-                                    color: Theme.of(context).buttonColor,
-                                    child: const Text('Closed BottomSheet'),
-                                    onPressed: () => Navigator.pop(context),
-                                  )
-                                ],
-                              )
-                          )
-                      );
-                    }
+                  isScrollControlled: true,
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Container(
+                      height: MediaQuery.of(context).size.height*0.94,
+                      color: Theme.of(context).primaryColor,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            const Text('Modal BottomSheet'),
+                            RaisedButton(
+                              color: Theme.of(context).buttonColor,
+                              child: const Text('Closed BottomSheet'),
+                              onPressed: () => Navigator.pop(context),
+                            )
+                          ],
+                        )
+                      )
+                    );
+                  }
                 );
                 break;
               default:

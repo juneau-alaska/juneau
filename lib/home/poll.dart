@@ -5,6 +5,32 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 
+Future<List> _getUser(userId) async {
+  var url = 'http://localhost:4000/user/' + userId;
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader : 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  var response = await http.get(
+    url,
+    headers: headers,
+  );
+
+  if (response.statusCode == 200) {
+    var jsonResponse = jsonDecode(response.body);
+
+    return jsonResponse;
+  } else {
+    print('Request failed with status: ${response.statusCode}.');
+    return null;
+  }
+}
+
 Future<List> _getChoices(poll) async {
   const url = 'http://localhost:4000/option';
 
@@ -37,14 +63,13 @@ Future<List> _getChoices(poll) async {
         return null;
       }
     }
-
     futures.add(future());
   }
 
   await Future.wait(futures)
-      .then((results) {
-        choices = results;
-      });
+    .then((results) {
+      choices = results;
+    });
 
   return choices;
 }
@@ -59,55 +84,77 @@ class PollWidget extends StatefulWidget {
 }
 
 class _PollWidgetState extends State<PollWidget> {
-  var choices;
+  var user,
+      choices;
 
-  List buildPoll(choicesList) {
-
+  List buildPoll() {
     List<Widget> widgets = [
       Text(
         widget.poll['prompt'],
         style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20.0
+          fontWeight: FontWeight.bold,
+          fontSize: 20.0,
         ),
       ),
       SizedBox(
-          height: 20.0
-      )
+        height: 2.0
+      ),
+      GestureDetector(
+        child: Text(
+          user['username'],
+          style: TextStyle(
+            fontSize: 15.0,
+            color: Colors.blue,
+          ),
+        ),
+        onTap: () {
+          print(user['email']);
+        }
+      ),
+      SizedBox(
+        height: 20.0
+      ),
     ];
 
-    if (choicesList.length > 0) {
-      for (var i = 0; i < choicesList.length; i++) {
-        var choice = choicesList[i];
+    if (choices.length > 0) {
+      for (var i = 0; i < choices.length; i++) {
+        var choice = choices[i];
         widgets.add(
-            FlatButton(
-              color: Colors.red,
-              child: Text(
-                choice['content'],
-                style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.0
-                ),
+          FlatButton(
+            color: Colors.red,
+            child: Text(
+              choice['content'],
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0
               ),
-              onPressed: () {},
-            )
+            ),
+            onPressed: () {},
+          ),
         );
       }
     }
-
     return widgets;
   }
 
   @override
   void initState() {
-    _getChoices(widget.poll).then((result){
-      setState(() {
-        if (result != null && result.length > 0) {
-          choices = result;
+    var poll = widget.poll;
+    _getUser(poll['createdBy'])
+      .then((pollUser) {
+        if (pollUser != null && pollUser.length > 0) {
+          user = pollUser[0];
         }
+        _getChoices(poll)
+          .then((pollChoices) {
+            setState(() {
+              if (pollChoices != null && pollChoices.length > 0) {
+                choices = pollChoices;
+              }
+            });
+        });
       });
-    });
     super.initState();
   }
 
@@ -116,7 +163,7 @@ class _PollWidgetState extends State<PollWidget> {
     if (choices == null) {
       return new Container();
     }
-    List widgets = buildPoll(choices);
+    List widgets = buildPoll();
 
     return Container(
       height: 225.0,
