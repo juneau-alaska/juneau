@@ -22,7 +22,7 @@ class _InputComponentState extends State<InputComponent> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).primaryColor,
+      color: Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
         child: Container(
