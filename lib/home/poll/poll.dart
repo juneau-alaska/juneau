@@ -89,27 +89,48 @@ class _PollWidgetState extends State<PollWidget> {
 
   List buildPoll() {
     List<Widget> widgets = [
+      Row(
+        children: <Widget>[
+          Container(
+            width: 30.0,
+            height: 30.0,
+            decoration: new BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              image: new DecorationImage(
+                fit: BoxFit.fill,
+                image: new NetworkImage(
+                  "https://images.gameinfo.io/pokemon/256/143-00.png"
+                )
+              )
+            )
+          ),
+          SizedBox(
+            width: 10.0
+          ),
+          GestureDetector(
+              child: Text(
+                user['username'],
+                style: TextStyle(
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              onTap: () {
+                print(user['email']);
+              }
+          ),
+        ],
+      ),
+      SizedBox(
+        height: 10.0
+      ),
       Text(
         widget.poll['prompt'],
         style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 20.0,
+          fontSize: 18.0,
+          fontWeight: FontWeight.w500,
         ),
-      ),
-      SizedBox(
-        height: 2.0
-      ),
-      GestureDetector(
-        child: Text(
-          user['username'],
-          style: TextStyle(
-            fontSize: 15.0,
-            color: Colors.blue,
-          ),
-        ),
-        onTap: () {
-          print(user['email']);
-        }
       ),
       SizedBox(
         height: 20.0

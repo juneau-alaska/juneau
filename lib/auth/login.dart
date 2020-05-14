@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:juneau/auth/validator.dart';
 
+import 'package:juneau/common/components/inputComponent.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
@@ -54,12 +56,17 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
   bool _isPasswordValid = true;
 
   @override
   Widget build(BuildContext context) {
+
+    InputComponent emailInput = new InputComponent(hintText: 'Username or email', obscureText: false);
+    final emailController = emailInput.controller;
+
+    InputComponent passwordInput = new InputComponent(hintText: 'Password', obscureText: true);
+    final passwordController = passwordInput.controller;
+
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       body: Column(
@@ -82,55 +89,8 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
-            child: Container(
-              height: 50.0,
-              child: Opacity(
-                opacity: 0.8,
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Username or email',
-                    hintStyle: TextStyle(fontSize: 14, color: Colors.white70),
-                    fillColor: Colors.white10,
-                    filled: true,
-                    enabledBorder: const OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.white30, width: 1.0),
-                    ),
-                  ),
-                  controller: emailController,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
-            child: Container(
-              height: 50.0,
-              child: Opacity(
-                opacity: 0.8,
-                child: TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  onChanged: (text) {
-                    setState(() {
-                      _isPasswordValid = true;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    hintStyle: TextStyle(fontSize: 14, color: Colors.white70),
-                    fillColor: Colors.white10,
-                    filled: true,
-                    errorText: _isPasswordValid ? null : "Password must be at least 6 characters, contain 1 capital and 1 lowercase, 1 number and 1 special character",
-                    enabledBorder: const OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.white30, width: 1.0),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          emailInput,
+          passwordInput,
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 4.0),
             child: Container(

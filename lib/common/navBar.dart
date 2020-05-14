@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:juneau/home/poll/pollCreate.dart';
+
 void logout(context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs?.clear();
@@ -45,24 +47,7 @@ class _NavBarState extends State<NavBar> {
                   isScrollControlled: true,
                   context: context,
                   builder: (BuildContext context) {
-                    return Container(
-                      height: MediaQuery.of(context).size.height*0.94,
-                      color: Theme.of(context).primaryColor,
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            const Text('Modal BottomSheet'),
-                            RaisedButton(
-                              color: Theme.of(context).buttonColor,
-                              child: const Text('Closed BottomSheet'),
-                              onPressed: () => Navigator.pop(context),
-                            )
-                          ],
-                        )
-                      )
-                    );
+                    return new PollCreate();
                   }
                 );
                 break;

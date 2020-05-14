@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:juneau/common/appBar.dart';
 import 'package:juneau/common/navBar.dart';
-import 'package:juneau/home/poll.dart';
+import 'package:juneau/home/poll/poll.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
