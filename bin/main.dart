@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:juneau/common/appBar.dart';
 import 'package:juneau/auth/login.dart';
 import 'package:juneau/auth/signup.dart';
 import 'package:juneau/home/home.dart';
@@ -19,7 +18,6 @@ class MyApp extends StatelessWidget {
         cardColor: const Color(0xff121212),
         buttonColor: Colors.blue.shade500,
         accentColor: const Color(0xff3B3B3B),
-
         // textTheme: TextTheme()
       ),
       initialRoute: '/splash',
@@ -74,7 +72,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void navigateUser() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var status = prefs.getBool('isLoggedIn') ?? false;
+    bool status = prefs.getBool('isLoggedIn') ?? false;
     if (status) {
       Navigator.pushNamed(context, '/home');
     } else {

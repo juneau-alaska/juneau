@@ -10,7 +10,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 
-
 void login(email, password, context) async {
   const url = 'http://localhost:4000/login';
   const headers = {
@@ -38,11 +37,21 @@ void login(email, password, context) async {
   );
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body);
+    var jsonResponse = jsonDecode(response.body),
+        token = jsonResponse['token'],
+        user = jsonResponse['user'];
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isLoggedIn', true);
-    prefs.setString('token', jsonResponse['token']);
+
+    if (token != null) {
+      prefs.setBool('isLoggedIn', true);
+      prefs.setString('token', token);
+    }
+
+    if (user != null) {
+//      storage.setItem('profile', user);
+      prefs.setString('userId', user['_id']);
+    }
 
     Navigator.pushNamed(context, '/home');
   } else {

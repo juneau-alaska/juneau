@@ -7,6 +7,90 @@ import 'dart:io';
 
 import 'package:juneau/common/components/inputComponent.dart';
 
+void createChoices(prompt, choices) async {
+  const url = 'http://localhost:4000/option';
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader : 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  var body, response;
+
+  List<Future> futures = [];
+
+  for (var i = 0; i < choices.length; i++) {
+    Future future() async {
+      body = jsonEncode({
+        'content': choices[i]
+      });
+
+      response = await http.post(
+          url,
+          headers: headers,
+          body: body
+      );
+
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+
+        print(jsonResponse);
+        return jsonResponse['_id'];
+      } else {
+        print('Request failed with status: ${response.statusCode}.');
+        return null;
+      }
+    }
+    futures.add(future());
+  }
+
+  await Future.wait(futures)
+      .then((results) {
+        createPoll(prompt, results);
+      });
+}
+
+void createPoll(prompt, choiceIds) async {
+  const url = 'http://localhost:4000/poll';
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token'),
+      userId = prefs.getString('userId');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader : 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  print('userId');
+  print(prefs.getString('userId'));
+
+  var body = jsonEncode({
+    'prompt': prompt,
+    'options': choiceIds,
+    'createdBy': userId
+  });
+
+  var response = await http.post(
+      url,
+      headers: headers,
+      body: body
+  );
+
+  if (response.statusCode == 200) {
+    var jsonResponse = jsonDecode(response.body);
+
+    return jsonResponse;
+  } else {
+    print('Request failed with status: ${response.statusCode}.');
+    return null;
+  }
+
+}
+
 class PollCreate extends StatefulWidget {
   @override
   _PollCreateState createState() => _PollCreateState();
@@ -60,11 +144,14 @@ class _PollCreateState extends State<PollCreate> {
             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             child: FlatButton(
               onPressed: () {
-                print(questionInput.controller.text);
+                var prompt  = questionInput.controller.text,
+                    choices = [];
+
                 for (var i=0; i<inputComponents.length; i++) {
                   InputComponent inputComponent = inputComponents[i];
-                  print(inputComponent.controller.text);
+                  choices.add(inputComponent.controller.text);
                 }
+                createChoices(prompt, choices);
               },
               color: Theme.of(context).buttonColor,
               child: Text(
