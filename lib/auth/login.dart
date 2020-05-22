@@ -11,6 +11,9 @@ import 'dart:convert';
 import 'dart:io';
 
 void login(email, password, context) async {
+
+  email = email.trimRight();
+
   const url = 'http://localhost:4000/login';
   const headers = {
     HttpHeaders.contentTypeHeader : 'application/json'

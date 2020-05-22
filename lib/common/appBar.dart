@@ -23,6 +23,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
           fontWeight: FontWeight.bold
         ),
       ),
+      elevation: 0.0,
       centerTitle: true,
       backgroundColor: Theme.of(context).cardColor,
       brightness: Brightness.dark,
@@ -33,7 +34,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
             border: Border(
               bottom: BorderSide(
                 width: 0.5,
-                color: Theme.of(context).accentColor
+                color: Theme.of(context).cardColor // Theme.of(context).accentColor
               ),
             ),
           ),

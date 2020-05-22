@@ -36,8 +36,6 @@ void createChoices(prompt, choices) async {
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
-
-        print(jsonResponse);
         return jsonResponse['_id'];
       } else {
         print('Request failed with status: ${response.statusCode}.');
@@ -65,9 +63,6 @@ void createPoll(prompt, choiceIds) async {
     HttpHeaders.authorizationHeader: token
   };
 
-  print('userId');
-  print(prefs.getString('userId'));
-
   var body = jsonEncode({
     'prompt': prompt,
     'options': choiceIds,
@@ -81,14 +76,54 @@ void createPoll(prompt, choiceIds) async {
   );
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body);
+    var jsonResponse = jsonDecode(response.body),
+        pollId = jsonResponse['_id'];
 
-    return jsonResponse;
+    updateUserCreatedPolls(pollId);
   } else {
     print('Request failed with status: ${response.statusCode}.');
-    return null;
   }
+}
 
+void updateUserCreatedPolls(pollId) async {
+  const url = 'http://localhost:4000/user/';
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token'),
+      userId = prefs.getString('userId');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader : 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  var response = await http.get(
+      url + userId,
+      headers: headers
+  );
+
+  if (response.statusCode == 200) {
+    var jsonResponse = jsonDecode(response.body)[0],
+        createdPolls = jsonResponse['createdPolls'];
+
+    createdPolls.add(pollId);
+
+    var body = jsonEncode({
+      'createdPolls': createdPolls
+    });
+
+    response = await http.put(
+      url + userId,
+      headers: headers,
+      body: body
+    );
+
+    if (response.statusCode != 200) {
+      print('Request failed with status: ${response.statusCode}.');
+    }
+  } else {
+    print('Request failed with status: ${response.statusCode}.');
+  }
 }
 
 class PollCreate extends StatefulWidget {

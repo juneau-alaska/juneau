@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         brightness: Brightness.dark,
-        primaryColor: Colors.black,
+        primaryColor: const Color(0xff121212), // Colors.black,
         cardColor: const Color(0xff121212),
         buttonColor: Colors.blue.shade500,
         accentColor: const Color(0xff3B3B3B),

@@ -74,6 +74,74 @@ Future<List> _getChoices(poll) async {
   return choices;
 }
 
+void vote(choice, poll) async {
+  var url = 'http://localhost:4000/option/vote/' + choice['_id'];
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader : 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  var response = await http.put(
+    url,
+    headers: headers
+  );
+
+  if (response.statusCode == 200) {
+    updateUserCompletedPolls(poll['_id'], choice['_id']);
+  } else {
+    print('Request failed with status: ${response.statusCode}.');
+  }
+}
+
+void updateUserCompletedPolls(pollId, choiceId) async {
+  const url = 'http://localhost:4000/user/';
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token'),
+      userId = prefs.getString('userId');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader : 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  var response = await http.get(
+      url + userId,
+      headers: headers
+  );
+
+  if (response.statusCode == 200) {
+    var jsonResponse = jsonDecode(response.body)[0],
+        completedPolls = jsonResponse['completedPolls'],
+        selectedChoices = jsonResponse['selectedChoices'];
+
+
+    completedPolls.add(pollId);
+    selectedChoices.add(choiceId);
+
+    var body = jsonEncode({
+      'completedPolls': completedPolls,
+      'selectedChoices': selectedChoices
+    });
+
+    response = await http.put(
+        url + userId,
+        headers: headers,
+        body: body
+    );
+
+    if (response.statusCode != 200) {
+      print('Request failed with status: ${response.statusCode}.');
+    }
+  } else {
+    print('Request failed with status: ${response.statusCode}.');
+  }
+}
+
 class PollWidget extends StatefulWidget {
   final poll;
 
@@ -84,8 +152,7 @@ class PollWidget extends StatefulWidget {
 }
 
 class _PollWidgetState extends State<PollWidget> {
-  var user,
-      choices;
+  var user, choices;
 
   List buildPoll() {
     List<Widget> widgets = [
@@ -151,7 +218,9 @@ class _PollWidgetState extends State<PollWidget> {
                 fontSize: 16.0
               ),
             ),
-            onPressed: () {},
+            onPressed: () {
+              vote(choice, widget.poll);
+            },
           ),
         );
       }
@@ -161,13 +230,12 @@ class _PollWidgetState extends State<PollWidget> {
 
   @override
   void initState() {
-    var poll = widget.poll;
-    _getUser(poll['createdBy'])
+    _getUser(widget.poll['createdBy'])
       .then((pollUser) {
         if (pollUser != null && pollUser.length > 0) {
           user = pollUser[0];
         }
-        _getChoices(poll)
+        _getChoices(widget.poll)
           .then((pollChoices) {
             setState(() {
               if (pollChoices != null && pollChoices.length > 0) {

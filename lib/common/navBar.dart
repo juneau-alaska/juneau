@@ -27,7 +27,7 @@ class _NavBarState extends State<NavBar> {
     return Container(
       decoration: new BoxDecoration(
         border: Border(
-          top: BorderSide(width: 0.5, color: Theme.of(context).accentColor),
+          top: BorderSide(width: 0.5, color: Theme.of(context).cardColor) // Theme.of(context).accentColor),
         ),
       ),
       child: BottomNavigationBar(
