@@ -74,11 +74,39 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       appBar: appBar(),
+      body: ListView.builder(
+        itemBuilder: (context, index) {
+          if (index < pages.length) {
+            // Show your info
+            return pages[index];
+          } else {
+            // TODO: Prevent Re-render of all polls, only render new polls
+            _getPolls().then((result){
+              setState(() {
+                if (result != null) {
+                  polls = result;
+                  pages = createPages(polls);
+                }
+              });
+            });
+            return Center(child: CircularProgressIndicator());
+          }
+        },
+        itemCount: pages.length + 1,
+      ),
+      bottomNavigationBar: navBar(),
+    );
+
+    /**
+    return Scaffold(
+      backgroundColor: Theme.of(context).primaryColor,
+      appBar: appBar(),
       body: PageView(
         children: pages,
       ),
       bottomNavigationBar: navBar(),
     );
+        **/
   }
 }
 

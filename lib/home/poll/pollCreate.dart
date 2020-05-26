@@ -132,11 +132,11 @@ class PollCreate extends StatefulWidget {
 }
 
 class _PollCreateState extends State<PollCreate> {
-  InputComponent questionInput = new InputComponent(hintText: 'Type a question...', obscureText: false);
+  InputComponent questionInput = new InputComponent(hintText: 'No more than 160 characters', obscureText: false);
 
   List<InputComponent> inputComponents = [
-    new InputComponent(hintText: 'Create an option...', obscureText: false),
-    new InputComponent(hintText: 'Create an option...', obscureText: false),
+    new InputComponent(hintText: 'Option #1', obscureText: false),
+    new InputComponent(hintText: 'Option #2', obscureText: false),
   ];
 
   @override
@@ -150,9 +150,27 @@ class _PollCreateState extends State<PollCreate> {
           SizedBox(
               height: 100.0
           ),
+          Text(
+            "Ask a question",
+            style: TextStyle(
+              fontWeight: FontWeight.w600
+            ),
+          ),
+          SizedBox(
+              height: 10.0
+          ),
           questionInput,
           SizedBox(
               height: 30.0
+          ),
+          Text(
+            "Create some choices",
+            style: TextStyle(
+              fontWeight: FontWeight.w600
+            ),
+          ),
+          SizedBox(
+              height: 10.0
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -164,7 +182,8 @@ class _PollCreateState extends State<PollCreate> {
             child: FlatButton(
               onPressed: () {
                 setState(() {
-                  inputComponents.add(new InputComponent(hintText: 'Create an option...', obscureText: false));
+                  var optionNum = inputComponents.length+1;
+                  inputComponents.add(new InputComponent(hintText: 'Option #$optionNum', obscureText: false));
                 });
               },
               child: Text(
@@ -177,22 +196,38 @@ class _PollCreateState extends State<PollCreate> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-            child: FlatButton(
-              onPressed: () {
-                var prompt  = questionInput.controller.text,
-                    choices = [];
+            child: Container(
+              decoration: new BoxDecoration(
+                color: Colors.black, // Theme.of(context).buttonColor,
+                borderRadius: BorderRadius.circular(10.0),
+                border: Border.all(
+                  color: Theme.of(context).accentColor,
+                  width: 0.5,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: FlatButton(
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  onPressed: () {
+                    Navigator.pop(context);
+                    var prompt  = questionInput.controller.text,
+                        choices = [];
 
-                for (var i=0; i<inputComponents.length; i++) {
-                  InputComponent inputComponent = inputComponents[i];
-                  choices.add(inputComponent.controller.text);
-                }
-                createChoices(prompt, choices);
-              },
-              color: Theme.of(context).buttonColor,
-              child: Text(
-                'Submit',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold
+                    for (var i=0; i<inputComponents.length; i++) {
+                      InputComponent inputComponent = inputComponents[i];
+                      choices.add(inputComponent.controller.text);
+                    }
+                    createChoices(prompt, choices);
+                  },
+                  child: Text(
+                    'Create',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
                 ),
               ),
             ),

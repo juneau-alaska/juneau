@@ -26,23 +26,29 @@ class _InputComponentState extends State<InputComponent> {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
         child: Container(
-          height: 45.0,
-          child: Opacity(
-            opacity: 0.8,
-            child: TextField(
-              obscureText: widget.obscureText,
-              decoration: InputDecoration(
-                hintText: widget.hintText,
-                hintStyle: TextStyle(fontSize: 14, color: Colors.white70),
-                fillColor: Colors.white10,
-                filled: true,
-                errorText: widget.errorText,
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.white30, width: 1.0),
+          child: TextField(
+            textAlign: TextAlign.center,
+            obscureText: widget.obscureText,
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: const EdgeInsets.only(top:11.0, bottom:11.0),
+              hintText: widget.hintText,
+              hintStyle: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).accentColor, // Colors.white70
+              ),
+              fillColor: Colors.white10,
+              filled: true,
+              errorText: widget.errorText,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(
+                  color: Theme.of(context).accentColor, // Colors.white30,
+                  width: 0.5, // 1.0
                 ),
               ),
-              controller: widget.controller,
             ),
+            controller: widget.controller,
           ),
         ),
       ),

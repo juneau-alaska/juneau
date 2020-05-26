@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -155,40 +156,10 @@ class _PollWidgetState extends State<PollWidget> {
   var user, choices;
 
   List buildPoll() {
+    var createdAt = DateTime.parse(widget.poll['createdAt']),
+        time = timeago.format(createdAt, locale: 'en_short');
+
     List<Widget> widgets = [
-      Row(
-        children: <Widget>[
-          Container(
-            width: 30.0,
-            height: 30.0,
-            decoration: new BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              image: new DecorationImage(
-                fit: BoxFit.fill,
-                image: new NetworkImage(
-                  "https://images.gameinfo.io/pokemon/256/143-00.png"
-                )
-              )
-            )
-          ),
-          SizedBox(
-            width: 10.0
-          ),
-          GestureDetector(
-              child: Text(
-                user['username'],
-                style: TextStyle(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              onTap: () {
-                print(user['email']);
-              }
-          ),
-        ],
-      ),
       SizedBox(
         height: 10.0
       ),
@@ -200,7 +171,36 @@ class _PollWidgetState extends State<PollWidget> {
         ),
       ),
       SizedBox(
-        height: 20.0
+        height: 10.0
+      ),
+      Row(
+        children: <Widget>[
+          GestureDetector(
+            child: Text(
+              user['username'],
+              style: TextStyle(
+                fontSize: 13.0,
+              ),
+            ),
+            onTap: () {
+              print(user['email']);
+            }
+          ),
+          SizedBox(
+            width: 3.0,
+          ),
+          Text(
+            time,
+            style: TextStyle(
+              fontSize: 11.0,
+              color: Theme.of(context).accentColor,
+              wordSpacing: -3.0
+            ),
+          ),
+        ],
+      ),
+      SizedBox(
+          height: 15.0
       ),
     ];
 
@@ -208,19 +208,32 @@ class _PollWidgetState extends State<PollWidget> {
       for (var i = 0; i < choices.length; i++) {
         var choice = choices[i];
         widgets.add(
-          FlatButton(
-            color: Colors.red,
-            child: Text(
-              choice['content'],
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 16.0
+          Container(
+            decoration: new BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              border: Border.all(
+                color: Theme.of(context).accentColor,
+                width: 0.5,
               ),
             ),
-            onPressed: () {
-              vote(choice, widget.poll);
-            },
+            margin: const EdgeInsets.only(bottom: 10.0),
+            child: Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: FlatButton(
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                color: Theme.of(context).cardColor,
+                child: Text(
+                  choice['content'],
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16.0
+                  ),
+                ),
+                onPressed: () {
+                  vote(choice, widget.poll);
+                },
+              ),
+            ),
           ),
         );
       }
@@ -255,10 +268,16 @@ class _PollWidgetState extends State<PollWidget> {
     List widgets = buildPoll();
 
     return Container(
-      height: 225.0,
-      color: Theme.of(context).primaryColor,
+      decoration: new BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Theme.of(context).accentColor,
+          width: 0.5,
+        ),
+      ),
+      margin: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0.0),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20.0, 25.0, 20.0, 25.0),
+        padding: const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 10.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -25,12 +25,8 @@ class _NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: new BoxDecoration(
-        border: Border(
-          top: BorderSide(width: 0.5, color: Theme.of(context).cardColor) // Theme.of(context).accentColor),
-        ),
-      ),
       child: BottomNavigationBar(
+        elevation: 0.0,
         backgroundColor: Theme.of(context).cardColor,
         showSelectedLabels: false,
         showUnselectedLabels: false,
@@ -64,7 +60,7 @@ class _NavBarState extends State<NavBar> {
             ),
             activeIcon: new Icon(
               Icons.exit_to_app,
-              color: Colors.white,
+              color: Colors.black,
             ),
             title: new Text(''),
           ),
@@ -75,7 +71,7 @@ class _NavBarState extends State<NavBar> {
             ),
             activeIcon: new Icon(
               Icons.add_box,
-              color: Colors.white,
+              color: Colors.black,
             ),
             title: new Text(''),
           ),
@@ -86,7 +82,7 @@ class _NavBarState extends State<NavBar> {
             ),
             activeIcon: new Icon(
               Icons.mail,
-              color: Colors.white,
+              color: Colors.black,
             ),
             title: new Text(''),
           ),
