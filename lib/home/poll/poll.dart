@@ -221,12 +221,13 @@ class _PollWidgetState extends State<PollWidget> {
               padding: const EdgeInsets.all(2.0),
               child: FlatButton(
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                color: Theme.of(context).cardColor,
+                color: Colors.transparent,
                 child: Text(
                   choice['content'],
                   style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16.0
+                    color: Colors.white, // Colors.black,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w300
                   ),
                 ),
                 onPressed: () {
@@ -269,13 +270,14 @@ class _PollWidgetState extends State<PollWidget> {
 
     return Container(
       decoration: new BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Theme.of(context).accentColor,
-          width: 0.5,
-        ),
+        color: Theme.of(context).cardColor,
+//        borderRadius: BorderRadius.circular(10),
+//        border: Border.all(
+//          color: Theme.of(context).accentColor,
+//          width: 0.5,
+//        ),
       ),
-      margin: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0.0),
+      margin: const EdgeInsets.only(bottom: 20.0),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 10.0),
         child: Column(

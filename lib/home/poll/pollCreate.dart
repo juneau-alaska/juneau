@@ -150,10 +150,13 @@ class _PollCreateState extends State<PollCreate> {
           SizedBox(
               height: 100.0
           ),
-          Text(
-            "Ask a question",
-            style: TextStyle(
-              fontWeight: FontWeight.w600
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0),
+            child: Text(
+              "Ask a question",
+              style: TextStyle(
+                fontWeight: FontWeight.w600
+              ),
             ),
           ),
           SizedBox(
@@ -163,10 +166,13 @@ class _PollCreateState extends State<PollCreate> {
           SizedBox(
               height: 30.0
           ),
-          Text(
-            "Create some choices",
-            style: TextStyle(
-              fontWeight: FontWeight.w600
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0),
+            child: Text(
+              "Create some choices",
+              style: TextStyle(
+                fontWeight: FontWeight.w600
+              ),
             ),
           ),
           SizedBox(

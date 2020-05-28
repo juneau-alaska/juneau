@@ -57,8 +57,9 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  bool _isPasswordValid = true;
-  bool _isEmailValid = true;
+  bool _isPasswordValid = false;
+  bool _isEmailValid = false;
+  bool _isUsernameValid = false;
 
   @override
   Widget build(BuildContext context) {
@@ -109,9 +110,10 @@ class _SignUpPageState extends State<SignUpPage> {
                 setState(() {
                   _isPasswordValid = passwordValidator.validate(password);
                   _isEmailValid = EmailValidator.validate(email);
+                  _isUsernameValid = usernameValidator.validate(username);
                 });
 
-                if (_isPasswordValid && _isEmailValid) {
+                if (_isPasswordValid && _isEmailValid && _isUsernameValid) {
                   signup(email, username, password, context);
                 }
               },

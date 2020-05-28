@@ -26,7 +26,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0.0,
       centerTitle: true,
       backgroundColor: Theme.of(context).cardColor,
-      brightness: Brightness.light, // Brightness.dark,
+      brightness: Brightness.dark,
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(height),
         child: Container(

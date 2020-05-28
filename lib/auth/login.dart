@@ -68,7 +68,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool _isPasswordValid = true;
+  bool _isPasswordValid = false;
+  bool _isEmailValid = false;
+  bool _isUsernameValid = false;
 
   @override
   Widget build(BuildContext context) {
@@ -133,9 +135,11 @@ class _LoginPageState extends State<LoginPage> {
 
                 setState(() {
                   _isPasswordValid = passwordValidator.validate(password);
+                  _isEmailValid = EmailValidator.validate(email);
+                  _isUsernameValid = usernameValidator.validate(email);
                 });
 
-                if (_isPasswordValid && email != '') {
+                if (_isPasswordValid && (_isEmailValid || _isUsernameValid)) {
                   login(email, password, context);
                 }
               },
