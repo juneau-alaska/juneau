@@ -166,12 +166,12 @@ class _PollWidgetState extends State<PollWidget> {
       Text(
         widget.poll['prompt'],
         style: TextStyle(
-          fontSize: 18.0,
-          fontWeight: FontWeight.w500,
+          fontFamily: 'Lato Black',
+          fontSize: 20.0,
         ),
       ),
       SizedBox(
-        height: 10.0
+        height: 8.0
       ),
       Row(
         children: <Widget>[
@@ -179,7 +179,7 @@ class _PollWidgetState extends State<PollWidget> {
             child: Text(
               user['username'],
               style: TextStyle(
-                fontSize: 13.0,
+                fontSize: 14.0,
               ),
             ),
             onTap: () {
@@ -187,14 +187,17 @@ class _PollWidgetState extends State<PollWidget> {
             }
           ),
           SizedBox(
-            width: 3.0,
+            width: 1.0,
           ),
-          Text(
-            time,
-            style: TextStyle(
-              fontSize: 11.0,
-              color: Theme.of(context).accentColor,
-              wordSpacing: -3.0
+          Padding(
+            padding: const EdgeInsets.only(top: 1.0),
+            child: Text(
+              time,
+              style: TextStyle(
+                color: Theme.of(context).accentColor,
+                fontSize: 13.0,
+                wordSpacing: -2.0,
+              ),
             ),
           ),
         ],
@@ -221,13 +224,12 @@ class _PollWidgetState extends State<PollWidget> {
               padding: const EdgeInsets.all(2.0),
               child: FlatButton(
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                color: Colors.transparent,
                 child: Text(
                   choice['content'],
                   style: TextStyle(
-                    color: Colors.white, // Colors.black,
+                    color: Theme.of(context).textTheme.bodyText1.color,
                     fontSize: 16.0,
-                    fontWeight: FontWeight.w300
+                    fontWeight: FontWeight.bold
                   ),
                 ),
                 onPressed: () {
@@ -239,6 +241,24 @@ class _PollWidgetState extends State<PollWidget> {
         );
       }
     }
+
+//    widgets.add(
+//      Row(
+//        children: <Widget>[
+//          Icon(
+//            Icons.favorite,
+//            color: Theme.of(context).buttonColor,
+//            size: 24.0,
+//          ),
+//          Icon(
+//            Icons.mode_comment,
+//            color: Theme.of(context).buttonColor,
+//            size: 24.0,
+//          ),
+//        ],
+//      )
+//    );
+
     return widgets;
   }
 
@@ -270,14 +290,15 @@ class _PollWidgetState extends State<PollWidget> {
 
     return Container(
       decoration: new BoxDecoration(
-        color: Theme.of(context).cardColor,
+//        color: Theme.of(context).cardColor,
 //        borderRadius: BorderRadius.circular(10),
-//        border: Border.all(
-//          color: Theme.of(context).accentColor,
-//          width: 0.5,
+//        border: Border(
+//          bottom: BorderSide(
+//              width: 0.5,
+//              color: Theme.of(context).accentColor
+//          ),
 //        ),
       ),
-      margin: const EdgeInsets.only(bottom: 20.0),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 10.0),
         child: Column(

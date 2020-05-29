@@ -60,7 +60,7 @@ class _NavBarState extends State<NavBar> {
             ),
             activeIcon: new Icon(
               Icons.exit_to_app,
-              color: Colors.white,
+              color: Theme.of(context).buttonColor,
             ),
             title: new Text(''),
           ),
@@ -71,7 +71,7 @@ class _NavBarState extends State<NavBar> {
             ),
             activeIcon: new Icon(
               Icons.add_box,
-              color: Colors.white,
+              color: Theme.of(context).buttonColor,
             ),
             title: new Text(''),
           ),
@@ -82,7 +82,7 @@ class _NavBarState extends State<NavBar> {
             ),
             activeIcon: new Icon(
               Icons.mail,
-              color: Colors.white,
+              color: Theme.of(context).buttonColor,
             ),
             title: new Text(''),
           ),

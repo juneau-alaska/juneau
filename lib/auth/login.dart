@@ -97,8 +97,8 @@ class _LoginPageState extends State<LoginPage> {
               child: Text(
                 'JUNEAU',
                 style: TextStyle(
+                  fontFamily: 'Lato Black',
                   fontSize: 30,
-                  fontWeight: FontWeight.bold
                 ),
               ),
             ),
@@ -151,6 +151,9 @@ class _LoginPageState extends State<LoginPage> {
                 padding: const EdgeInsets.all(15.0),
                 child: Text(
                   'Log In',
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor
+                  ),
                 ),
               ),
             ),

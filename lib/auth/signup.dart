@@ -75,7 +75,7 @@ class _SignUpPageState extends State<SignUpPage> {
     final passwordController = passwordInput.controller;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).primaryColor,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -90,8 +90,8 @@ class _SignUpPageState extends State<SignUpPage> {
               child: Text(
                 'SIGN UP',
                 style: TextStyle(
+                  fontFamily: 'Lato Black',
                   fontSize: 20,
-                  fontWeight: FontWeight.bold
                 ),
               ),
             ),
@@ -125,6 +125,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 padding: const EdgeInsets.all(15.0),
                 child: Text(
                   'Sign Up',
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
               ),
             ),
