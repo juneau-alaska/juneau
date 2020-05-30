@@ -40,7 +40,6 @@ void signup(email, username, password, context) async {
     }
 
     if (user != null) {
-//      storage.setItem('profile', user);
       prefs.setString('userId', user['_id']);
     }
 
@@ -107,11 +106,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 String password = passwordController.text;
                 String username = usernameController.text;
 
-                setState(() {
-                  _isPasswordValid = passwordValidator.validate(password);
-                  _isEmailValid = EmailValidator.validate(email);
-                  _isUsernameValid = usernameValidator.validate(username);
-                });
+                _isPasswordValid = validator.validatePassword(password);
+                _isEmailValid = EmailValidator.validate(email);
+                _isUsernameValid = validator.validateUsername(username);
 
                 if (_isPasswordValid && _isEmailValid && _isUsernameValid) {
                   signup(email, username, password, context);

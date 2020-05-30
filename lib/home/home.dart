@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/common/appBar.dart';
 import 'package:juneau/common/navBar.dart';
 import 'package:juneau/home/poll/poll.dart';
@@ -35,11 +36,11 @@ Future<List> _getPolls() async {
   }
 }
 
-List createPages(polls) {
+List createPages(polls, user) {
   List<Widget> pages = [];
   for (var i = 0; i < polls.length; i++) {
     var poll = polls[i];
-    pages.add(new PollWidget(poll: poll));
+    pages.add(new PollWidget(poll: poll, user: user));
   }
   return pages;
 }
@@ -50,18 +51,36 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var polls;
+  var user, polls;
 
   @override
   void initState() {
-    _getPolls().then((result){
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      _fetchData();
+    });
+  }
+
+  _fetchData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var userId = prefs.getString('userId');
+
+    await Future.wait([
+      userMethods.getUser(userId),
+      _getPolls(),
+    ]).then((results) {
       setState(() {
-        if (result != null) {
-          polls = result;
+        var userResult = results[0],
+            pollsResult = results[1];
+
+        if (userResult != null) {
+          user = userResult;
+        }
+        if (pollsResult != null) {
+          polls = pollsResult;
         }
       });
     });
-    super.initState();
   }
 
   @override
@@ -69,7 +88,8 @@ class _HomePageState extends State<HomePage> {
     if (polls == null) {
       return new Container();
     }
-    List pages = createPages(polls);
+
+    List pages = createPages(polls, user);
 
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
@@ -85,7 +105,7 @@ class _HomePageState extends State<HomePage> {
               setState(() {
                 if (result != null) {
                   polls = result;
-                  pages = createPages(polls);
+                  pages = createPages(polls, user);
                 }
               });
             });

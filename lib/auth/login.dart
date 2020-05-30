@@ -52,7 +52,6 @@ void login(email, password, context) async {
     }
 
     if (user != null) {
-//      storage.setItem('profile', user);
       prefs.setString('userId', user['_id']);
     }
 
@@ -133,11 +132,9 @@ class _LoginPageState extends State<LoginPage> {
                 String email = emailController.text;
                 String password = passwordController.text;
 
-                setState(() {
-                  _isPasswordValid = passwordValidator.validate(password);
-                  _isEmailValid = EmailValidator.validate(email);
-                  _isUsernameValid = usernameValidator.validate(email);
-                });
+                _isPasswordValid = validator.validatePassword(password);
+                _isEmailValid = EmailValidator.validate(email);
+                _isUsernameValid = validator.validateUsername(email);
 
                 if (_isPasswordValid && (_isEmailValid || _isUsernameValid)) {
                   login(email, password, context);

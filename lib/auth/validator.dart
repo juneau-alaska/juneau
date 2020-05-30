@@ -1,20 +1,17 @@
-class PasswordValidator {
-  bool validate(String str){
+class Validator {
+  bool validatePassword(String password){
     String pattern = r'\s+';
     RegExp regExp = new RegExp(pattern);
-    int stringLen = str.length;
-    return !regExp.hasMatch(str) && stringLen >= 6;
+    int stringLen = password.length;
+    return !regExp.hasMatch(password) && stringLen >= 6;
   }
-}
 
-class UsernameValidator {
-  bool validate(String str) {
+  bool validateUsername(String username) {
     String pattern = r'^[.\w]*$';
     RegExp regExp = new RegExp(pattern);
-    int stringLen = str.length;
-    return regExp.hasMatch(str) && stringLen >= 3 && stringLen <= 30;
+    int stringLen = username.length;
+    return regExp.hasMatch(username) && stringLen >= 3 && stringLen <= 30;
   }
 }
 
-PasswordValidator passwordValidator = new PasswordValidator();
-UsernameValidator usernameValidator = new UsernameValidator();
+Validator validator = new Validator();
