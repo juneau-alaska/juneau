@@ -62,14 +62,7 @@ class PollWidget extends StatefulWidget {
 }
 
 class _PollWidgetState extends State<PollWidget> {
-  var pollCreator,
-      choices;
-
-//  @override
-//  void setState(fn) {
-//    // TODO: implement setState
-//    super.setState(fn);
-//  }
+  var pollCreator, choices;
 
   void vote(choice) async {
     var poll = widget.poll,
@@ -200,22 +193,63 @@ class _PollWidgetState extends State<PollWidget> {
     ];
 
     if (choices.length > 0) {
-      for (var i = 0; i < choices.length; i++) {
-        var choice = choices[i],
-            poll = widget.poll,
-            user = widget.user[0],
-            selectedChoices = user['selectedChoices'],
-            completedPolls = user['completedPolls'],
-            color = Theme.of(context).primaryColor,
-            voteIcon = new Align(),
-            completed = false;
+      var poll = widget.poll,
+          user = widget.user[0],
+          selectedChoices = user['selectedChoices'],
+          completedPolls = user['completedPolls'];
+      bool completed = completedPolls.indexOf(poll['_id']) >= 0;
+      int totalVotes = 0;
 
-        if (completedPolls.indexOf(poll['_id']) >= 0 ) {
-          completed = true;
+      if (completed) {
+        for (var c in choices) {
+          totalVotes += c['votes'];
+        }
+      }
+
+      for (var choice in choices) {
+        var voteIcon = new Align();
+        Widget resultBar = new Container();
+
+        if (completed) {
+          double percent = choice['votes']/totalVotes;
+          double paddingRight = 45.0;
+          BorderRadius radius = BorderRadius.circular(20.0);
+          String percentStr = "";
+
+          if (percent < 1.0) {
+            radius = BorderRadius.only(topLeft: Radius.circular(20.0), bottomLeft: Radius.circular(20.0));
+            paddingRight = 10.0;
+          }
+
+          if (percent > 0) {
+            percentStr = (percent * 100.0).toStringAsFixed(0) + "%";
+          }
+
+          resultBar = new Container(
+            height: 43.0,
+            width: MediaQuery.of(context).size.width * percent,
+            decoration: new BoxDecoration(
+              color: Theme.of(context).accentColor,
+              borderRadius: radius,
+            ),
+            child: Padding(
+              padding: EdgeInsets.only(right: paddingRight),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  percentStr,
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          );
         }
 
         if (selectedChoices.indexOf(choice['_id']) >= 0 ) {
-          color = Theme.of(context).accentColor;
           voteIcon = Align(
             alignment: Alignment.centerRight,
             child: Icon(
@@ -227,47 +261,52 @@ class _PollWidgetState extends State<PollWidget> {
         }
 
         children.add(
-          Container(
-            decoration: new BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(10.0),
-              border: Border.all(
-                color: Theme.of(context).accentColor,
-                width: 0.5,
-              ),
-            ),
-            margin: const EdgeInsets.only(bottom: 10.0),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 3.0, bottom: 3.0),
-              child: Center(
-                child: FlatButton(
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          choice['content'],
-                          style: TextStyle(
-                            color: Theme.of(context).textTheme.bodyText1.color,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      voteIcon,
-                    ],
+          Stack(
+            children: <Widget>[
+              resultBar,
+              Container(
+                decoration: new BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(20.0),
+                  border: Border.all(
+                    color: Theme.of(context).accentColor,
+                    width: 0.5,
                   ),
-                  onPressed: () {
-                    if (!completed) {
-                      vote(choice);
-                    }
-                  },
+                ),
+                margin: const EdgeInsets.only(bottom: 10.0),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 3.0, bottom: 3.0),
+                  child: Center(
+                    child: FlatButton(
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              choice['content'],
+                              style: TextStyle(
+                                color: Theme.of(context).textTheme.bodyText1.color,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          voteIcon,
+                        ],
+                      ),
+                      onPressed: () {
+                        if (!completed) {
+                          vote(choice);
+                        }
+                      },
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
+            ],
+          )
         );
       }
     }
