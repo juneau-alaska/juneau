@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -284,8 +285,9 @@ class _PollWidgetState extends State<PollWidget> {
             children: <Widget>[
               resultBar,
               GestureDetector(
-                onDoubleTap: () {
+                onTap: () {
                   if (!completed) {
+                    HapticFeedback.lightImpact();
                     vote(choice);
                   }
                 },
