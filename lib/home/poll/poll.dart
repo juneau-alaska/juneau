@@ -222,16 +222,22 @@ class _PollWidgetState extends State<PollWidget> {
 
       for (var choice in choices) {
         var voteIcon = new Align();
+        String percentStr = "";
         Widget resultBar = new Container();
+
+        double borderRadius = 10.0;
+
+        int charLimit = 48;
+        int stringLength = choice['content'].length < charLimit ? charLimit : choice['content'].length;
+        double choiceHeight = 40.0 * stringLength/charLimit;
 
         if (completed) {
           int votes = choice['votes'];
           double percent = votes > 0 ? votes/totalVotes : 0;
-          BorderRadius radius = BorderRadius.circular(10.0);
-          String percentStr = "";
+          BorderRadius radius = BorderRadius.circular(borderRadius);
 
           if (percent < 1.0) {
-            radius = BorderRadius.only(topLeft: Radius.circular(10.0), bottomLeft: Radius.circular(10.0));
+            radius = BorderRadius.only(topLeft: Radius.circular(borderRadius), bottomLeft: Radius.circular(10.0));
           }
 
           if (percent > 0) {
@@ -242,15 +248,15 @@ class _PollWidgetState extends State<PollWidget> {
             voteIcon = Align(
               alignment: Alignment.centerRight,
               child: Icon(
-                  Icons.check,
-                  color: Theme.of(context).buttonColor,
-                  size: 20.0
+                Icons.check,
+                color: Theme.of(context).buttonColor,
+                size: 20.0
               ),
             );
           }
 
           resultBar = new Container(
-            height: 43.0,
+            height: choiceHeight + 1,
             width: MediaQuery.of(context).size.width * percent,
             decoration: new BoxDecoration(
               color: Theme.of(context).accentColor,
@@ -258,23 +264,6 @@ class _PollWidgetState extends State<PollWidget> {
               border: Border.all(
                 color: Theme.of(context).accentColor,
                 width: 0.5,
-              ),
-            ),
-            child: Padding(
-              padding: EdgeInsets.only(right: 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-//                  Text(
-//                    percentStr,
-//                    style: TextStyle(
-//                      color: Theme.of(context).buttonColor,
-//                      fontSize: 14.0,
-//                      fontWeight: FontWeight.bold,
-//                    ),
-//                  ),
-                  voteIcon
-                ],
               ),
             ),
           );
@@ -285,7 +274,7 @@ class _PollWidgetState extends State<PollWidget> {
             children: <Widget>[
               resultBar,
               GestureDetector(
-                onTap: () {
+                onDoubleTap: () {
                   if (!completed) {
                     HapticFeedback.lightImpact();
                     vote(choice);
@@ -294,28 +283,58 @@ class _PollWidgetState extends State<PollWidget> {
                 child: Container(
                   decoration: new BoxDecoration(
                     color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(10.0),
+                    borderRadius: BorderRadius.circular(borderRadius),
                     border: Border.all(
                       color: Theme.of(context).accentColor,
                       width: 0.5,
                     ),
                   ),
                   margin: const EdgeInsets.only(bottom: 10.0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Center(
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          choice['content'],
-                          style: TextStyle(
-                            color: Theme.of(context).textTheme.bodyText1.color,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  child: Row(
+                    children: <Widget>[
+                      new Flexible(
+                        child: new Column(
+                          children: <Widget>[
+                            Container(
+                              height: choiceHeight,
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Center(
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      choice['content'],
+                                      style: TextStyle(
+                                        color: Theme.of(context).textTheme.bodyText1.color,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
+                      Padding(
+                        padding: EdgeInsets.only(right: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Text(
+                              "$percentStr ",
+                              style: TextStyle(
+                                color: Theme.of(context).buttonColor,
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            voteIcon
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

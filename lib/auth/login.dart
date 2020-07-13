@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:email_validator/email_validator.dart';
-import 'package:juneau/auth/validator.dart';
+import 'package:juneau/common/methods/validator.dart';
 
 import 'package:juneau/common/components/inputComponent.dart';
 
