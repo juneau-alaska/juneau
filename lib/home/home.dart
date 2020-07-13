@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:juneau/common/methods/userMethods.dart';
-import 'package:juneau/common/appBar.dart';
-import 'package:juneau/common/navBar.dart';
+import 'package:juneau/common/views/appBar.dart';
+import 'package:juneau/common/views/navBar.dart';
 import 'package:juneau/home/poll/poll.dart';
 
 import 'package:http/http.dart' as http;

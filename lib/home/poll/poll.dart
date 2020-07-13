@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -62,14 +63,7 @@ class PollWidget extends StatefulWidget {
 }
 
 class _PollWidgetState extends State<PollWidget> {
-  var pollCreator,
-      choices;
-
-//  @override
-//  void setState(fn) {
-//    // TODO: implement setState
-//    super.setState(fn);
-//  }
+  var pollCreator, choices;
 
   void vote(choice) async {
     var poll = widget.poll,
@@ -89,6 +83,17 @@ class _PollWidgetState extends State<PollWidget> {
     );
 
     if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body),
+          option = jsonResponse['option'];
+
+      for (var i = 0; i < choices.length; i++) {
+        var choice = choices[i];
+        if (choice['_id'] == option["_id"]) {
+          choices[i] = option;
+          break;
+        }
+      }
+
       updateUserCompletedPolls(poll['_id'], choice['_id']);
     } else {
       print('Request failed with status: ${response.statusCode}.');
@@ -135,9 +140,11 @@ class _PollWidgetState extends State<PollWidget> {
         var jsonResponse = jsonDecode(response.body),
             user = jsonResponse['user'];
 
-        setState(() {
-          widget.user[0] = user;
-        });
+        if (mounted) {
+          setState(() {
+            widget.user[0] = user;
+          });
+        }
       }
       if (response.statusCode != 200) {
         print('Request failed with status: ${response.statusCode}.');
@@ -200,74 +207,139 @@ class _PollWidgetState extends State<PollWidget> {
     ];
 
     if (choices.length > 0) {
-      for (var i = 0; i < choices.length; i++) {
-        var choice = choices[i],
-            poll = widget.poll,
-            user = widget.user[0],
-            selectedChoices = user['selectedChoices'],
-            completedPolls = user['completedPolls'],
-            color = Theme.of(context).primaryColor,
-            voteIcon = new Align(),
-            completed = false;
+      var poll = widget.poll,
+          user = widget.user[0],
+          selectedChoices = user['selectedChoices'],
+          completedPolls = user['completedPolls'];
+      bool completed = completedPolls.indexOf(poll['_id']) >= 0;
+      int totalVotes = 0;
 
-        if (completedPolls.indexOf(poll['_id']) >= 0 ) {
-          completed = true;
+      if (completed) {
+        for (var c in choices) {
+          totalVotes += c['votes'];
         }
+      }
 
-        if (selectedChoices.indexOf(choice['_id']) >= 0 ) {
-          color = Theme.of(context).accentColor;
-          voteIcon = Align(
-            alignment: Alignment.centerRight,
-            child: Icon(
-              Icons.check,
-              color: Theme.of(context).buttonColor,
-              size: 20.0
-            ),
-          );
-        }
+      for (var choice in choices) {
+        var voteIcon = new Align();
+        String percentStr = "";
+        Widget resultBar = new Container();
 
-        children.add(
-          Container(
+        double borderRadius = 10.0;
+
+        int charLimit = 48;
+        int stringLength = choice['content'].length < charLimit ? charLimit : choice['content'].length;
+        double choiceHeight = 40.0 * stringLength/charLimit;
+
+        if (completed) {
+          int votes = choice['votes'];
+          double percent = votes > 0 ? votes/totalVotes : 0;
+          BorderRadius radius = BorderRadius.circular(borderRadius);
+
+          if (percent < 1.0) {
+            radius = BorderRadius.only(topLeft: Radius.circular(borderRadius), bottomLeft: Radius.circular(10.0));
+          }
+
+          if (percent > 0) {
+            percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
+          }
+
+          if (selectedChoices.indexOf(choice['_id']) >= 0 ) {
+            voteIcon = Align(
+              alignment: Alignment.centerRight,
+              child: Icon(
+                Icons.check,
+                color: Theme.of(context).buttonColor,
+                size: 20.0
+              ),
+            );
+          }
+
+          resultBar = new Container(
+            height: choiceHeight + 1,
+            width: MediaQuery.of(context).size.width * percent,
             decoration: new BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(10.0),
+              color: Theme.of(context).accentColor,
+              borderRadius: radius,
               border: Border.all(
                 color: Theme.of(context).accentColor,
                 width: 0.5,
               ),
             ),
-            margin: const EdgeInsets.only(bottom: 10.0),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 3.0, bottom: 3.0),
-              child: Center(
-                child: FlatButton(
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          );
+        }
+
+        children.add(
+          Stack(
+            children: <Widget>[
+              resultBar,
+              GestureDetector(
+                onDoubleTap: () {
+                  if (!completed) {
+                    HapticFeedback.lightImpact();
+                    vote(choice);
+                  }
+                },
+                child: Container(
+                  decoration: new BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(borderRadius),
+                    border: Border.all(
+                      color: Theme.of(context).accentColor,
+                      width: 0.5,
+                    ),
+                  ),
+                  margin: const EdgeInsets.only(bottom: 10.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          choice['content'],
-                          style: TextStyle(
-                            color: Theme.of(context).textTheme.bodyText1.color,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      new Flexible(
+                        child: new Column(
+                          children: <Widget>[
+                            Container(
+                              height: choiceHeight,
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Center(
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      choice['content'],
+                                      style: TextStyle(
+                                        color: Theme.of(context).textTheme.bodyText1.color,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      voteIcon,
+                      Padding(
+                        padding: EdgeInsets.only(right: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Text(
+                              "$percentStr ",
+                              style: TextStyle(
+                                color: Theme.of(context).buttonColor,
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            voteIcon
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                  onPressed: () {
-                    if (!completed) {
-                      vote(choice);
-                    }
-                  },
                 ),
               ),
-            ),
-          ),
+            ],
+          )
         );
       }
     }
@@ -310,11 +382,13 @@ class _PollWidgetState extends State<PollWidget> {
         }
         _getChoices(widget.poll)
           .then((pollChoices) {
-            setState(() {
-              if (pollChoices != null && pollChoices.length > 0) {
-                choices = pollChoices;
-              }
-            });
+            if (mounted) {
+              setState(() {
+                if (pollChoices != null && pollChoices.length > 0) {
+                  choices = pollChoices;
+                }
+              });
+            }
         });
       });
     super.initState();
