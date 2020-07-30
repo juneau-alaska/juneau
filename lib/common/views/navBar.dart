@@ -56,7 +56,7 @@ class _NavBarState extends State<NavBar> {
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.exit_to_app,
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).buttonColor,
             ),
             activeIcon: new Icon(
               Icons.exit_to_app,
@@ -67,7 +67,7 @@ class _NavBarState extends State<NavBar> {
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.add_box,
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).buttonColor,
             ),
             activeIcon: new Icon(
               Icons.add_box,
@@ -78,7 +78,7 @@ class _NavBarState extends State<NavBar> {
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.mail,
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).buttonColor,
             ),
             activeIcon: new Icon(
               Icons.mail,

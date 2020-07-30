@@ -4,6 +4,9 @@ class InputComponent extends StatefulWidget {
   final hintText;
   final errorText;
   final obscureText;
+  final maxLines;
+  final borderColor;
+  final padding;
   final controller = TextEditingController();
 
   InputComponent({
@@ -12,6 +15,9 @@ class InputComponent extends StatefulWidget {
       this.hintText,
       this.errorText,
       this.obscureText,
+      this.maxLines,
+      this.borderColor,
+      this.padding,
   }) : super(key: key);
 
   @override
@@ -21,40 +27,42 @@ class InputComponent extends StatefulWidget {
 class _InputComponentState extends State<InputComponent> {
   @override
   Widget build(BuildContext context) {
+    var padding = widget.padding != null ? EdgeInsets.all(widget.padding) : EdgeInsets.all(11.0);
     return Container(
       color: Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
         child: Container(
           child: TextField(
-          obscureText: widget.obscureText,
-          decoration: InputDecoration(
-            isDense: true,
-            contentPadding: const EdgeInsets.all(11.0),
-            hintText: widget.hintText,
-            hintStyle: TextStyle(
-              fontSize: 14,
-              color: Theme.of(context).accentColor,
-            ),
-            fillColor: Theme.of(context).dialogBackgroundColor,
-            filled: true,
-            errorText: widget.errorText,
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(
+            obscureText: widget.obscureText,
+            maxLines: widget.maxLines,
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: padding,
+              hintText: widget.hintText,
+              hintStyle: TextStyle(
+                fontSize: 14,
                 color: Theme.of(context).accentColor,
-                width: 0.5,
+              ),
+              fillColor: Theme.of(context).dialogBackgroundColor,
+              filled: true,
+              errorText: widget.errorText,
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(
+                  color: widget.borderColor != null ? widget.borderColor : Theme.of(context).accentColor,
+                  width: 0.5,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(
+                  color: widget.borderColor != null ? widget.borderColor : Theme.of(context).accentColor,
+                  width: 0.5,
+                ),
               ),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(
-                color: Theme.of(context).accentColor, // Colors.white30,
-                width: 0.5,
-              ),
-            ),
-          ),
-          controller: widget.controller,
+            controller: widget.controller,
           ),
         ),
       ),

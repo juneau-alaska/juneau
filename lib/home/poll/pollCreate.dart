@@ -132,7 +132,13 @@ class PollCreate extends StatefulWidget {
 }
 
 class _PollCreateState extends State<PollCreate> {
-  InputComponent questionInput = new InputComponent(hintText: 'No more than 160 characters', obscureText: false);
+  InputComponent questionInput = new InputComponent(
+      hintText: 'Write a question...',
+      obscureText: false,
+      maxLines: 4,
+      borderColor: Colors.transparent,
+      padding: 0.0,
+  );
 
   List<InputComponent> inputComponents = [
     new InputComponent(hintText: 'Option #1', obscureText: false),
@@ -147,20 +153,54 @@ class _PollCreateState extends State<PollCreate> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget> [
-          SizedBox(
-              height: 100.0
-          ),
           Padding(
-            padding: const EdgeInsets.only(left: 20.0),
-            child: Text(
-              "Ask a question",
-              style: TextStyle(
-                fontWeight: FontWeight.w600
-              ),
+            padding: const EdgeInsets.fromLTRB(20.0, 65.0, 20.0, 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Theme.of(context).buttonColor,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                Text(
+                  "New Poll",
+                  style: TextStyle(
+                    color: Theme.of(context).buttonColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    var prompt  = questionInput.controller.text,
+                        choices = [];
+
+                    for (var i=0; i<inputComponents.length; i++) {
+                      InputComponent inputComponent = inputComponents[i];
+                      choices.add(inputComponent.controller.text);
+                    }
+                    createChoices(prompt, choices);
+                  },
+                  child: Text(
+                    "Create",
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          SizedBox(
-              height: 10.0
           ),
           questionInput,
           SizedBox(
@@ -169,7 +209,7 @@ class _PollCreateState extends State<PollCreate> {
           Padding(
             padding: const EdgeInsets.only(left: 20.0),
             child: Text(
-              "Create some choices",
+              "Add choices",
               style: TextStyle(
                 fontWeight: FontWeight.w600
               ),
@@ -185,53 +225,23 @@ class _PollCreateState extends State<PollCreate> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-            child: FlatButton(
-              onPressed: () {
-                setState(() {
-                  var optionNum = inputComponents.length+1;
-                  inputComponents.add(new InputComponent(hintText: 'Option #$optionNum', obscureText: false));
-                });
-              },
-              child: Text(
-                'Add Option',
-                style: TextStyle(
-                  color: Theme.of(context).buttonColor,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             child: Container(
-              decoration: new BoxDecoration(
-                color: Theme.of(context).buttonColor,
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(
-                  color: Theme.of(context).accentColor,
-                  width: 0.5,
-                ),
+              decoration: BoxDecoration(
+                  border: Border.all(width: 0.5, color: Theme.of(context).accentColor)
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: FlatButton(
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  onPressed: () {
-                    Navigator.pop(context);
-                    var prompt  = questionInput.controller.text,
-                        choices = [];
+              child: FlatButton(
+                onPressed: () {
+                  setState(() {
+                    var optionNum = inputComponents.length+1;
+                    inputComponents.add(new InputComponent(hintText: 'Option #$optionNum', obscureText: false));
+                  });
+                },
 
-                    for (var i=0; i<inputComponents.length; i++) {
-                      InputComponent inputComponent = inputComponents[i];
-                      choices.add(inputComponent.controller.text);
-                    }
-                    createChoices(prompt, choices);
-                  },
-                  child: Text(
-                    'Create',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 16,
-                    ),
+                child: Text(
+                  '+',
+                  style: TextStyle(
+                    color: Theme.of(context).buttonColor,
+                    fontSize: 30.0
                   ),
                 ),
               ),

@@ -221,7 +221,6 @@ class _PollWidgetState extends State<PollWidget> {
       }
 
       for (var choice in choices) {
-        var voteIcon = new Align();
         String percentStr = "";
         Widget resultBar = new Container();
 
@@ -230,6 +229,8 @@ class _PollWidgetState extends State<PollWidget> {
         int charLimit = 48;
         int stringLength = choice['content'].length < charLimit ? charLimit : choice['content'].length;
         double choiceHeight = 40.0 * stringLength/charLimit;
+
+        Color resultColor = Colors.black12;
 
         if (completed) {
           int votes = choice['votes'];
@@ -245,25 +246,18 @@ class _PollWidgetState extends State<PollWidget> {
           }
 
           if (selectedChoices.indexOf(choice['_id']) >= 0 ) {
-            voteIcon = Align(
-              alignment: Alignment.centerRight,
-              child: Icon(
-                Icons.check,
-                color: Theme.of(context).buttonColor,
-                size: 20.0
-              ),
-            );
+            resultColor = Theme.of(context).accentColor;
           }
 
           resultBar = new Container(
             height: choiceHeight + 1,
             width: MediaQuery.of(context).size.width * percent,
             decoration: new BoxDecoration(
-              color: Theme.of(context).accentColor,
+              color: resultColor,
               borderRadius: radius,
               border: Border.all(
-                color: Theme.of(context).accentColor,
-                width: 0.5,
+                color: Colors.transparent,
+                width: 0.75,
               ),
             ),
           );
@@ -274,7 +268,7 @@ class _PollWidgetState extends State<PollWidget> {
             children: <Widget>[
               resultBar,
               GestureDetector(
-                onDoubleTap: () {
+                onTap: () {
                   if (!completed) {
                     HapticFeedback.lightImpact();
                     vote(choice);
@@ -285,8 +279,8 @@ class _PollWidgetState extends State<PollWidget> {
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(borderRadius),
                     border: Border.all(
-                      color: Theme.of(context).accentColor,
-                      width: 0.5,
+                      color: resultColor,
+                      width: 0.75,
                     ),
                   ),
                   margin: const EdgeInsets.only(bottom: 10.0),
@@ -330,7 +324,6 @@ class _PollWidgetState extends State<PollWidget> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            voteIcon
                           ],
                         ),
                       ),
