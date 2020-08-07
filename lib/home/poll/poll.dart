@@ -156,21 +156,22 @@ class _PollWidgetState extends State<PollWidget> {
 
   Widget buildPoll() {
     var createdAt = DateTime.parse(widget.poll['createdAt']),
-        time = timeago.format(createdAt, locale: 'en_short');
+        time = timeago.format(createdAt, locale: 'en_short'),
+        borderRadiusValue = 8.0;
 
     List<Widget> children = [
       SizedBox(
         height: 10.0
       ),
       Text(
-        widget.poll['prompt'],
+        widget.poll['prompt'].toUpperCase(),
         style: TextStyle(
           fontFamily: 'Lato Black',
           fontSize: 20.0,
         ),
       ),
       SizedBox(
-        height: 8.0
+        height: 1.5
       ),
       Row(
         children: <Widget>[
@@ -178,6 +179,7 @@ class _PollWidgetState extends State<PollWidget> {
             child: Text(
               pollCreator['username'],
               style: TextStyle(
+                color: Theme.of(context).highlightColor,
                 fontSize: 14.0,
               ),
             ),
@@ -189,11 +191,11 @@ class _PollWidgetState extends State<PollWidget> {
             width: 1.0,
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 1.0),
+            padding: const EdgeInsets.only(top: 1.0, left: 1.0),
             child: Text(
               time,
               style: TextStyle(
-                color: Theme.of(context).accentColor,
+                color: Theme.of(context).highlightColor,
                 fontSize: 13.0,
                 wordSpacing: -2.0,
               ),
@@ -202,7 +204,7 @@ class _PollWidgetState extends State<PollWidget> {
         ],
       ),
       SizedBox(
-          height: 15.0
+          height: 8.0
       ),
     ];
 
@@ -224,13 +226,13 @@ class _PollWidgetState extends State<PollWidget> {
         String percentStr = "";
         Widget resultBar = new Container();
 
-        double borderRadius = 10.0;
+        double borderRadius = borderRadiusValue;
+        int charLimit = 21;
+        int stringLength = choice['content'].length < charLimit ? 0 : choice['content'].length;
+        double choiceHeight = 36.0 + 12*(stringLength/charLimit);
 
-        int charLimit = 48;
-        int stringLength = choice['content'].length < charLimit ? charLimit : choice['content'].length;
-        double choiceHeight = 40.0 * stringLength/charLimit;
-
-        Color resultColor = Colors.black12;
+        Color resultColor = Theme.of(context).highlightColor;
+        Color resultTextColor = const Color(0xFFD7DADC);
 
         if (completed) {
           int votes = choice['votes'];
@@ -238,7 +240,7 @@ class _PollWidgetState extends State<PollWidget> {
           BorderRadius radius = BorderRadius.circular(borderRadius);
 
           if (percent < 1.0) {
-            radius = BorderRadius.only(topLeft: Radius.circular(borderRadius), bottomLeft: Radius.circular(10.0));
+            radius = BorderRadius.only(topLeft: Radius.circular(borderRadius), bottomLeft: Radius.circular(borderRadius));
           }
 
           if (percent > 0) {
@@ -246,7 +248,8 @@ class _PollWidgetState extends State<PollWidget> {
           }
 
           if (selectedChoices.indexOf(choice['_id']) >= 0 ) {
-            resultColor = Theme.of(context).accentColor;
+//            resultColor = Theme.of(context).accentColor;
+            resultTextColor = Theme.of(context).accentColor;
           }
 
           resultBar = new Container(
@@ -266,6 +269,18 @@ class _PollWidgetState extends State<PollWidget> {
         children.add(
           Stack(
             children: <Widget>[
+              new Container(
+                height: choiceHeight + 1,
+                width: MediaQuery.of(context).size.width,
+                decoration: new BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(borderRadiusValue),
+                  border: Border.all(
+                    color: Colors.transparent,
+                    width: 0.75,
+                  ),
+                ),
+              ),
               resultBar,
               GestureDetector(
                 onTap: () {
@@ -275,33 +290,33 @@ class _PollWidgetState extends State<PollWidget> {
                   }
                 },
                 child: Container(
+                  margin: const EdgeInsets.only(bottom: 7.5),
                   decoration: new BoxDecoration(
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(borderRadius),
                     border: Border.all(
-                      color: resultColor,
+                      color: Colors.transparent,
                       width: 0.75,
                     ),
                   ),
-                  margin: const EdgeInsets.only(bottom: 10.0),
                   child: Row(
                     children: <Widget>[
                       new Flexible(
                         child: new Column(
                           children: <Widget>[
-                            Container(
-                              height: choiceHeight,
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Center(
+                            Center(
+                              child: Container(
+                                height: choiceHeight,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 10.0, right: 15.0),
                                   child: Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      choice['content'],
+                                      choice['content'].toUpperCase(),
                                       style: TextStyle(
-                                        color: Theme.of(context).textTheme.bodyText1.color,
                                         fontSize: 16.0,
                                         fontWeight: FontWeight.bold,
+                                        color: resultTextColor,
                                       ),
                                     ),
                                   ),
@@ -312,16 +327,16 @@ class _PollWidgetState extends State<PollWidget> {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.only(right: 10.0),
+                        padding: EdgeInsets.only(right: 8.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: <Widget>[
                             Text(
                               "$percentStr ",
                               style: TextStyle(
-                                color: Theme.of(context).buttonColor,
                                 fontSize: 14.0,
                                 fontWeight: FontWeight.bold,
+                                color: resultTextColor,
                               ),
                             ),
                           ],
@@ -337,26 +352,26 @@ class _PollWidgetState extends State<PollWidget> {
       }
     }
 
-    children.add(
-      Row(
-        children: <Widget>[
-          Icon(
-            Icons.favorite,
-            color: Theme.of(context).buttonColor,
-            size: 20.0,
-          ),
-          Icon(
-            Icons.mode_comment,
-            color: Theme.of(context).buttonColor,
-            size: 20.0,
-          ),
-        ],
-      )
-    );
+//    children.add(
+//      Row(
+//        children: <Widget>[
+//          Icon(
+//            Icons.favorite,
+//            color: Theme.of(context).buttonColor,
+//            size: 20.0,
+//          ),
+//          Icon(
+//            Icons.mode_comment,
+//            color: Theme.of(context).buttonColor,
+//            size: 20.0,
+//          ),
+//        ],
+//      )
+//    );
 
     return Container(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 10.0),
+        padding: const EdgeInsets.fromLTRB(13.0, 10.0, 13.0, 10.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,

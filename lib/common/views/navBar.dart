@@ -27,7 +27,7 @@ class _NavBarState extends State<NavBar> {
     return Container(
       child: BottomNavigationBar(
         elevation: 0.0,
-        backgroundColor: Theme.of(context).cardColor,
+        backgroundColor: Theme.of(context).primaryColor,
         showSelectedLabels: false,
         showUnselectedLabels: false,
         currentIndex: _selectedIndex,
@@ -56,33 +56,21 @@ class _NavBarState extends State<NavBar> {
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.exit_to_app,
-              color: Theme.of(context).buttonColor,
-            ),
-            activeIcon: new Icon(
-              Icons.exit_to_app,
-              color: Theme.of(context).buttonColor,
+              color: Theme.of(context).cardColor,
             ),
             title: new Text(''),
           ),
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.add_box,
-              color: Theme.of(context).buttonColor,
-            ),
-            activeIcon: new Icon(
-              Icons.add_box,
-              color: Theme.of(context).buttonColor,
+              color: Theme.of(context).cardColor,
             ),
             title: new Text(''),
           ),
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.mail,
-              color: Theme.of(context).buttonColor,
-            ),
-            activeIcon: new Icon(
-              Icons.mail,
-              color: Theme.of(context).buttonColor,
+              color: Theme.of(context).cardColor,
             ),
             title: new Text(''),
           ),

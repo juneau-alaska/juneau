@@ -133,28 +133,29 @@ class PollCreate extends StatefulWidget {
 
 class _PollCreateState extends State<PollCreate> {
   InputComponent questionInput = new InputComponent(
-      hintText: 'Write a question...',
+      hintText: 'Ask a question...',
       obscureText: false,
       maxLines: 4,
       borderColor: Colors.transparent,
       padding: 0.0,
+      capitalize: true
   );
 
   List<InputComponent> inputComponents = [
-    new InputComponent(hintText: 'Option #1', obscureText: false),
-    new InputComponent(hintText: 'Option #2', obscureText: false),
+    new InputComponent(hintText: 'OPTION #1', obscureText: false, capitalize: true),
+    new InputComponent(hintText: 'OPTION #2', obscureText: false, capitalize: true),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).cardColor,
+      backgroundColor: Theme.of(context).primaryColor,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget> [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20.0, 65.0, 20.0, 20.0),
+            padding: const EdgeInsets.fromLTRB(15.0, 65.0, 15.0, 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -165,15 +166,13 @@ class _PollCreateState extends State<PollCreate> {
                   child: Text(
                     "Cancel",
                     style: TextStyle(
-                      color: Theme.of(context).buttonColor,
                       fontSize: 16,
                     ),
                   ),
                 ),
                 Text(
-                  "New Poll",
+                  "CREATE NEW POLL",
                   style: TextStyle(
-                    color: Theme.of(context).buttonColor,
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),
@@ -204,19 +203,30 @@ class _PollCreateState extends State<PollCreate> {
           ),
           questionInput,
           SizedBox(
-              height: 30.0
+            height: 30.0
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 20.0),
-            child: Text(
-              "Add choices",
-              style: TextStyle(
-                fontWeight: FontWeight.w600
-              ),
+            padding: const EdgeInsets.only(left: 15.0),
+            child: Row(
+              children: <Widget>[
+                Text(
+                  "ADD OPTIONS",
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Text(
+                    "(max 9)",
+                    style: TextStyle(
+                      color: Theme.of(context).highlightColor,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           SizedBox(
-              height: 10.0
+            height: 10.0
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -224,24 +234,44 @@ class _PollCreateState extends State<PollCreate> {
             children: inputComponents,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 6.5),
             child: Container(
               decoration: BoxDecoration(
-                  border: Border.all(width: 0.5, color: Theme.of(context).accentColor)
+                  borderRadius: BorderRadius.circular(8.0),
+                  border: Border.all(
+                      width: 0.5,
+                      color: Theme.of(context).cardColor
+                  )
               ),
-              child: FlatButton(
-                onPressed: () {
+              child: GestureDetector(
+                onTap: () {
                   setState(() {
-                    var optionNum = inputComponents.length+1;
-                    inputComponents.add(new InputComponent(hintText: 'Option #$optionNum', obscureText: false));
+                    var inputCount = inputComponents.length;
+                    var optionNum = inputCount + 1;
+
+                    print(inputCount);
+                    if (inputCount < 9) {
+                      inputComponents.add(
+                        new InputComponent(
+                          hintText: 'OPTION #$optionNum',
+                          obscureText: false,
+                          capitalize: true
+                        )
+                      );
+                    }
                   });
                 },
 
-                child: Text(
-                  '+',
-                  style: TextStyle(
-                    color: Theme.of(context).buttonColor,
-                    fontSize: 30.0
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(11.0, 12.0, 11.0, 12.0),
+                    child: Text(
+                      '+',
+                      style: TextStyle(
+                        color: Theme.of(context).highlightColor,
+                        fontSize: 25.0,
+                      ),
+                    ),
                   ),
                 ),
               ),

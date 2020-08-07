@@ -12,47 +12,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    Color white = const Color(0xffDFDEDE);
-    Color blue = const Color(0xff35476F);
-    Color lightBlue = const Color(0xff7898C2);
-    Color greyBlue = new Color(0xff415581);
-    Color lightGrey = new Color(0xffDEDDDD);
-
-    Color primary;
-    Color secondary;
-    Color accent = lightBlue;
-    Color input;
-    Brightness brightness;
-
-    var dark = false;
-
-    if (dark) {
-      primary = blue;
-      secondary = white;
-      input = greyBlue;
-      brightness = Brightness.dark;
-    } else {
-      primary = white;
-      secondary = blue;
-      input = lightGrey;
-      brightness = Brightness.light;
-    }
-
-    final newTextTheme = Theme.of(context).textTheme.apply(
-      fontFamily: 'Lato Regular',
-      bodyColor: secondary,
-      displayColor: secondary,
-    );
+    Color white = const Color(0xFFD7DADC);
 
     return MaterialApp(
       theme: ThemeData(
-        brightness: brightness,
-        primaryColor: primary,
-        cardColor: primary,
-        buttonColor: secondary,
-        accentColor: accent,
-        dialogBackgroundColor: input,
-        textTheme: newTextTheme,
+        primaryColor: const Color(0xFF181818),
+        cardColor: const Color(0xFF313131),
+        highlightColor: const Color(0xFF494949),
+        accentColor: const Color(0xFFbfff00),
+
+        textTheme: TextTheme(
+          bodyText1: TextStyle(fontFamily: 'Lato Regular'),
+          bodyText2: TextStyle(fontFamily: 'Lato Regular'),
+        ).apply(
+          bodyColor: white,
+          displayColor: white,
+        ),
       ),
       initialRoute: '/splash',
       routes: {
