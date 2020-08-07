@@ -7,7 +7,6 @@ class InputComponent extends StatefulWidget {
   int maxLines;
   final borderColor;
   final padding;
-  final capitalize;
   final controller = TextEditingController();
 
   InputComponent({
@@ -19,7 +18,6 @@ class InputComponent extends StatefulWidget {
       this.maxLines,
       this.borderColor,
       this.padding,
-      this.capitalize,
   }) : super(key: key);
 
   @override
@@ -30,7 +28,6 @@ class _InputComponentState extends State<InputComponent> {
   @override
   Widget build(BuildContext context) {
     var edgeInset = widget.padding != null ? EdgeInsets.all(widget.padding) : EdgeInsets.fromLTRB(11.0, 12.0, 11.0, 12.0);
-    TextCapitalization capitalize = widget.capitalize != null && widget.capitalize ? TextCapitalization.characters : TextCapitalization.none;
     widget.maxLines = widget.maxLines != null ? widget.maxLines : 1;
     return Container(
       color: Colors.transparent,
@@ -40,18 +37,16 @@ class _InputComponentState extends State<InputComponent> {
           child: TextField(
             obscureText: widget.obscureText,
             maxLines: widget.maxLines,
-            textCapitalization: capitalize,
             style: TextStyle(
               color: const Color(0xFFD7DADC),
               fontSize: 14.0,
-              fontFamily: 'Lato Regular',
             ),
             decoration: InputDecoration(
               isDense: true,
               contentPadding: edgeInset,
               hintText: widget.hintText,
               hintStyle: TextStyle(
-                color: Theme.of(context).highlightColor,
+                color: Theme.of(context).hintColor,
                 fontWeight: FontWeight.w300
               ),
               fillColor: Theme.of(context).primaryColor,
@@ -60,14 +55,14 @@ class _InputComponentState extends State<InputComponent> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
                 borderSide: BorderSide(
-                  color: widget.borderColor != null ? widget.borderColor : Theme.of(context).cardColor,
+                  color: widget.borderColor != null ? widget.borderColor : Theme.of(context).hintColor,
                   width: 0.5,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
                 borderSide: BorderSide(
-                  color: widget.borderColor != null ? widget.borderColor : Theme.of(context).cardColor,
+                  color: widget.borderColor != null ? widget.borderColor : Theme.of(context).hintColor,
                   width: 0.5,
                 ),
               ),
