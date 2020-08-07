@@ -138,18 +138,17 @@ class _PollCreateState extends State<PollCreate> {
       maxLines: 4,
       borderColor: Colors.transparent,
       padding: 0.0,
-      capitalize: true
   );
 
   List<InputComponent> inputComponents = [
-    new InputComponent(hintText: 'OPTION #1', obscureText: false, capitalize: true),
-    new InputComponent(hintText: 'OPTION #2', obscureText: false, capitalize: true),
+    new InputComponent(hintText: 'Option #1', obscureText: false),
+    new InputComponent(hintText: 'Option #2', obscureText: false),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: Theme.of(context).backgroundColor,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -171,10 +170,10 @@ class _PollCreateState extends State<PollCreate> {
                   ),
                 ),
                 Text(
-                  "CREATE NEW POLL",
+                  "Create New Poll",
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 16,
+                    fontSize: 18,
                   ),
                 ),
                 GestureDetector(
@@ -210,14 +209,14 @@ class _PollCreateState extends State<PollCreate> {
             child: Row(
               children: <Widget>[
                 Text(
-                  "ADD OPTIONS",
+                  "Add Options",
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 4.0),
+                  padding: const EdgeInsets.only(left: 3.0),
                   child: Text(
                     "(max 9)",
                     style: TextStyle(
-                      color: Theme.of(context).highlightColor,
+                      color: Theme.of(context).hintColor,
                       fontSize: 12.0,
                     ),
                   ),
@@ -240,7 +239,7 @@ class _PollCreateState extends State<PollCreate> {
                   borderRadius: BorderRadius.circular(8.0),
                   border: Border.all(
                       width: 0.5,
-                      color: Theme.of(context).cardColor
+                      color: Theme.of(context).hintColor
                   )
               ),
               child: GestureDetector(
@@ -253,9 +252,8 @@ class _PollCreateState extends State<PollCreate> {
                     if (inputCount < 9) {
                       inputComponents.add(
                         new InputComponent(
-                          hintText: 'OPTION #$optionNum',
+                          hintText: 'Option #$optionNum',
                           obscureText: false,
-                          capitalize: true
                         )
                       );
                     }
@@ -268,7 +266,7 @@ class _PollCreateState extends State<PollCreate> {
                     child: Text(
                       '+',
                       style: TextStyle(
-                        color: Theme.of(context).highlightColor,
+                        color: Theme.of(context).hintColor,
                         fontSize: 25.0,
                       ),
                     ),

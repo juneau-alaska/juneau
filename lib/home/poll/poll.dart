@@ -164,14 +164,14 @@ class _PollWidgetState extends State<PollWidget> {
         height: 10.0
       ),
       Text(
-        widget.poll['prompt'].toUpperCase(),
+        widget.poll['prompt'],
         style: TextStyle(
           fontFamily: 'Lato Black',
           fontSize: 20.0,
         ),
       ),
       SizedBox(
-        height: 1.5
+        height: 2.8
       ),
       Row(
         children: <Widget>[
@@ -179,7 +179,7 @@ class _PollWidgetState extends State<PollWidget> {
             child: Text(
               pollCreator['username'],
               style: TextStyle(
-                color: Theme.of(context).highlightColor,
+                color: Theme.of(context).buttonColor,
                 fontSize: 14.0,
               ),
             ),
@@ -191,13 +191,13 @@ class _PollWidgetState extends State<PollWidget> {
             width: 1.0,
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 1.0, left: 1.0),
+            padding: const EdgeInsets.only(top: 0.0, left: 2.0),
             child: Text(
               time,
               style: TextStyle(
-                color: Theme.of(context).highlightColor,
-                fontSize: 13.0,
-                wordSpacing: -2.0,
+                color: Theme.of(context).hintColor,
+                fontSize: 12.5,
+                wordSpacing: -3.0,
               ),
             ),
           ),
@@ -229,10 +229,7 @@ class _PollWidgetState extends State<PollWidget> {
         double borderRadius = borderRadiusValue;
         int charLimit = 21;
         int stringLength = choice['content'].length < charLimit ? 0 : choice['content'].length;
-        double choiceHeight = 36.0 + 12*(stringLength/charLimit);
-
-        Color resultColor = Theme.of(context).highlightColor;
-        Color resultTextColor = const Color(0xFFD7DADC);
+        double choiceHeight = 38.0 + 12*(stringLength/charLimit);
 
         if (completed) {
           int votes = choice['votes'];
@@ -247,9 +244,17 @@ class _PollWidgetState extends State<PollWidget> {
             percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
           }
 
+          Color resultColor = Theme.of(context).highlightColor;
+          LinearGradient lineGradient;
+
           if (selectedChoices.indexOf(choice['_id']) >= 0 ) {
-//            resultColor = Theme.of(context).accentColor;
-            resultTextColor = Theme.of(context).accentColor;
+            resultColor = Colors.white;
+            lineGradient = LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [const Color(0xff58E0C0), const Color(0xFF5a58dd)],
+              tileMode: TileMode.repeated,
+            );
           }
 
           resultBar = new Container(
@@ -257,6 +262,7 @@ class _PollWidgetState extends State<PollWidget> {
             width: MediaQuery.of(context).size.width * percent,
             decoration: new BoxDecoration(
               color: resultColor,
+              gradient: lineGradient,
               borderRadius: radius,
               border: Border.all(
                 color: Colors.transparent,
@@ -312,11 +318,10 @@ class _PollWidgetState extends State<PollWidget> {
                                   child: Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      choice['content'].toUpperCase(),
+                                      choice['content'],
                                       style: TextStyle(
                                         fontSize: 16.0,
                                         fontWeight: FontWeight.bold,
-                                        color: resultTextColor,
                                       ),
                                     ),
                                   ),
@@ -336,7 +341,6 @@ class _PollWidgetState extends State<PollWidget> {
                               style: TextStyle(
                                 fontSize: 14.0,
                                 fontWeight: FontWeight.bold,
-                                color: resultTextColor,
                               ),
                             ),
                           ],
@@ -357,12 +361,11 @@ class _PollWidgetState extends State<PollWidget> {
 //        children: <Widget>[
 //          Icon(
 //            Icons.favorite,
-//            color: Theme.of(context).buttonColor,
+//            color: Colors.redAccent,
 //            size: 20.0,
 //          ),
 //          Icon(
 //            Icons.mode_comment,
-//            color: Theme.of(context).buttonColor,
 //            size: 20.0,
 //          ),
 //        ],

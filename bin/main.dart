@@ -12,22 +12,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    Color white = const Color(0xFFD7DADC);
-
     return MaterialApp(
       theme: ThemeData(
-        primaryColor: const Color(0xFF181818),
-        cardColor: const Color(0xFF313131),
-        highlightColor: const Color(0xFF494949),
-        accentColor: const Color(0xFFbfff00),
-
-        textTheme: TextTheme(
-          bodyText1: TextStyle(fontFamily: 'Lato Regular'),
-          bodyText2: TextStyle(fontFamily: 'Lato Regular'),
-        ).apply(
-          bodyColor: white,
-          displayColor: white,
-        ),
+        brightness: Brightness.dark,
+        backgroundColor: const Color(0xff212121),
+        cardColor: const Color(0xff1D1D1D),
+        hintColor: const Color(0xff424242),
+        highlightColor: const Color(0xff282828),
       ),
       initialRoute: '/splash',
       routes: {
