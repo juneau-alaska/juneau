@@ -132,12 +132,15 @@ class PollCreate extends StatefulWidget {
 }
 
 class _PollCreateState extends State<PollCreate> {
+  bool isText = true;
+
   InputComponent questionInput = new InputComponent(
-      hintText: 'Ask a question...',
-      obscureText: false,
-      maxLines: 4,
-      borderColor: Colors.transparent,
-      padding: 0.0,
+    hintText: 'Ask a question...',
+    obscureText: false,
+    maxLines: 4,
+    borderColor: Colors.transparent,
+    padding: 0.0,
+    fontSize: 15.0,
   );
 
   List<InputComponent> inputComponents = [
@@ -179,14 +182,16 @@ class _PollCreateState extends State<PollCreate> {
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
-                    var prompt  = questionInput.controller.text,
-                        choices = [];
+                    if (isText) {
+                      var prompt  = questionInput.controller.text,
+                          choices = [];
 
-                    for (var i=0; i<inputComponents.length; i++) {
-                      InputComponent inputComponent = inputComponents[i];
-                      choices.add(inputComponent.controller.text);
+                      for (var i=0; i<inputComponents.length; i++) {
+                        InputComponent inputComponent = inputComponents[i];
+                        choices.add(inputComponent.controller.text);
+                      }
+                      createChoices(prompt, choices);
                     }
-                    createChoices(prompt, choices);
                   },
                   child: Text(
                     "Create",
@@ -194,6 +199,74 @@ class _PollCreateState extends State<PollCreate> {
                       color: Colors.blue,
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.only(top: 5.0, bottom: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isText = true;
+                    });
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width/2 - 15,
+                    alignment: Alignment.center,
+                    decoration: new BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          width: isText ? 2.0 : 1.0,
+                          color: isText ? Colors.white : Theme.of(context).hintColor
+                        ),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
+                      child: Text(
+                        "Text",
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w600,
+                          color: isText ? Colors.white : Theme.of(context).hintColor
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isText = false;
+                    });
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width/2 - 15,
+                    alignment: Alignment.center,
+                    decoration: new BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          width: isText ? 1.0 : 2.0,
+                          color: isText ? Theme.of(context).hintColor : Colors.white
+                        ),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
+                      child: Text(
+                        "Image",
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w600,
+                          color: isText ? Theme.of(context).hintColor : Colors.white
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -210,9 +283,12 @@ class _PollCreateState extends State<PollCreate> {
               children: <Widget>[
                 Text(
                   "Add Options",
+                  style: TextStyle(
+                    fontSize: 15.0,
+                  ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 3.0),
+                  padding: const EdgeInsets.only(left: 3.5, top: 0.5),
                   child: Text(
                     "(max 9)",
                     style: TextStyle(
@@ -227,12 +303,14 @@ class _PollCreateState extends State<PollCreate> {
           SizedBox(
             height: 10.0
           ),
-          Column(
+          isText ? Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: inputComponents,
+          ) : Container(
+
           ),
-          Padding(
+          isText ? Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 6.5),
             child: Container(
               decoration: BoxDecoration(
@@ -248,7 +326,6 @@ class _PollCreateState extends State<PollCreate> {
                     var inputCount = inputComponents.length;
                     var optionNum = inputCount + 1;
 
-                    print(inputCount);
                     if (inputCount < 9) {
                       inputComponents.add(
                         new InputComponent(
@@ -274,7 +351,7 @@ class _PollCreateState extends State<PollCreate> {
                 ),
               ),
             ),
-          ),
+          ) : Container(),
         ],
       ),
     );

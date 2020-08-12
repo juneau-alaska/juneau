@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         backgroundColor: const Color(0xff212121),
         cardColor: const Color(0xff1D1D1D),
-        hintColor: const Color(0xff424242),
+        hintColor: const Color(0xff545454),
         highlightColor: const Color(0xff282828),
       ),
       initialRoute: '/splash',
