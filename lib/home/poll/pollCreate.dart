@@ -4,6 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
+
+import 'package:multi_image_picker/multi_image_picker.dart';
 
 import 'package:juneau/common/components/inputComponent.dart';
 
@@ -148,6 +151,64 @@ class _PollCreateState extends State<PollCreate> {
     new InputComponent(hintText: 'Option #2', obscureText: false),
   ];
 
+  List<Asset> images = List<Asset>();
+  String _error = 'No Error Dectected';
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Widget buildGridView() {
+    return GridView.count(
+      crossAxisCount: images.length > 4 ? 3 : 2,
+      children: List.generate(images.length, (index) {
+        Asset asset = images[index];
+        return Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: AssetThumb(
+            asset: asset,
+            width: images.length > 4 ? 300 : 600,
+            height: images.length > 4 ? 300 : 600,
+          ),
+        );
+      }),
+    );
+  }
+
+  Future<void> loadAssets() async {
+    List<Asset> resultList = List<Asset>();
+    String error = 'No Error Dectected';
+
+    try {
+      resultList = await MultiImagePicker.pickImages(
+        maxImages: 9,
+        enableCamera: true,
+        selectedAssets: images,
+        cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
+        materialOptions: MaterialOptions(
+          actionBarColor: "#58E0C0",
+          actionBarTitle: "Juneau",
+          allViewTitle: "All Photos",
+          useDetailsView: false,
+          selectCircleStrokeColor: "#58E0C0",
+        ),
+      );
+    } on Exception catch (e) {
+      error = e.toString();
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      images = resultList;
+      _error = error;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -280,20 +341,49 @@ class _PollCreateState extends State<PollCreate> {
           Padding(
             padding: const EdgeInsets.only(left: 15.0),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(
-                  "Add Options",
-                  style: TextStyle(
-                    fontSize: 15.0,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      "Add Options",
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w600
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 3.0, top: 1.0),
+                      child: Text(
+                        "(max 9)",
+                        style: TextStyle(
+                          color: Theme.of(context).hintColor,
+                          fontSize: 12.0,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 3.5, top: 0.5),
-                  child: Text(
-                    "(max 9)",
-                    style: TextStyle(
-                      color: Theme.of(context).hintColor,
-                      fontSize: 12.0,
+                isText ? Container() : Container(
+                  margin: const EdgeInsets.only(right: 15.0),
+                  child: GestureDetector(
+                    onTap: loadAssets,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.photo_library,
+                          size: 18.0,
+                        ),
+                        SizedBox(
+                          width: 5.0
+                        ),
+                        Text(
+                          "SELECT IMAGES",
+                          style: TextStyle(
+                            fontSize: 12.0,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -336,7 +426,6 @@ class _PollCreateState extends State<PollCreate> {
                     }
                   });
                 },
-
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(11.0, 12.0, 11.0, 12.0),
@@ -351,7 +440,9 @@ class _PollCreateState extends State<PollCreate> {
                 ),
               ),
             ),
-          ) : Container(),
+          ) : Expanded(
+            child: buildGridView(),
+          ),
         ],
       ),
     );
