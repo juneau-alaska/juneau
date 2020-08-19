@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/common/views/appBar.dart';
 import 'package:juneau/common/views/navBar.dart';
-import 'package:juneau/home/poll/poll.dart';
+import 'package:juneau/poll/poll.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -92,7 +92,7 @@ class _HomePageState extends State<HomePage> {
     List pages = createPages(polls, user);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme.of(context).primaryColor,
       appBar: appBar(),
       body: ListView.builder(
         itemBuilder: (context, index) {

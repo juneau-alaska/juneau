@@ -41,7 +41,6 @@ class _InputComponentState extends State<InputComponent> {
             obscureText: widget.obscureText,
             maxLines: widget.maxLines,
             style: TextStyle(
-              color: const Color(0xFFD7DADC),
               fontSize: widget.fontSize,
             ),
             decoration: InputDecoration(

@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 
-Future<List> _getChoices(poll) async {
+Future<List> _getOptions(poll) async {
   const url = 'http://localhost:4000/option';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -20,12 +20,12 @@ Future<List> _getChoices(poll) async {
     HttpHeaders.authorizationHeader: token
   };
 
-  var options = poll['options'];
+  List optionIds = poll['options'];
   List<Future> futures = [];
-  List choices;
+  List options;
 
-  for (var i = 0; i < options.length; i++) {
-    var optionId = options[i];
+  for (var i = 0; i < optionIds.length; i++) {
+    var optionId = optionIds[i];
     Future future() async {
       var response = await http.get(
         url + '/' + optionId,
@@ -46,10 +46,10 @@ Future<List> _getChoices(poll) async {
 
   await Future.wait(futures)
       .then((results) {
-    choices = results;
-  });
+        options = results;
+      });
 
-  return choices;
+  return options;
 }
 
 class PollWidget extends StatefulWidget {
@@ -63,11 +63,11 @@ class PollWidget extends StatefulWidget {
 }
 
 class _PollWidgetState extends State<PollWidget> {
-  var pollCreator, choices;
+  var pollCreator, options;
 
-  void vote(choice) async {
+  void vote(option) async {
     var poll = widget.poll,
-        url = 'http://localhost:4000/option/vote/' + choice['_id'];
+        url = 'http://localhost:4000/option/vote/' + option['_id'];
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
@@ -86,21 +86,21 @@ class _PollWidgetState extends State<PollWidget> {
       var jsonResponse = jsonDecode(response.body),
           option = jsonResponse['option'];
 
-      for (var i = 0; i < choices.length; i++) {
-        var choice = choices[i];
-        if (choice['_id'] == option["_id"]) {
-          choices[i] = option;
+      for (var i = 0; i < options.length; i++) {
+        var option = options[i];
+        if (option['_id'] == option["_id"]) {
+          options[i] = option;
           break;
         }
       }
 
-      updateUserCompletedPolls(poll['_id'], choice['_id']);
+      updateUserCompletedPolls(poll['_id'], option['_id']);
     } else {
       print('Request failed with status: ${response.statusCode}.');
     }
   }
 
-  void updateUserCompletedPolls(pollId, choiceId) async {
+  void updateUserCompletedPolls(pollId, optionId) async {
     const url = 'http://localhost:4000/user/';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -120,14 +120,14 @@ class _PollWidgetState extends State<PollWidget> {
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body)[0],
           completedPolls = jsonResponse['completedPolls'],
-          selectedChoices = jsonResponse['selectedChoices'];
+          selectedOptions = jsonResponse['selectedOptions'];
 
       completedPolls.add(pollId);
-      selectedChoices.add(choiceId);
+      selectedOptions.add(optionId);
 
       var body = jsonEncode({
         'completedPolls': completedPolls,
-        'selectedChoices': selectedChoices
+        'selectedOptions': selectedOptions
       });
 
       response = await http.put(
@@ -208,31 +208,31 @@ class _PollWidgetState extends State<PollWidget> {
       ),
     ];
 
-    if (choices.length > 0) {
+    if (options.length > 0) {
       var poll = widget.poll,
           user = widget.user[0],
-          selectedChoices = user['selectedChoices'],
+          selectedOptions = user['selectedOptions'],
           completedPolls = user['completedPolls'];
       bool completed = completedPolls.indexOf(poll['_id']) >= 0;
       int totalVotes = 0;
 
       if (completed) {
-        for (var c in choices) {
+        for (var c in options) {
           totalVotes += c['votes'];
         }
       }
 
-      for (var choice in choices) {
+      for (var option in options) {
         String percentStr = "";
         Widget resultBar = new Container();
 
         double borderRadius = borderRadiusValue;
         int charLimit = 21;
-        int stringLength = choice['content'].length < charLimit ? 0 : choice['content'].length;
-        double choiceHeight = 38.0 + 12*(stringLength/charLimit);
+        int stringLength = option['content'].length < charLimit ? 0 : option['content'].length;
+        double optionHeight = 38.0 + 12*(stringLength/charLimit);
 
         if (completed) {
-          int votes = choice['votes'];
+          int votes = option['votes'];
           double percent = votes > 0 ? votes/totalVotes : 0;
           BorderRadius radius = BorderRadius.circular(borderRadius);
 
@@ -247,7 +247,7 @@ class _PollWidgetState extends State<PollWidget> {
           Color resultColor = Theme.of(context).highlightColor;
           LinearGradient lineGradient;
 
-          if (selectedChoices.indexOf(choice['_id']) >= 0 ) {
+          if (selectedOptions.indexOf(option['_id']) >= 0 ) {
             resultColor = Colors.white;
             lineGradient = LinearGradient(
               begin: Alignment.centerLeft,
@@ -258,7 +258,7 @@ class _PollWidgetState extends State<PollWidget> {
           }
 
           resultBar = new Container(
-            height: choiceHeight + 1,
+            height: optionHeight + 1,
             width: MediaQuery.of(context).size.width * percent,
             decoration: new BoxDecoration(
               color: resultColor,
@@ -276,7 +276,7 @@ class _PollWidgetState extends State<PollWidget> {
           Stack(
             children: <Widget>[
               new Container(
-                height: choiceHeight + 1,
+                height: optionHeight + 1,
                 width: MediaQuery.of(context).size.width,
                 decoration: new BoxDecoration(
                   color: Theme.of(context).cardColor,
@@ -292,7 +292,7 @@ class _PollWidgetState extends State<PollWidget> {
                 onTap: () {
                   if (!completed) {
                     HapticFeedback.lightImpact();
-                    vote(choice);
+                    vote(option);
                   }
                 },
                 child: Container(
@@ -312,13 +312,13 @@ class _PollWidgetState extends State<PollWidget> {
                           children: <Widget>[
                             Center(
                               child: Container(
-                                height: choiceHeight,
+                                height: optionHeight,
                                 child: Padding(
                                   padding: const EdgeInsets.only(left: 10.0, right: 15.0),
                                   child: Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      choice['content'],
+                                      option['content'],
                                       style: TextStyle(
                                         fontSize: 16.0,
                                         fontWeight: FontWeight.bold,
@@ -391,12 +391,12 @@ class _PollWidgetState extends State<PollWidget> {
         if (pollUser != null && pollUser.length > 0) {
           pollCreator = pollUser[0];
         }
-        _getChoices(widget.poll)
-          .then((pollChoices) {
+        _getOptions(widget.poll)
+          .then((pollOptions) {
             if (mounted) {
               setState(() {
-                if (pollChoices != null && pollChoices.length > 0) {
-                  choices = pollChoices;
+                if (pollOptions != null && pollOptions.length > 0) {
+                  options = pollOptions;
                 }
               });
             }
@@ -407,7 +407,7 @@ class _PollWidgetState extends State<PollWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (choices == null) {
+    if (options == null) {
       return new Container();
     }
     return buildPoll();

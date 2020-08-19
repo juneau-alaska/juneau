@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:http/http.dart' as http;
@@ -7,10 +8,58 @@ import 'dart:io';
 import 'dart:async';
 
 import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:flutter_absolute_path/flutter_absolute_path.dart';
+import 'package:path/path.dart' as p;
 
 import 'package:juneau/common/components/inputComponent.dart';
 
-void createChoices(prompt, choices) async {
+Future generatePreAssignedUrl(String fileType) async {
+  const url = 'http://localhost:4000/option/generatePreAssignedUrl';
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader : 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  var body, response;
+
+  body = jsonEncode({
+    'fileType': fileType
+  });
+
+  response = await http.post(
+    url,
+    headers: headers,
+    body: body
+  );
+
+  if (response.statusCode == 200) {
+    var jsonResponse = jsonDecode(response.body);
+    return jsonResponse;
+  } else {
+    print('Request failed with status: ${response.statusCode}.');
+    return null;
+  }
+}
+
+Future<void> uploadFile(String url, Asset asset) async {
+  try {
+    ByteData byteData = await asset.getByteData();
+
+    var response = await http.put(url, body: byteData.buffer.asUint8List());
+    if (response.statusCode == 200) {
+      print('Successfully uploaded photo');
+    }
+  } catch (e) {
+    print(e);
+    throw ('Error uploading photo');
+  }
+}
+
+void createOptions(prompt, options, type) async {
   const url = 'http://localhost:4000/option';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -25,10 +74,11 @@ void createChoices(prompt, choices) async {
 
   List<Future> futures = [];
 
-  for (var i = 0; i < choices.length; i++) {
+  for (var i = 0; i < options.length; i++) {
     Future future() async {
       body = jsonEncode({
-        'content': choices[i]
+        'content': options[i],
+        'type': type
       });
 
       response = await http.post(
@@ -48,13 +98,14 @@ void createChoices(prompt, choices) async {
     futures.add(future());
   }
 
+  // TODO: PREVENT CREATING POLL IF OPTIONS FAIL AND DON'T CLOSE MODAL
   await Future.wait(futures)
-      .then((results) {
-        createPoll(prompt, results);
-      });
+    .then((results) {
+      createPoll(prompt, results);
+    });
 }
 
-void createPoll(prompt, choiceIds) async {
+void createPoll(prompt, optionIds) async {
   const url = 'http://localhost:4000/poll';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -68,7 +119,7 @@ void createPoll(prompt, choiceIds) async {
 
   var body = jsonEncode({
     'prompt': prompt,
-    'options': choiceIds,
+    'options': optionIds,
     'createdBy': userId
   });
 
@@ -152,7 +203,6 @@ class _PollCreateState extends State<PollCreate> {
   ];
 
   List<Asset> images = List<Asset>();
-  String _error = 'No Error Dectected';
 
   @override
   void initState() {
@@ -178,25 +228,20 @@ class _PollCreateState extends State<PollCreate> {
 
   Future<void> loadAssets() async {
     List<Asset> resultList = List<Asset>();
-    String error = 'No Error Dectected';
 
-    try {
-      resultList = await MultiImagePicker.pickImages(
-        maxImages: 9,
-        enableCamera: true,
-        selectedAssets: images,
-        cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
-        materialOptions: MaterialOptions(
-          actionBarColor: "#58E0C0",
-          actionBarTitle: "Juneau",
-          allViewTitle: "All Photos",
-          useDetailsView: false,
-          selectCircleStrokeColor: "#58E0C0",
-        ),
-      );
-    } on Exception catch (e) {
-      error = e.toString();
-    }
+    resultList = await MultiImagePicker.pickImages(
+      maxImages: 9,
+      enableCamera: true,
+      selectedAssets: images,
+      cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
+      materialOptions: MaterialOptions(
+        actionBarColor: "#58E0C0",
+        actionBarTitle: "Juneau",
+        allViewTitle: "All Photos",
+        useDetailsView: false,
+        selectCircleStrokeColor: "#58E0C0",
+      ),
+    );
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
@@ -205,7 +250,6 @@ class _PollCreateState extends State<PollCreate> {
 
     setState(() {
       images = resultList;
-      _error = error;
     });
   }
 
@@ -241,17 +285,52 @@ class _PollCreateState extends State<PollCreate> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                    if (isText) {
-                      var prompt  = questionInput.controller.text,
-                          choices = [];
+                  onTap: () async {
+                    String prompt  = questionInput.controller.text;
+                    String type = isText ? 'text' : 'image';
+                    List options = [];
 
-                      for (var i=0; i<inputComponents.length; i++) {
+                    if (isText && inputComponents.length >= 2) {
+                      for (int i=0; i<inputComponents.length; i++) {
                         InputComponent inputComponent = inputComponents[i];
-                        choices.add(inputComponent.controller.text);
+                        String text = inputComponent.controller.text;
+                        if (text != "" && text != " ") {
+                          options.add(inputComponent.controller.text);
+                        }
                       }
-                      createChoices(prompt, choices);
+                    } else if (images.length >= 2) {
+                      for (int i = 0; i < images.length; i++) {
+                        // TODO: GENERATE S3 URL FROM BACKEND AND ADD THE URL TO OPTIONS
+                        String path = await FlutterAbsolutePath.getAbsolutePath(images[i].identifier);
+
+                        final file = File(path);
+                        if (!file.existsSync()) {
+                          file.createSync(recursive: true);
+                        }
+
+                        String fileExtension = p.extension(file.path);
+                        var preAssignedUrl = await generatePreAssignedUrl(fileExtension);
+
+                        if (preAssignedUrl != null) {
+                          String uploadUrl = preAssignedUrl['uploadUrl'];
+                          String downloadUrl = preAssignedUrl['downloadUrl'];
+
+                          await uploadFile(uploadUrl, images[i]);
+                          options.add(downloadUrl);
+
+                        } else {
+                          // TODO: LOAD ERROR MESSAGE POPUP
+                        }
+                      }
+                      // TODO: LOADING BAR OR SPINNER WHILE THIS TAKES PLACE? MAKE A COMPONENT?
+                    }
+
+                    // TODO: WAIT FOR IMAGE TO GENERATE URL FROM S3
+                    if (options.length >= 2) {
+                      createOptions(prompt, options, type);
+                      Navigator.pop(context);
+                    } else {
+                      // TODO: DISPLAY ERROR POPUP OR TEXT
                     }
                   },
                   child: Text(

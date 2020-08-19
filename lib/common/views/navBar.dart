@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:juneau/home/poll/pollCreate.dart';
+import 'package:juneau/poll/pollCreate.dart';
 
 void logout(context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
