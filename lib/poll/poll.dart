@@ -1,13 +1,28 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import 'package:juneau/common/methods/userMethods.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
+
+Future<List> _getImages(List options) async {
+  List imageBytes = [];
+  for (var option in options) {
+    String url = option['content'];
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      imageBytes.add(response.bodyBytes);
+    }
+  }
+  return imageBytes;
+}
 
 Future<List> _getOptions(poll) async {
   const url = 'http://localhost:4000/option';
@@ -113,8 +128,8 @@ class _PollWidgetState extends State<PollWidget> {
     };
 
     var response = await http.get(
-        url + userId,
-        headers: headers
+      url + userId,
+      headers: headers
     );
 
     if (response.statusCode == 200) {
@@ -213,8 +228,10 @@ class _PollWidgetState extends State<PollWidget> {
           user = widget.user[0],
           selectedOptions = user['selectedOptions'],
           completedPolls = user['completedPolls'];
+
       bool completed = completedPolls.indexOf(poll['_id']) >= 0;
       int totalVotes = 0;
+      String type = options[0]['contentType'];
 
       if (completed) {
         for (var c in options) {
@@ -222,135 +239,181 @@ class _PollWidgetState extends State<PollWidget> {
         }
       }
 
-      for (var option in options) {
-        String percentStr = "";
-        Widget resultBar = new Container();
+      if (type == "text") {
+        for (var option in options) {
+          String percentStr = "";
+          Widget resultBar = new Container();
 
-        double borderRadius = borderRadiusValue;
-        int charLimit = 21;
-        int stringLength = option['content'].length < charLimit ? 0 : option['content'].length;
-        double optionHeight = 38.0 + 12*(stringLength/charLimit);
+          double borderRadius = borderRadiusValue;
+          int charLimit = 21;
+          int stringLength = option['content'].length < charLimit ? 0 : option['content'].length;
+          double optionHeight = 38.0 + 12*(stringLength/charLimit);
 
-        if (completed) {
-          int votes = option['votes'];
-          double percent = votes > 0 ? votes/totalVotes : 0;
-          BorderRadius radius = BorderRadius.circular(borderRadius);
+          if (completed) {
+            int votes = option['votes'];
+            double percent = votes > 0 ? votes/totalVotes : 0;
+            BorderRadius radius = BorderRadius.circular(borderRadius);
 
-          if (percent < 1.0) {
-            radius = BorderRadius.only(topLeft: Radius.circular(borderRadius), bottomLeft: Radius.circular(borderRadius));
-          }
+            if (percent < 1.0) {
+              radius = BorderRadius.only(topLeft: Radius.circular(borderRadius), bottomLeft: Radius.circular(borderRadius));
+            }
 
-          if (percent > 0) {
-            percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
-          }
+            if (percent > 0) {
+              percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
+            }
 
-          Color resultColor = Theme.of(context).highlightColor;
-          LinearGradient lineGradient;
+            Color resultColor = Theme.of(context).highlightColor;
+            LinearGradient lineGradient;
 
-          if (selectedOptions.indexOf(option['_id']) >= 0 ) {
-            resultColor = Colors.white;
-            lineGradient = LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [const Color(0xff58E0C0), const Color(0xFF5a58dd)],
-              tileMode: TileMode.repeated,
+            if (selectedOptions.indexOf(option['_id']) >= 0 ) {
+              resultColor = Colors.white;
+              lineGradient = LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [const Color(0xff58E0C0), const Color(0xFF5a58dd)],
+                tileMode: TileMode.repeated,
+              );
+            }
+
+            resultBar = new Container(
+              height: optionHeight + 1,
+              width: MediaQuery.of(context).size.width * percent,
+              decoration: new BoxDecoration(
+                color: resultColor,
+                gradient: lineGradient,
+                borderRadius: radius,
+                border: Border.all(
+                  color: Colors.transparent,
+                  width: 0.75,
+                ),
+              ),
             );
           }
 
-          resultBar = new Container(
-            height: optionHeight + 1,
-            width: MediaQuery.of(context).size.width * percent,
-            decoration: new BoxDecoration(
-              color: resultColor,
-              gradient: lineGradient,
-              borderRadius: radius,
-              border: Border.all(
-                color: Colors.transparent,
-                width: 0.75,
-              ),
-            ),
-          );
-        }
-
-        children.add(
-          Stack(
-            children: <Widget>[
-              new Container(
-                height: optionHeight + 1,
-                width: MediaQuery.of(context).size.width,
-                decoration: new BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(borderRadiusValue),
-                  border: Border.all(
-                    color: Colors.transparent,
-                    width: 0.75,
-                  ),
-                ),
-              ),
-              resultBar,
-              GestureDetector(
-                onTap: () {
-                  if (!completed) {
-                    HapticFeedback.lightImpact();
-                    vote(option);
-                  }
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 7.5),
-                  decoration: new BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(borderRadius),
-                    border: Border.all(
-                      color: Colors.transparent,
-                      width: 0.75,
+          children.add(
+              Stack(
+                children: <Widget>[
+                  new Container(
+                    height: optionHeight + 1,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: new BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(borderRadiusValue),
+                      border: Border.all(
+                        color: Colors.transparent,
+                        width: 0.75,
+                      ),
                     ),
                   ),
-                  child: Row(
-                    children: <Widget>[
-                      new Flexible(
-                        child: new Column(
-                          children: <Widget>[
-                            Center(
-                              child: Container(
-                                height: optionHeight,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 10.0, right: 15.0),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      option['content'],
-                                      style: TextStyle(
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.bold,
+                  resultBar,
+                  GestureDetector(
+                    onTap: () {
+                      if (!completed) {
+                        HapticFeedback.lightImpact();
+                        vote(option);
+                      }
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 7.5),
+                      decoration: new BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(borderRadius),
+                        border: Border.all(
+                          color: Colors.transparent,
+                          width: 0.75,
+                        ),
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          new Flexible(
+                            child: new Column(
+                              children: <Widget>[
+                                Center(
+                                  child: Container(
+                                    height: optionHeight,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 10.0, right: 15.0),
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          option['content'],
+                                          style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(right: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            Text(
-                              "$percentStr ",
-                              style: TextStyle(
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(right: 8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                Text(
+                                  "$percentStr ",
+                                  style: TextStyle(
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ],
+                ],
+              )
+          );
+        }
+      } else {
+        children.add(
+          FutureBuilder<List>(
+            future: _getImages(options),
+            builder: (context, AsyncSnapshot<List> imageBytes) {
+              if (imageBytes.hasData) {
+                List imageBytesList = imageBytes.data;
+                int imageBytesListLength = imageBytesList.length;
+
+                double containerHeight;
+                if (imageBytesListLength == 2) {
+                  containerHeight = 200;
+                } else if (imageBytesListLength <= 4) {
+                  containerHeight = 400;
+                } else if (imageBytesListLength <= 6) {
+                  containerHeight = 250;
+                } else if (imageBytesListLength <= 9) {
+                  containerHeight = 375;
+                }
+
+                return Container(
+                  height: containerHeight,
+                  child: GridView.count(
+                    physics: new NeverScrollableScrollPhysics(),
+                    crossAxisCount: imageBytesListLength > 4 ? 3 : 2,
+                    children: List.generate(imageBytesListLength, (index) {
+                      Image image = Image.memory(imageBytesList[index]);
+                      return Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child : Container(
+                          child: image,
+                          width: imageBytesListLength > 4 ? 300 : 600,
+                          height: imageBytesListLength > 4 ? 300 : 600,
+                        ),
+                      );
+                    })
+                  ),
+                );
+              } else {
+                return new Container();
+              }
+            }
           )
         );
       }
@@ -374,7 +437,7 @@ class _PollWidgetState extends State<PollWidget> {
 
     return Container(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(13.0, 10.0, 13.0, 10.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -47,14 +47,12 @@ Future generatePreAssignedUrl(String fileType) async {
 
 Future<void> uploadFile(String url, Asset asset) async {
   try {
-    ByteData byteData = await asset.getByteData();
-
+    ByteData byteData =  await asset.getThumbByteData(600, 600);
     var response = await http.put(url, body: byteData.buffer.asUint8List());
     if (response.statusCode == 200) {
       print('Successfully uploaded photo');
     }
   } catch (e) {
-    print(e);
     throw ('Error uploading photo');
   }
 }
@@ -78,7 +76,7 @@ void createOptions(prompt, options, type) async {
     Future future() async {
       body = jsonEncode({
         'content': options[i],
-        'type': type
+        'contentType': type
       });
 
       response = await http.post(
@@ -98,7 +96,7 @@ void createOptions(prompt, options, type) async {
     futures.add(future());
   }
 
-  // TODO: PREVENT CREATING POLL IF OPTIONS FAIL AND DON'T CLOSE MODAL
+  // TODO: PREVENT CREATING POLL IF OPTIONS FAIL AND DON'T CLOSE MODAL AND DELETE CREATED OPTIONS?
   await Future.wait(futures)
     .then((results) {
       createPoll(prompt, results);

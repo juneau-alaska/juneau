@@ -83,6 +83,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     if (polls == null) {
@@ -95,24 +96,10 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Theme.of(context).primaryColor,
       appBar: appBar(),
       body: ListView.builder(
+        itemCount: pages.length,
         itemBuilder: (context, index) {
-          if (index < pages.length) {
-            // Show your info
-            return pages[index];
-          } else {
-            // TODO: Prevent Re-render of all polls, only render new polls
-            _getPolls().then((result){
-              setState(() {
-                if (result != null) {
-                  polls = result;
-                  pages = createPages(polls, user);
-                }
-              });
-            });
-            return Center(child: CircularProgressIndicator());
-          }
+          return pages[index];
         },
-        itemCount: pages.length + 1,
       ),
       bottomNavigationBar: navBar(),
     );
