@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/common/views/appBar.dart';
 import 'package:juneau/common/views/navBar.dart';
-import 'package:juneau/home/poll/poll.dart';
+import 'package:juneau/poll/poll.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -83,6 +83,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     if (polls == null) {
@@ -95,31 +96,17 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Theme.of(context).primaryColor,
       appBar: appBar(),
       body: ListView.builder(
+        itemCount: pages.length,
         itemBuilder: (context, index) {
-          if (index < pages.length) {
-            // Show your info
-            return pages[index];
-          } else {
-            // TODO: Prevent Re-render of all polls, only render new polls
-            _getPolls().then((result){
-              setState(() {
-                if (result != null) {
-                  polls = result;
-                  pages = createPages(polls, user);
-                }
-              });
-            });
-            return Center(child: CircularProgressIndicator());
-          }
+          return pages[index];
         },
-        itemCount: pages.length + 1,
       ),
       bottomNavigationBar: navBar(),
     );
 
     /**
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: Theme.of(context).backgroundColor,
       appBar: appBar(),
       body: PageView(
         children: pages,

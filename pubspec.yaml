@@ -11,8 +11,11 @@ dependencies:
   cupertino_icons: ^0.1.2
   http: ^0.12.0+4
   email_validator: ^1.0.0
-  shared_preferences: ^0.5.7
+  shared_preferences: ^0.5.8
   timeago: ^2.0.26
+  multi_image_picker: ^4.7.10
+  flutter_absolute_path: ^1.0.6
+  path: ^1.7.0
 
 dev_dependencies:
   flutter_test:
