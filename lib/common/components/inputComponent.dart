@@ -4,22 +4,22 @@ class InputComponent extends StatefulWidget {
   final hintText;
   final errorText;
   final obscureText;
-  int maxLines;
+  final maxLines;
   final borderColor;
   final padding;
-  double fontSize;
+  final fontSize;
   final controller = TextEditingController();
 
   InputComponent({
     Key key,
     @required
-      this.hintText,
-      this.errorText,
-      this.obscureText,
-      this.maxLines,
-      this.borderColor,
-      this.padding,
-      this.fontSize,
+    this.hintText,
+    this.errorText,
+    this.obscureText,
+    this.maxLines,
+    this.borderColor,
+    this.padding,
+    this.fontSize,
   }) : super(key: key);
 
   @override
@@ -29,19 +29,22 @@ class InputComponent extends StatefulWidget {
 class _InputComponentState extends State<InputComponent> {
   @override
   Widget build(BuildContext context) {
-    var edgeInset = widget.padding != null ? EdgeInsets.all(widget.padding) : EdgeInsets.fromLTRB(11.0, 12.0, 11.0, 12.0);
-    widget.maxLines = widget.maxLines != null ? widget.maxLines : 1;
-    widget.fontSize = widget.fontSize != null ? widget.fontSize: 14.0;
+    EdgeInsets edgeInset = widget.padding != null ? EdgeInsets.all(widget.padding) : EdgeInsets.fromLTRB(11.0, 12.0, 11.0, 12.0);
+    int maxLines = widget.maxLines != null ? widget.maxLines : 1;
+    double fontSize = widget.fontSize != null ? widget.fontSize: 14.0;
+    bool obscureText = widget.obscureText != null ? widget.obscureText : false;
+
     return Container(
       color: Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 15.0),
         child: Container(
           child: TextField(
-            obscureText: widget.obscureText,
-            maxLines: widget.maxLines,
+            obscuringCharacter: '•',
+            obscureText: obscureText,
+            maxLines: maxLines,
             style: TextStyle(
-              fontSize: widget.fontSize,
+              fontSize: fontSize,
             ),
             decoration: InputDecoration(
               isDense: true,

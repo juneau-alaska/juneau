@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage> {
     List pages = createPages(polls, user);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: Theme.of(context).backgroundColor,
       appBar: appBar(),
       body: ListView.builder(
         itemCount: pages.length,

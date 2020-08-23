@@ -63,10 +63,10 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
 
-    InputComponent emailInput = new InputComponent(hintText: 'Email', obscureText: false);
+    InputComponent emailInput = new InputComponent(hintText: 'Email');
     final emailController = emailInput.controller;
 
-    InputComponent usernameInput = new InputComponent(hintText: 'Username', obscureText: false);
+    InputComponent usernameInput = new InputComponent(hintText: 'Username');
     final usernameController = usernameInput.controller;
 
     // "Password must be at least 6 characters, contain 1 capital and 1 lowercase, 1 number and 1 special character"

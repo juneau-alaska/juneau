@@ -11,14 +11,13 @@ void main() => runApp(new MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       theme: ThemeData(
         brightness: Brightness.dark,
-        backgroundColor: const Color(0xff212121),
+        backgroundColor: const Color(0xff121212),
         cardColor: const Color(0xff1D1D1D),
-        hintColor: const Color(0xff545454),
-        highlightColor: const Color(0xff282828),
+        hintColor: const Color(0xff595959),
+        highlightColor: const Color(0xff252525),
       ),
       initialRoute: '/splash',
       routes: {
@@ -48,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: Theme.of(context).backgroundColor,
       body: Center(
         child: Container(
           width: 300.0,

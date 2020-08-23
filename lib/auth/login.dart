@@ -74,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
 
-    InputComponent emailInput = new InputComponent(hintText: 'Username or email', obscureText: false);
+    InputComponent emailInput = new InputComponent(hintText: 'Username or email');
     final emailController = emailInput.controller;
 
     InputComponent passwordInput = new InputComponent(hintText: 'Password', obscureText: true);

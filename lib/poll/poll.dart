@@ -60,9 +60,9 @@ Future<List> _getOptions(poll) async {
   }
 
   await Future.wait(futures)
-      .then((results) {
-        options = results;
-      });
+    .then((results) {
+      options = results;
+    });
 
   return options;
 }
@@ -245,9 +245,9 @@ class _PollWidgetState extends State<PollWidget> {
           Widget resultBar = new Container();
 
           double borderRadius = borderRadiusValue;
-          int charLimit = 21;
+          int charLimit = 30;
           int stringLength = option['content'].length < charLimit ? 0 : option['content'].length;
-          double optionHeight = 38.0 + 12*(stringLength/charLimit);
+          double optionHeight = 40.0 + 10*(stringLength/charLimit);
 
           if (completed) {
             int votes = option['votes'];
@@ -307,9 +307,9 @@ class _PollWidgetState extends State<PollWidget> {
                   ),
                   resultBar,
                   GestureDetector(
-                    onTap: () {
+                    onDoubleTap: () {
                       if (!completed) {
-                        HapticFeedback.lightImpact();
+                        HapticFeedback.mediumImpact();
                         vote(option);
                       }
                     },
@@ -411,7 +411,13 @@ class _PollWidgetState extends State<PollWidget> {
                   ),
                 );
               } else {
-                return new Container();
+                return new Container(
+                  width: 100,
+                  height: 100,
+                  child: Center(
+                      child: CircularProgressIndicator()
+                  ),
+                );
               }
             }
           )
