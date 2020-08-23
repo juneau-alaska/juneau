@@ -11,110 +11,110 @@ import 'dart:convert';
 import 'dart:io';
 
 Future<List> _getPolls() async {
-  const url = 'http://localhost:4000/polls';
+    const url = 'http://localhost:4000/polls';
 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var token = prefs.getString('token');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
 
-  var headers = {
-    HttpHeaders.contentTypeHeader : 'application/json',
-    HttpHeaders.authorizationHeader: token
-  };
+    var headers = {
+        HttpHeaders.contentTypeHeader : 'application/json',
+        HttpHeaders.authorizationHeader: token
+    };
 
-  var response = await http.get(
-      url,
-      headers: headers
-  );
+    var response = await http.get(
+        url,
+        headers: headers
+    );
 
-  if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
 
-    return jsonResponse;
-  } else {
-    print('Request failed with status: ${response.statusCode}.');
-    return null;
-  }
+        return jsonResponse;
+    } else {
+        print('Request failed with status: ${response.statusCode}.');
+        return null;
+    }
 }
 
 List createPages(polls, user) {
-  List<Widget> pages = [];
-  for (var i = 0; i < polls.length; i++) {
-    var poll = polls[i];
-    pages.add(new PollWidget(poll: poll, user: user));
-  }
-  return pages;
+    List<Widget> pages = [];
+    for (var i = 0; i < polls.length; i++) {
+        var poll = polls[i];
+        pages.add(new PollWidget(poll: poll, user: user));
+    }
+    return pages;
 }
 
 class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
+    @override
+    _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  var user, polls;
+    var user, polls;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      _fetchData();
-    });
-  }
-
-  _fetchData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var userId = prefs.getString('userId');
-
-    await Future.wait([
-      userMethods.getUser(userId),
-      _getPolls(),
-    ]).then((results) {
-      setState(() {
-        var userResult = results[0],
-            pollsResult = results[1];
-
-        if (userResult != null) {
-          user = userResult;
-        }
-        if (pollsResult != null) {
-          polls = pollsResult;
-        }
-      });
-    });
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    if (polls == null) {
-      return new Container();
+    @override
+    void initState() {
+        super.initState();
+        WidgetsBinding.instance.addPostFrameCallback((_){
+            _fetchData();
+        });
     }
 
-    List pages = createPages(polls, user);
+    _fetchData() async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        var userId = prefs.getString('userId');
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appBar(),
-      body: ListView.builder(
-        itemCount: pages.length,
-        itemBuilder: (context, index) {
-          return pages[index];
-        },
-      ),
-      bottomNavigationBar: navBar(),
-    );
+        await Future.wait([
+            userMethods.getUser(userId),
+            _getPolls(),
+        ]).then((results) {
+            setState(() {
+                var userResult = results[0],
+                    pollsResult = results[1];
 
-    /**
-    return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appBar(),
-      body: PageView(
-        children: pages,
-      ),
-      bottomNavigationBar: navBar(),
-    );
-        **/
-  }
+                if (userResult != null) {
+                    user = userResult;
+                }
+                if (pollsResult != null) {
+                    polls = pollsResult;
+                }
+            });
+        });
+    }
+
+
+    @override
+    Widget build(BuildContext context) {
+        if (polls == null) {
+            return new Container();
+        }
+
+        List pages = createPages(polls, user);
+
+        return Scaffold(
+            backgroundColor: Theme.of(context).backgroundColor,
+            appBar: appBar(),
+            body: ListView.builder(
+                itemCount: pages.length,
+                itemBuilder: (context, index) {
+                    return pages[index];
+                },
+            ),
+            bottomNavigationBar: navBar(),
+        );
+
+        /**
+            return Scaffold(
+            backgroundColor: Theme.of(context).backgroundColor,
+            appBar: appBar(),
+            body: PageView(
+            children: pages,
+            ),
+            bottomNavigationBar: navBar(),
+            );
+         **/
+    }
 }
 
 //class CollectPersonalInfoPage extends StatelessWidget {
