@@ -6,6 +6,8 @@ import 'package:juneau/common/views/appBar.dart';
 import 'package:juneau/common/views/navBar.dart';
 import 'package:juneau/poll/poll.dart';
 
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
@@ -91,15 +93,39 @@ class _HomePageState extends State<HomePage> {
         }
 
         List pages = createPages(polls, user);
+        RefreshController _refreshController = RefreshController(initialRefresh: false);
+
+        void _onRefresh() async{
+            // monitor network fetch
+            await _fetchData();
+            // if failed,use refreshFailed()
+            _refreshController.refreshCompleted();
+        }
+
+        void _onLoading() async{
+            // monitor network fetch
+            await Future.delayed(Duration(milliseconds: 1000));
+            // if failed,use loadFailed(),if no data return,use LoadNodata()
+            if(mounted)
+                setState(() {});
+            _refreshController.loadComplete();
+        }
 
         return Scaffold(
             backgroundColor: Theme.of(context).backgroundColor,
             appBar: appBar(),
-            body: ListView.builder(
-                itemCount: pages.length,
-                itemBuilder: (context, index) {
-                    return pages[index];
-                },
+            body: SmartRefresher(
+                enablePullDown: true,
+                header: ClassicHeader(),
+                controller: _refreshController,
+                onRefresh: _onRefresh,
+                onLoading: _onLoading,
+                child: ListView.builder(
+                    itemCount: pages.length,
+                    itemBuilder: (context, index) {
+                        return pages[index];
+                    },
+                ),
             ),
             bottomNavigationBar: navBar(),
         );

@@ -68,7 +68,7 @@ Future<List> _getOptions(poll) async {
 
 class PollWidget extends StatefulWidget {
     final poll;
-    var user;
+    final user;
 
     PollWidget({ Key key, @required this.poll, this.user}) : super(key: key);
 
@@ -78,6 +78,27 @@ class PollWidget extends StatefulWidget {
 
 class _PollWidgetState extends State<PollWidget> {
     var pollCreator, options;
+
+    @override
+    void didUpdateWidget(covariant PollWidget oldWidget) {
+        super.didUpdateWidget(oldWidget);
+        userMethods.getUser(widget.poll['createdBy'])
+            .then((pollUser) {
+            if (pollUser != null && pollUser.length > 0) {
+                pollCreator = pollUser[0];
+            }
+            _getOptions(widget.poll)
+                .then((pollOptions) {
+                if (mounted) {
+                    setState(() {
+                        if (pollOptions != null && pollOptions.length > 0) {
+                            options = pollOptions;
+                        }
+                    });
+                }
+            });
+        });
+    }
 
     void vote(option) async {
         var poll = widget.poll,

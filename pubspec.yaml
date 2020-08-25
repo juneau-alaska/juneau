@@ -16,6 +16,7 @@ dependencies:
   multi_image_picker: ^4.7.10
   flutter_absolute_path: ^1.0.6
   path: ^1.7.0
+  pull_to_refresh: ^1.6.1
 
 dev_dependencies:
   flutter_test:
