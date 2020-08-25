@@ -98,12 +98,11 @@ class _PollWidgetState extends State<PollWidget> {
 
         if (response.statusCode == 200) {
             var jsonResponse = jsonDecode(response.body),
-                option = jsonResponse['option'];
+                updateOption = jsonResponse['option'];
 
             for (var i = 0; i < options.length; i++) {
-                var option = options[i];
-                if (option['_id'] == option["_id"]) {
-                    options[i] = option;
+                if (options[i]['_id'] == updateOption["_id"]) {
+                    options[i] = updateOption;
                     break;
                 }
             }
