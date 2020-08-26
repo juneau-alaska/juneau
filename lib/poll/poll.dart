@@ -397,13 +397,75 @@ class _PollWidgetState extends State<PollWidget> {
                       physics: new NeverScrollableScrollPhysics(),
                       crossAxisCount: imageBytesListLength > 4 ? 3 : 2,
                       children: List.generate(imageBytesListLength, (index) {
+                        var option = options[index];
+                        int votes = option['votes'];
+                        double percent = votes > 0 ? votes / totalVotes : 0;
+                        String percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
+
+                        LinearGradient lineGradient = LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [
+                            const Color(0xff58E0C0),
+                            const Color(0xFF5a58dd)
+                          ],
+                          tileMode: TileMode.repeated,
+                        );
+
                         Image image = Image.memory(imageBytesList[index]);
+
                         return Padding(
                           padding: const EdgeInsets.all(2.0),
-                          child: Container(
-                            child: image,
-                            width: imageBytesListLength > 4 ? 300 : 600,
-                            height: imageBytesListLength > 4 ? 300 : 600,
+                          child: GestureDetector(
+                            onDoubleTap: () {
+                              if (!completed) {
+                                HapticFeedback.mediumImpact();
+                                vote(options[index]);
+                              }
+                            },
+                            child: Stack(
+                              children: [
+                                Container(
+                                  child: image,
+                                  width: imageBytesListLength > 4 ? 300 : 600,
+                                  height: imageBytesListLength > 4 ? 300 : 600,
+                                ),
+                                completed
+                                    ? Stack(children: [
+                                        Opacity(
+                                          opacity: 0.75,
+                                          child: Container(
+                                            decoration: selectedOptions.indexOf(
+                                                        option['_id']) >=
+                                                    0
+                                                ? new BoxDecoration(
+                                                    gradient: lineGradient,
+                                                  )
+                                                : new BoxDecoration(
+                                                    color: Theme.of(context)
+                                                        .highlightColor,
+                                                  ),
+                                            width: imageBytesListLength > 4
+                                                ? 300
+                                                : 600,
+                                            height: imageBytesListLength > 4
+                                                ? 300
+                                                : 600,
+                                          ),
+                                        ),
+                                        Center(
+                                          child: Text(
+                                            percentStr,
+                                            style: TextStyle(
+                                              fontSize: 14.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        )
+                                      ])
+                                    : Container(),
+                              ],
+                            ),
                           ),
                         );
                       })),
