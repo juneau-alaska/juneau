@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
         cardColor: const Color(0xff1D1D1D),
         hintColor: const Color(0xff595959),
         highlightColor: const Color(0xff252525),
+        buttonColor: Colors.white,
       ),
       initialRoute: '/splash',
       routes: {
@@ -54,9 +55,7 @@ class _SplashScreenState extends State<SplashScreen> {
           height: 300.0,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("images/cubesmelt.gif"),
-              fit: BoxFit.contain
-            ),
+                image: AssetImage("images/cubesmelt.gif"), fit: BoxFit.contain),
           ),
         ),
       ),
@@ -69,7 +68,7 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
-  void navigateUser() async{
+  void navigateUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool status = prefs.getBool('isLoggedIn') ?? false;
     if (status) {
