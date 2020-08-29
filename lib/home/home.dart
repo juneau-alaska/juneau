@@ -12,6 +12,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 
+var createdAtBefore;
+
 Future<List> _getPolls() async {
   const url = 'http://localhost:4000/polls';
 
@@ -23,10 +25,15 @@ Future<List> _getPolls() async {
     HttpHeaders.authorizationHeader: token
   };
 
-  var response = await http.get(url, headers: headers);
+  var body = jsonEncode({'createdAtBefore': createdAtBefore});
+  var response = await http.post(url, headers: headers, body: body);
 
   if (response.statusCode == 200) {
     var jsonResponse = jsonDecode(response.body);
+
+    if (jsonResponse.length > 0) {
+      createdAtBefore = jsonResponse[jsonResponse.length-1]['createdAt'];
+    }
 
     return jsonResponse;
   } else {
@@ -81,6 +88,24 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
+
+  void _onRefresh() async {
+    createdAtBefore = null;
+    await _fetchData();
+    _refreshController.refreshCompleted();
+  }
+
+  void _onLoading() async {
+    var nextPolls = await _getPolls();
+    if (nextPolls != null && nextPolls.length > 0) {
+      if (mounted) setState(() {
+        polls += nextPolls;
+      });
+    }
+    _refreshController.loadComplete();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (polls == null) {
@@ -88,30 +113,17 @@ class _HomePageState extends State<HomePage> {
     }
 
     List pages = createPages(polls, user);
-    RefreshController _refreshController =
-        RefreshController(initialRefresh: false);
-
-    void _onRefresh() async {
-      // monitor network fetch
-      await _fetchData();
-      // if failed,use refreshFailed()
-      _refreshController.refreshCompleted();
-    }
-
-    void _onLoading() async {
-      // monitor network fetch
-      await Future.delayed(Duration(milliseconds: 1000));
-      // if failed,use loadFailed(),if no data return,use LoadNodata()
-      if (mounted) setState(() {});
-      _refreshController.loadComplete();
-    }
 
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appBar(),
       body: SmartRefresher(
         enablePullDown: true,
+        enablePullUp: true,
         header: ClassicHeader(),
+        footer: ClassicFooter(
+          loadStyle: LoadStyle.ShowWhenLoading,
+        ),
         controller: _refreshController,
         onRefresh: _onRefresh,
         onLoading: _onLoading,

@@ -433,7 +433,7 @@ class _PollWidgetState extends State<PollWidget> {
                                 completed
                                     ? Stack(children: [
                                         Opacity(
-                                          opacity: 0.75,
+                                          opacity: 0.5,
                                           child: Container(
                                             decoration: selectedOptions.indexOf(
                                                         option['_id']) >=
@@ -457,7 +457,7 @@ class _PollWidgetState extends State<PollWidget> {
                                           child: Text(
                                             percentStr,
                                             style: TextStyle(
-                                              fontSize: 14.0,
+                                              fontSize: 15.0,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
