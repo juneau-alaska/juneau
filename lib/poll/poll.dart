@@ -180,42 +180,48 @@ class _PollWidgetState extends State<PollWidget> {
 
     List<Widget> children = [
       SizedBox(height: 10.0),
-      Text(
-        widget.poll['prompt'],
-        style: TextStyle(
-          fontFamily: 'Lato Black',
-          fontSize: 20.0,
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: Text(
+          widget.poll['prompt'],
+          style: TextStyle(
+            fontFamily: 'Lato Black',
+            fontSize: 20.0,
+          ),
         ),
       ),
       SizedBox(height: 2.8),
-      Row(
-        children: <Widget>[
-          GestureDetector(
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: Row(
+          children: <Widget>[
+            GestureDetector(
+                child: Text(
+                  pollCreator['username'],
+                  style: TextStyle(
+                    color: Theme.of(context).buttonColor,
+                    fontSize: 14.0,
+                  ),
+                ),
+                onTap: () {
+                  print(pollCreator['email']);
+                }),
+            SizedBox(
+              width: 1.0,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 0.0, left: 2.0),
               child: Text(
-                pollCreator['username'],
+                time,
                 style: TextStyle(
-                  color: Theme.of(context).buttonColor,
-                  fontSize: 14.0,
+                  color: Theme.of(context).hintColor,
+                  fontSize: 12.5,
+                  wordSpacing: -3.0,
                 ),
               ),
-              onTap: () {
-                print(pollCreator['email']);
-              }),
-          SizedBox(
-            width: 1.0,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 0.0, left: 2.0),
-            child: Text(
-              time,
-              style: TextStyle(
-                color: Theme.of(context).hintColor,
-                fontSize: 12.5,
-                wordSpacing: -3.0,
-              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       SizedBox(height: 8.0),
     ];
@@ -391,6 +397,18 @@ class _PollWidgetState extends State<PollWidget> {
                   containerHeight = 375;
                 }
 
+                int highestVote = 0;
+                int highestIndex = 0;
+
+                for (var i = 0; i < options.length; i++) {
+                  var option = options[i];
+                  int votes = option['votes'];
+                  if (votes > highestVote) {
+                    highestVote = votes;
+                    highestIndex = i;
+                  }
+                }
+
                 return Container(
                   height: containerHeight,
                   child: GridView.count(
@@ -400,72 +418,73 @@ class _PollWidgetState extends State<PollWidget> {
                         var option = options[index];
                         int votes = option['votes'];
                         double percent = votes > 0 ? votes / totalVotes : 0;
-                        String percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
-
-                        LinearGradient lineGradient = LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                          colors: [
-                            const Color(0xff58E0C0),
-                            const Color(0xFF5a58dd)
-                          ],
-                          tileMode: TileMode.repeated,
-                        );
+                        String percentStr =
+                            (percent * 100.0).toStringAsFixed(0) + '%';
 
                         Image image = Image.memory(imageBytesList[index]);
 
-                        return Padding(
-                          padding: const EdgeInsets.all(2.0),
-                          child: GestureDetector(
-                            onDoubleTap: () {
-                              if (!completed) {
-                                HapticFeedback.mediumImpact();
-                                vote(options[index]);
-                              }
-                            },
-                            child: Stack(
-                              children: [
-                                Container(
-                                  child: image,
-                                  width: imageBytesListLength > 4 ? 300 : 600,
-                                  height: imageBytesListLength > 4 ? 300 : 600,
-                                ),
-                                completed
-                                    ? Stack(children: [
-                                        Opacity(
-                                          opacity: 0.5,
-                                          child: Container(
-                                            decoration: selectedOptions.indexOf(
-                                                        option['_id']) >=
-                                                    0
-                                                ? new BoxDecoration(
-                                                    gradient: lineGradient,
-                                                  )
-                                                : new BoxDecoration(
-                                                    color: Theme.of(context)
-                                                        .highlightColor,
-                                                  ),
-                                            width: imageBytesListLength > 4
-                                                ? 300
-                                                : 600,
-                                            height: imageBytesListLength > 4
-                                                ? 300
-                                                : 600,
+                        return GestureDetector(
+                          onDoubleTap: () {
+                            if (!completed) {
+                              HapticFeedback.mediumImpact();
+                              vote(options[index]);
+                            }
+                          },
+                          child: Stack(
+                            children: [
+                              Container(
+                                child: image,
+                                width: imageBytesListLength > 4 ? 300 : 600,
+                                height: imageBytesListLength > 4 ? 300 : 600,
+                              ),
+                              completed
+                                  ? Stack(children: [
+                                      Opacity(
+                                        opacity: 0.5,
+                                        child: Container(
+                                          decoration: new BoxDecoration(
+                                            color: Theme.of(context)
+                                                .highlightColor,
+                                          ),
+                                          width: imageBytesListLength > 4
+                                              ? 300
+                                              : 600,
+                                          height: imageBytesListLength > 4
+                                              ? 300
+                                              : 600,
+                                        ),
+                                      ),
+                                      Center(
+                                        child: Text(
+                                          percentStr,
+                                          style: TextStyle(
+                                            fontSize: imageBytesListLength > 4 ? 15.0 : 16.0,
+                                            fontWeight: FontWeight.w600,
+                                            color: highestIndex == index ? const Color(0xffFF3A5B) : Colors.white
                                           ),
                                         ),
-                                        Center(
-                                          child: Text(
-                                            percentStr,
-                                            style: TextStyle(
-                                              fontSize: 15.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        )
-                                      ])
-                                    : Container(),
-                              ],
-                            ),
+                                      ),
+                                      selectedOptions
+                                                  .indexOf(option['_id']) >=
+                                              0
+                                          ? Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.only(top: 3.0, right: 3.0),
+                                                  child: new Icon(
+                                                    Icons.check_circle,
+                                                    size: 20.0,
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          : new SizedBox(
+                                              width: 0.0, height: 0.0),
+                                    ])
+                                  : Container(),
+                            ],
                           ),
                         );
                       })),
@@ -498,13 +517,10 @@ class _PollWidgetState extends State<PollWidget> {
 //    );
 
     return Container(
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: children,
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
       ),
     );
   }
