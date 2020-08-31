@@ -1,5 +1,5 @@
 class Validator {
-  bool validatePassword(String password){
+  bool validatePassword(String password) {
     String pattern = r'\s+';
     RegExp regExp = new RegExp(pattern);
     int stringLen = password.length;

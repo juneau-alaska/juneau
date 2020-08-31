@@ -34,18 +34,17 @@ class _NavBarState extends State<NavBar> {
         onTap: (int index) {
           setState(() {
             _selectedIndex = index;
-            switch(index) {
+            switch (index) {
               case 0:
                 logout(context);
                 break;
               case 1:
                 showModalBottomSheet(
-                  isScrollControlled: true,
-                  context: context,
-                  builder: (BuildContext context) {
-                    return new PollCreate();
-                  }
-                );
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return new PollCreate();
+                    });
                 break;
               default:
                 break;

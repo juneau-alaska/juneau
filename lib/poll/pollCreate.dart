@@ -20,21 +20,15 @@ Future generatePreAssignedUrl(String fileType) async {
   var token = prefs.getString('token');
 
   var headers = {
-    HttpHeaders.contentTypeHeader : 'application/json',
+    HttpHeaders.contentTypeHeader: 'application/json',
     HttpHeaders.authorizationHeader: token
   };
 
   var body, response;
 
-  body = jsonEncode({
-    'fileType': fileType
-  });
+  body = jsonEncode({'fileType': fileType});
 
-  response = await http.post(
-    url,
-    headers: headers,
-    body: body
-  );
+  response = await http.post(url, headers: headers, body: body);
 
   if (response.statusCode == 200) {
     var jsonResponse = jsonDecode(response.body);
@@ -47,7 +41,7 @@ Future generatePreAssignedUrl(String fileType) async {
 
 Future<void> uploadFile(String url, Asset asset) async {
   try {
-    ByteData byteData =  await asset.getThumbByteData(600, 600);
+    ByteData byteData = await asset.getThumbByteData(600, 600);
     var response = await http.put(url, body: byteData.buffer.asUint8List());
     if (response.statusCode == 200) {
       print('Successfully uploaded photo');
@@ -64,7 +58,7 @@ void createOptions(prompt, options, type) async {
   var token = prefs.getString('token');
 
   var headers = {
-    HttpHeaders.contentTypeHeader : 'application/json',
+    HttpHeaders.contentTypeHeader: 'application/json',
     HttpHeaders.authorizationHeader: token
   };
 
@@ -74,16 +68,9 @@ void createOptions(prompt, options, type) async {
 
   for (var i = 0; i < options.length; i++) {
     Future future() async {
-      body = jsonEncode({
-        'content': options[i],
-        'contentType': type
-      });
+      body = jsonEncode({'content': options[i], 'contentType': type});
 
-      response = await http.post(
-          url,
-          headers: headers,
-          body: body
-      );
+      response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
@@ -93,43 +80,34 @@ void createOptions(prompt, options, type) async {
         return null;
       }
     }
+
     futures.add(future());
   }
 
   // TODO: PREVENT CREATING POLL IF OPTIONS FAIL AND DON'T CLOSE MODAL AND DELETE CREATED OPTIONS?
-  await Future.wait(futures)
-    .then((results) {
-      createPoll(prompt, results);
-    });
+  await Future.wait(futures).then((results) {
+    createPoll(prompt, results);
+  });
 }
 
 void createPoll(prompt, optionIds) async {
   const url = 'http://localhost:4000/poll';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  var token = prefs.getString('token'),
-      userId = prefs.getString('userId');
+  var token = prefs.getString('token'), userId = prefs.getString('userId');
 
   var headers = {
-    HttpHeaders.contentTypeHeader : 'application/json',
+    HttpHeaders.contentTypeHeader: 'application/json',
     HttpHeaders.authorizationHeader: token
   };
 
-  var body = jsonEncode({
-    'prompt': prompt,
-    'options': optionIds,
-    'createdBy': userId
-  });
+  var body =
+      jsonEncode({'prompt': prompt, 'options': optionIds, 'createdBy': userId});
 
-  var response = await http.post(
-      url,
-      headers: headers,
-      body: body
-  );
+  var response = await http.post(url, headers: headers, body: body);
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body),
-        pollId = jsonResponse['_id'];
+    var jsonResponse = jsonDecode(response.body), pollId = jsonResponse['_id'];
 
     updateUserCreatedPolls(pollId);
   } else {
@@ -141,18 +119,14 @@ void updateUserCreatedPolls(pollId) async {
   const url = 'http://localhost:4000/user/';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  var token = prefs.getString('token'),
-      userId = prefs.getString('userId');
+  var token = prefs.getString('token'), userId = prefs.getString('userId');
 
   var headers = {
-    HttpHeaders.contentTypeHeader : 'application/json',
+    HttpHeaders.contentTypeHeader: 'application/json',
     HttpHeaders.authorizationHeader: token
   };
 
-  var response = await http.get(
-      url + userId,
-      headers: headers
-  );
+  var response = await http.get(url + userId, headers: headers);
 
   if (response.statusCode == 200) {
     var jsonResponse = jsonDecode(response.body)[0],
@@ -160,15 +134,9 @@ void updateUserCreatedPolls(pollId) async {
 
     createdPolls.add(pollId);
 
-    var body = jsonEncode({
-      'createdPolls': createdPolls
-    });
+    var body = jsonEncode({'createdPolls': createdPolls});
 
-    response = await http.put(
-      url + userId,
-      headers: headers,
-      body: body
-    );
+    response = await http.put(url + userId, headers: headers, body: body);
 
     if (response.statusCode != 200) {
       print('Request failed with status: ${response.statusCode}.');
@@ -258,7 +226,7 @@ class _PollCreateState extends State<PollCreate> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget> [
+        children: <Widget>[
           Padding(
             padding: const EdgeInsets.fromLTRB(15.0, 65.0, 15.0, 20.0),
             child: Row(
@@ -284,12 +252,12 @@ class _PollCreateState extends State<PollCreate> {
                 ),
                 GestureDetector(
                   onTap: () async {
-                    String prompt  = questionInput.controller.text;
+                    String prompt = questionInput.controller.text;
                     String type = isText ? 'text' : 'image';
                     List options = [];
 
                     if (isText && inputComponents.length >= 2) {
-                      for (int i=0; i<inputComponents.length; i++) {
+                      for (int i = 0; i < inputComponents.length; i++) {
                         InputComponent inputComponent = inputComponents[i];
                         String text = inputComponent.controller.text;
                         if (text != "" && text != " ") {
@@ -299,7 +267,8 @@ class _PollCreateState extends State<PollCreate> {
                     } else if (images.length >= 2) {
                       for (int i = 0; i < images.length; i++) {
                         // TODO: GENERATE S3 URL FROM BACKEND AND ADD THE URL TO OPTIONS
-                        String path = await FlutterAbsolutePath.getAbsolutePath(images[i].identifier);
+                        String path = await FlutterAbsolutePath.getAbsolutePath(
+                            images[i].identifier);
 
                         final file = File(path);
                         if (!file.existsSync()) {
@@ -307,7 +276,8 @@ class _PollCreateState extends State<PollCreate> {
                         }
 
                         String fileExtension = p.extension(file.path);
-                        var preAssignedUrl = await generatePreAssignedUrl(fileExtension);
+                        var preAssignedUrl =
+                            await generatePreAssignedUrl(fileExtension);
 
                         if (preAssignedUrl != null) {
                           String uploadUrl = preAssignedUrl['uploadUrl'];
@@ -315,7 +285,6 @@ class _PollCreateState extends State<PollCreate> {
 
                           await uploadFile(uploadUrl, images[i]);
                           options.add(downloadUrl);
-
                         } else {
                           // TODO: LOAD ERROR MESSAGE POPUP
                         }
@@ -355,14 +324,15 @@ class _PollCreateState extends State<PollCreate> {
                     });
                   },
                   child: Container(
-                    width: MediaQuery.of(context).size.width/2 - 15,
+                    width: MediaQuery.of(context).size.width / 2 - 15,
                     alignment: Alignment.center,
                     decoration: new BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          width: isText ? 2.0 : 1.0,
-                          color: isText ? Colors.white : Theme.of(context).hintColor
-                        ),
+                            width: isText ? 2.0 : 1.0,
+                            color: isText
+                                ? Colors.white
+                                : Theme.of(context).hintColor),
                       ),
                     ),
                     child: Padding(
@@ -370,10 +340,11 @@ class _PollCreateState extends State<PollCreate> {
                       child: Text(
                         "Text",
                         style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w600,
-                          color: isText ? Colors.white : Theme.of(context).hintColor
-                        ),
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.w600,
+                            color: isText
+                                ? Colors.white
+                                : Theme.of(context).hintColor),
                       ),
                     ),
                   ),
@@ -385,14 +356,15 @@ class _PollCreateState extends State<PollCreate> {
                     });
                   },
                   child: Container(
-                    width: MediaQuery.of(context).size.width/2 - 15,
+                    width: MediaQuery.of(context).size.width / 2 - 15,
                     alignment: Alignment.center,
                     decoration: new BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          width: isText ? 1.0 : 2.0,
-                          color: isText ? Theme.of(context).hintColor : Colors.white
-                        ),
+                            width: isText ? 1.0 : 2.0,
+                            color: isText
+                                ? Theme.of(context).hintColor
+                                : Colors.white),
                       ),
                     ),
                     child: Padding(
@@ -400,10 +372,11 @@ class _PollCreateState extends State<PollCreate> {
                       child: Text(
                         "Image",
                         style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w600,
-                          color: isText ? Theme.of(context).hintColor : Colors.white
-                        ),
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.w600,
+                            color: isText
+                                ? Theme.of(context).hintColor
+                                : Colors.white),
                       ),
                     ),
                   ),
@@ -412,9 +385,7 @@ class _PollCreateState extends State<PollCreate> {
             ),
           ),
           questionInput,
-          SizedBox(
-            height: 30.0
-          ),
+          SizedBox(height: 30.0),
           Padding(
             padding: const EdgeInsets.only(left: 15.0),
             child: Row(
@@ -425,9 +396,7 @@ class _PollCreateState extends State<PollCreate> {
                     Text(
                       "Add Options",
                       style: TextStyle(
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.w600
-                      ),
+                          fontSize: 15.0, fontWeight: FontWeight.w600),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 3.0, top: 1.0),
@@ -441,85 +410,82 @@ class _PollCreateState extends State<PollCreate> {
                     ),
                   ],
                 ),
-                isText ? Container() : Container(
-                  margin: const EdgeInsets.only(right: 15.0),
-                  child: GestureDetector(
-                    onTap: loadAssets,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.photo_library,
-                          size: 18.0,
-                        ),
-                        SizedBox(
-                          width: 5.0
-                        ),
-                        Text(
-                          "SELECT IMAGES",
-                          style: TextStyle(
-                            fontSize: 12.0,
+                isText
+                    ? Container()
+                    : Container(
+                        margin: const EdgeInsets.only(right: 15.0),
+                        child: GestureDetector(
+                          onTap: loadAssets,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.photo_library,
+                                size: 18.0,
+                              ),
+                              SizedBox(width: 5.0),
+                              Text(
+                                "SELECT IMAGES",
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
+                      ),
               ],
             ),
           ),
-          SizedBox(
-            height: 10.0
-          ),
-          isText ? Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: inputComponents,
-          ) : Container(
+          SizedBox(height: 10.0),
+          isText
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: inputComponents,
+                )
+              : Container(),
+          isText
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 15.0, vertical: 6.5),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        border: Border.all(
+                            width: 0.5, color: Theme.of(context).hintColor)),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          var inputCount = inputComponents.length;
+                          var optionNum = inputCount + 1;
 
-          ),
-          isText ? Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 6.5),
-            child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  border: Border.all(
-                      width: 0.5,
-                      color: Theme.of(context).hintColor
-                  )
-              ),
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    var inputCount = inputComponents.length;
-                    var optionNum = inputCount + 1;
-
-                    if (inputCount < 9) {
-                      inputComponents.add(
-                        new InputComponent(
-                          hintText: 'Option #$optionNum',
-                          obscureText: false,
-                        )
-                      );
-                    }
-                  });
-                },
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(11.0, 12.0, 11.0, 12.0),
-                    child: Text(
-                      '+',
-                      style: TextStyle(
-                        color: Theme.of(context).hintColor,
-                        fontSize: 25.0,
+                          if (inputCount < 9) {
+                            inputComponents.add(new InputComponent(
+                              hintText: 'Option #$optionNum',
+                              obscureText: false,
+                            ));
+                          }
+                        });
+                      },
+                      child: Center(
+                        child: Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(11.0, 12.0, 11.0, 12.0),
+                          child: Text(
+                            '+',
+                            style: TextStyle(
+                              color: Theme.of(context).hintColor,
+                              fontSize: 25.0,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
+                )
+              : Expanded(
+                  child: buildGridView(),
                 ),
-              ),
-            ),
-          ) : Expanded(
-            child: buildGridView(),
-          ),
         ],
       ),
     );

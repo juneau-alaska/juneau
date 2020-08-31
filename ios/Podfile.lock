@@ -7,7 +7,7 @@ PODS:
   - Flutter (1.0.0)
   - flutter_absolute_path (0.0.1):
     - Flutter
-  - multi_image_picker (4.7.10):
+  - multi_image_picker (4.7.12):
     - BSImagePicker (~> 2.10.3)
     - Flutter
   - shared_preferences (0.0.1):
@@ -41,9 +41,9 @@ SPEC CHECKSUMS:
   BSImageView: a149459433a2687157d034c78e059d30ac7f2544
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_absolute_path: 5adb13678c88f0bdfba527f3851f9543d01dde66
-  multi_image_picker: 5b7a578db2e02d12f30098afdff6983f4d69fbe0
+  multi_image_picker: b256ba9de62ac1ec6be67bb03328d682e8f35663
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
 
 PODFILE CHECKSUM: a75497545d4391e2d394c3668e20cfb1c2bbd4aa
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.9.3

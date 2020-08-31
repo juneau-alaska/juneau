@@ -1,12 +1,9 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import 'package:juneau/common/methods/userMethods.dart';
-import 'package:multi_image_picker/multi_image_picker.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -31,7 +28,7 @@ Future<List> _getOptions(poll) async {
   var token = prefs.getString('token');
 
   var headers = {
-    HttpHeaders.contentTypeHeader : 'application/json',
+    HttpHeaders.contentTypeHeader: 'application/json',
     HttpHeaders.authorizationHeader: token
   };
 
@@ -56,22 +53,22 @@ Future<List> _getOptions(poll) async {
         return null;
       }
     }
+
     futures.add(future());
   }
 
-  await Future.wait(futures)
-      .then((results) {
-        options = results;
-      });
+  await Future.wait(futures).then((results) {
+    options = results;
+  });
 
   return options;
 }
 
 class PollWidget extends StatefulWidget {
   final poll;
-  var user;
+  final user;
 
-  PollWidget({ Key key, @required this.poll, this.user}) : super(key: key);
+  PollWidget({Key key, @required this.poll, this.user}) : super(key: key);
 
   @override
   _PollWidgetState createState() => _PollWidgetState();
@@ -79,6 +76,25 @@ class PollWidget extends StatefulWidget {
 
 class _PollWidgetState extends State<PollWidget> {
   var pollCreator, options;
+
+  @override
+  void didUpdateWidget(covariant PollWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    userMethods.getUser(widget.poll['createdBy']).then((pollUser) {
+      if (pollUser != null && pollUser.length > 0) {
+        pollCreator = pollUser[0];
+      }
+      _getOptions(widget.poll).then((pollOptions) {
+        if (mounted) {
+          setState(() {
+            if (pollOptions != null && pollOptions.length > 0) {
+              options = pollOptions;
+            }
+          });
+        }
+      });
+    });
+  }
 
   void vote(option) async {
     var poll = widget.poll,
@@ -88,23 +104,19 @@ class _PollWidgetState extends State<PollWidget> {
     var token = prefs.getString('token');
 
     var headers = {
-      HttpHeaders.contentTypeHeader : 'application/json',
+      HttpHeaders.contentTypeHeader: 'application/json',
       HttpHeaders.authorizationHeader: token
     };
 
-    var response = await http.put(
-      url,
-      headers: headers
-    );
+    var response = await http.put(url, headers: headers);
 
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body),
-          option = jsonResponse['option'];
+          updateOption = jsonResponse['option'];
 
       for (var i = 0; i < options.length; i++) {
-        var option = options[i];
-        if (option['_id'] == option["_id"]) {
-          options[i] = option;
+        if (options[i]['_id'] == updateOption["_id"]) {
+          options[i] = updateOption;
           break;
         }
       }
@@ -119,18 +131,14 @@ class _PollWidgetState extends State<PollWidget> {
     const url = 'http://localhost:4000/user/';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token'),
-        userId = prefs.getString('userId');
+    var token = prefs.getString('token'), userId = prefs.getString('userId');
 
     var headers = {
-      HttpHeaders.contentTypeHeader : 'application/json',
+      HttpHeaders.contentTypeHeader: 'application/json',
       HttpHeaders.authorizationHeader: token
     };
 
-    var response = await http.get(
-      url + userId,
-      headers: headers
-    );
+    var response = await http.get(url + userId, headers: headers);
 
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body)[0],
@@ -145,11 +153,7 @@ class _PollWidgetState extends State<PollWidget> {
         'selectedOptions': selectedOptions
       });
 
-      response = await http.put(
-          url + userId,
-          headers: headers,
-          body: body
-      );
+      response = await http.put(url + userId, headers: headers, body: body);
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body),
@@ -175,52 +179,51 @@ class _PollWidgetState extends State<PollWidget> {
         borderRadiusValue = 8.0;
 
     List<Widget> children = [
-      SizedBox(
-        height: 10.0
-      ),
-      Text(
-        widget.poll['prompt'],
-        style: TextStyle(
-          fontFamily: 'Lato Black',
-          fontSize: 20.0,
+      SizedBox(height: 10.0),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: Text(
+          widget.poll['prompt'],
+          style: TextStyle(
+            fontFamily: 'Lato Black',
+            fontSize: 20.0,
+          ),
         ),
       ),
-      SizedBox(
-        height: 2.8
-      ),
-      Row(
-        children: <Widget>[
-          GestureDetector(
-            child: Text(
-              pollCreator['username'],
-              style: TextStyle(
-                color: Theme.of(context).buttonColor,
-                fontSize: 14.0,
+      SizedBox(height: 2.8),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: Row(
+          children: <Widget>[
+            GestureDetector(
+                child: Text(
+                  pollCreator['username'],
+                  style: TextStyle(
+                    color: Theme.of(context).buttonColor,
+                    fontSize: 14.0,
+                  ),
+                ),
+                onTap: () {
+                  print(pollCreator['email']);
+                }),
+            SizedBox(
+              width: 1.0,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 0.0, left: 2.0),
+              child: Text(
+                time,
+                style: TextStyle(
+                  color: Theme.of(context).hintColor,
+                  fontSize: 12.5,
+                  wordSpacing: -3.0,
+                ),
               ),
             ),
-            onTap: () {
-              print(pollCreator['email']);
-            }
-          ),
-          SizedBox(
-            width: 1.0,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 0.0, left: 2.0),
-            child: Text(
-              time,
-              style: TextStyle(
-                color: Theme.of(context).hintColor,
-                fontSize: 12.5,
-                wordSpacing: -3.0,
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-      SizedBox(
-          height: 8.0
-      ),
+      SizedBox(height: 8.0),
     ];
 
     if (options.length > 0) {
@@ -245,17 +248,21 @@ class _PollWidgetState extends State<PollWidget> {
           Widget resultBar = new Container();
 
           double borderRadius = borderRadiusValue;
-          int charLimit = 21;
-          int stringLength = option['content'].length < charLimit ? 0 : option['content'].length;
-          double optionHeight = 38.0 + 12*(stringLength/charLimit);
+          int charLimit = 30;
+          int stringLength = option['content'].length < charLimit
+              ? 0
+              : option['content'].length;
+          double optionHeight = 40.0 + 10 * (stringLength / charLimit);
 
           if (completed) {
             int votes = option['votes'];
-            double percent = votes > 0 ? votes/totalVotes : 0;
+            double percent = votes > 0 ? votes / totalVotes : 0;
             BorderRadius radius = BorderRadius.circular(borderRadius);
 
             if (percent < 1.0) {
-              radius = BorderRadius.only(topLeft: Radius.circular(borderRadius), bottomLeft: Radius.circular(borderRadius));
+              radius = BorderRadius.only(
+                  topLeft: Radius.circular(borderRadius),
+                  bottomLeft: Radius.circular(borderRadius));
             }
 
             if (percent > 0) {
@@ -265,7 +272,7 @@ class _PollWidgetState extends State<PollWidget> {
             Color resultColor = Theme.of(context).highlightColor;
             LinearGradient lineGradient;
 
-            if (selectedOptions.indexOf(option['_id']) >= 0 ) {
+            if (selectedOptions.indexOf(option['_id']) >= 0) {
               resultColor = Colors.white;
               lineGradient = LinearGradient(
                 begin: Alignment.centerLeft,
@@ -290,91 +297,89 @@ class _PollWidgetState extends State<PollWidget> {
             );
           }
 
-          children.add(
-              Stack(
-                children: <Widget>[
-                  new Container(
-                    height: optionHeight + 1,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: new BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(borderRadiusValue),
-                      border: Border.all(
-                        color: Colors.transparent,
-                        width: 0.75,
-                      ),
+          children.add(Stack(
+            children: <Widget>[
+              new Container(
+                height: optionHeight + 1,
+                width: MediaQuery.of(context).size.width,
+                decoration: new BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(borderRadiusValue),
+                  border: Border.all(
+                    color: Colors.transparent,
+                    width: 0.75,
+                  ),
+                ),
+              ),
+              resultBar,
+              GestureDetector(
+                onDoubleTap: () {
+                  if (!completed) {
+                    HapticFeedback.mediumImpact();
+                    vote(option);
+                  }
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 7.5),
+                  decoration: new BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(borderRadius),
+                    border: Border.all(
+                      color: Colors.transparent,
+                      width: 0.75,
                     ),
                   ),
-                  resultBar,
-                  GestureDetector(
-                    onTap: () {
-                      if (!completed) {
-                        HapticFeedback.lightImpact();
-                        vote(option);
-                      }
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 7.5),
-                      decoration: new BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(borderRadius),
-                        border: Border.all(
-                          color: Colors.transparent,
-                          width: 0.75,
-                        ),
-                      ),
-                      child: Row(
-                        children: <Widget>[
-                          new Flexible(
-                            child: new Column(
-                              children: <Widget>[
-                                Center(
-                                  child: Container(
-                                    height: optionHeight,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 10.0, right: 15.0),
-                                      child: Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          option['content'],
-                                          style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
+                  child: Row(
+                    children: <Widget>[
+                      new Flexible(
+                        child: new Column(
+                          children: <Widget>[
+                            Center(
+                              child: Container(
+                                height: optionHeight,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 10.0, right: 15.0),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      option['content'],
+                                      style: TextStyle(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(right: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                Text(
-                                  "$percentStr ",
-                                  style: TextStyle(
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
+                      Padding(
+                        padding: EdgeInsets.only(right: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Text(
+                              "$percentStr ",
+                              style: TextStyle(
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              )
-          );
+                ),
+              ),
+            ],
+          ));
         }
       } else {
-        children.add(
-          FutureBuilder<List>(
+        children.add(FutureBuilder<List>(
             future: _getImages(options),
             builder: (context, AsyncSnapshot<List> imageBytes) {
               if (imageBytes.hasData) {
@@ -392,30 +397,106 @@ class _PollWidgetState extends State<PollWidget> {
                   containerHeight = 375;
                 }
 
+                int highestVote = 0;
+                int highestIndex = 0;
+
+                for (var i = 0; i < options.length; i++) {
+                  var option = options[i];
+                  int votes = option['votes'];
+                  if (votes > highestVote) {
+                    highestVote = votes;
+                    highestIndex = i;
+                  }
+                }
+
                 return Container(
                   height: containerHeight,
                   child: GridView.count(
-                    physics: new NeverScrollableScrollPhysics(),
-                    crossAxisCount: imageBytesListLength > 4 ? 3 : 2,
-                    children: List.generate(imageBytesListLength, (index) {
-                      Image image = Image.memory(imageBytesList[index]);
-                      return Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child : Container(
-                          child: image,
-                          width: imageBytesListLength > 4 ? 300 : 600,
-                          height: imageBytesListLength > 4 ? 300 : 600,
-                        ),
-                      );
-                    })
-                  ),
+                      physics: new NeverScrollableScrollPhysics(),
+                      crossAxisCount: imageBytesListLength > 4 ? 3 : 2,
+                      children: List.generate(imageBytesListLength, (index) {
+                        var option = options[index];
+                        int votes = option['votes'];
+                        double percent = votes > 0 ? votes / totalVotes : 0;
+                        String percentStr =
+                            (percent * 100.0).toStringAsFixed(0) + '%';
+
+                        Image image = Image.memory(imageBytesList[index]);
+
+                        return GestureDetector(
+                          onDoubleTap: () {
+                            if (!completed) {
+                              HapticFeedback.mediumImpact();
+                              vote(options[index]);
+                            }
+                          },
+                          child: Stack(
+                            children: [
+                              Container(
+                                child: image,
+                                width: imageBytesListLength > 4 ? 300 : 600,
+                                height: imageBytesListLength > 4 ? 300 : 600,
+                              ),
+                              completed
+                                  ? Stack(children: [
+                                      Opacity(
+                                        opacity: 0.5,
+                                        child: Container(
+                                          decoration: new BoxDecoration(
+                                            color: Theme.of(context)
+                                                .highlightColor,
+                                          ),
+                                          width: imageBytesListLength > 4
+                                              ? 300
+                                              : 600,
+                                          height: imageBytesListLength > 4
+                                              ? 300
+                                              : 600,
+                                        ),
+                                      ),
+                                      Center(
+                                        child: Text(
+                                          percentStr,
+                                          style: TextStyle(
+                                            fontSize: imageBytesListLength > 4 ? 15.0 : 16.0,
+                                            fontWeight: FontWeight.w600,
+                                            color: highestIndex == index ? const Color(0xffFF3A5B) : Colors.white
+                                          ),
+                                        ),
+                                      ),
+                                      selectedOptions
+                                                  .indexOf(option['_id']) >=
+                                              0
+                                          ? Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.only(top: 3.0, right: 3.0),
+                                                  child: new Icon(
+                                                    Icons.check_circle,
+                                                    size: 20.0,
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          : new SizedBox(
+                                              width: 0.0, height: 0.0),
+                                    ])
+                                  : Container(),
+                            ],
+                          ),
+                        );
+                      })),
                 );
               } else {
-                return new Container();
+                return new Container(
+                  width: 100,
+                  height: 100,
+                  child: Center(child: CircularProgressIndicator()),
+                );
               }
-            }
-          )
-        );
+            }));
       }
     }
 
@@ -436,35 +517,30 @@ class _PollWidgetState extends State<PollWidget> {
 //    );
 
     return Container(
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: children,
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
       ),
     );
   }
 
   @override
   void initState() {
-    userMethods.getUser(widget.poll['createdBy'])
-      .then((pollUser) {
-        if (pollUser != null && pollUser.length > 0) {
-          pollCreator = pollUser[0];
-        }
-        _getOptions(widget.poll)
-          .then((pollOptions) {
-            if (mounted) {
-              setState(() {
-                if (pollOptions != null && pollOptions.length > 0) {
-                  options = pollOptions;
-                }
-              });
+    userMethods.getUser(widget.poll['createdBy']).then((pollUser) {
+      if (pollUser != null && pollUser.length > 0) {
+        pollCreator = pollUser[0];
+      }
+      _getOptions(widget.poll).then((pollOptions) {
+        if (mounted) {
+          setState(() {
+            if (pollOptions != null && pollOptions.length > 0) {
+              options = pollOptions;
             }
-        });
+          });
+        }
       });
+    });
     super.initState();
   }
 
@@ -476,4 +552,3 @@ class _PollWidgetState extends State<PollWidget> {
     return buildPoll();
   }
 }
-

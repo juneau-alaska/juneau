@@ -12,7 +12,7 @@ class UserMethods {
     var token = prefs.getString('token');
 
     var headers = {
-      HttpHeaders.contentTypeHeader : 'application/json',
+      HttpHeaders.contentTypeHeader: 'application/json',
       HttpHeaders.authorizationHeader: token
     };
 
