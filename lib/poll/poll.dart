@@ -175,13 +175,12 @@ class _PollWidgetState extends State<PollWidget> {
 
   Widget buildPoll() {
     var createdAt = DateTime.parse(widget.poll['createdAt']),
-        time = timeago.format(createdAt, locale: 'en_short'),
-        borderRadiusValue = 8.0;
+        time = timeago.format(createdAt, locale: 'en_short');
 
     List<Widget> children = [
-      SizedBox(height: 10.0),
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        padding: const EdgeInsets.only(
+            left: 10.0, right: 10.0, top: 3.0, bottom: 3.0),
         child: Text(
           widget.poll['prompt'],
           style: TextStyle(
@@ -190,40 +189,35 @@ class _PollWidgetState extends State<PollWidget> {
           ),
         ),
       ),
-      SizedBox(height: 2.8),
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        padding: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 3.0),
         child: Row(
           children: <Widget>[
             GestureDetector(
                 child: Text(
                   pollCreator['username'],
                   style: TextStyle(
-                    color: Theme.of(context).buttonColor,
+                    color: Theme.of(context).hintColor,
                     fontSize: 14.0,
                   ),
                 ),
                 onTap: () {
                   print(pollCreator['email']);
                 }),
-            SizedBox(
-              width: 1.0,
-            ),
             Padding(
               padding: const EdgeInsets.only(top: 0.0, left: 2.0),
               child: Text(
                 time,
                 style: TextStyle(
-                  color: Theme.of(context).hintColor,
-                  fontSize: 12.5,
-                  wordSpacing: -3.0,
+                  color: Colors.blue,
+                  fontSize: 14,
+                  wordSpacing: -4.0,
                 ),
               ),
             ),
           ],
         ),
       ),
-      SizedBox(height: 8.0),
     ];
 
     if (options.length > 0) {
@@ -234,7 +228,6 @@ class _PollWidgetState extends State<PollWidget> {
 
       bool completed = completedPolls.indexOf(poll['_id']) >= 0;
       int totalVotes = 0;
-      String type = options[0]['contentType'];
 
       if (completed) {
         for (var c in options) {
@@ -242,174 +235,39 @@ class _PollWidgetState extends State<PollWidget> {
         }
       }
 
-      if (type == "text") {
-        for (var option in options) {
-          String percentStr = "";
-          Widget resultBar = new Container();
+      children.add(FutureBuilder<List>(
+          future: _getImages(options),
+          builder: (context, AsyncSnapshot<List> imageBytes) {
+            if (imageBytes.hasData) {
+              List imageBytesList = imageBytes.data;
+              int imageBytesListLength = imageBytesList.length;
 
-          double borderRadius = borderRadiusValue;
-          int charLimit = 30;
-          int stringLength = option['content'].length < charLimit
-              ? 0
-              : option['content'].length;
-          double optionHeight = 40.0 + 10 * (stringLength / charLimit);
+              double containerHeight;
+              if (imageBytesListLength == 2) {
+                containerHeight = 200;
+              } else if (imageBytesListLength <= 4) {
+                containerHeight = 400;
+              } else if (imageBytesListLength <= 6) {
+                containerHeight = 250;
+              } else if (imageBytesListLength <= 9) {
+                containerHeight = 375;
+              }
 
-          if (completed) {
-            int votes = option['votes'];
-            double percent = votes > 0 ? votes / totalVotes : 0;
-            BorderRadius radius = BorderRadius.circular(borderRadius);
+              int highestVote = 0;
+              int highestIndex = 0;
 
-            if (percent < 1.0) {
-              radius = BorderRadius.only(
-                  topLeft: Radius.circular(borderRadius),
-                  bottomLeft: Radius.circular(borderRadius));
-            }
+              for (var i = 0; i < options.length; i++) {
+                var option = options[i];
+                int votes = option['votes'];
+                if (votes > highestVote) {
+                  highestVote = votes;
+                  highestIndex = i;
+                }
+              }
 
-            if (percent > 0) {
-              percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
-            }
-
-            Color resultColor = Theme.of(context).highlightColor;
-            LinearGradient lineGradient;
-
-            if (selectedOptions.indexOf(option['_id']) >= 0) {
-              resultColor = Colors.white;
-              lineGradient = LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [const Color(0xff58E0C0), const Color(0xFF5a58dd)],
-                tileMode: TileMode.repeated,
-              );
-            }
-
-            resultBar = new Container(
-              height: optionHeight + 1,
-              width: MediaQuery.of(context).size.width * percent,
-              decoration: new BoxDecoration(
-                color: resultColor,
-                gradient: lineGradient,
-                borderRadius: radius,
-                border: Border.all(
-                  color: Colors.transparent,
-                  width: 0.75,
-                ),
-              ),
-            );
-          }
-
-          children.add(Stack(
-            children: <Widget>[
-              new Container(
-                height: optionHeight + 1,
-                width: MediaQuery.of(context).size.width,
-                decoration: new BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(borderRadiusValue),
-                  border: Border.all(
-                    color: Colors.transparent,
-                    width: 0.75,
-                  ),
-                ),
-              ),
-              resultBar,
-              GestureDetector(
-                onDoubleTap: () {
-                  if (!completed) {
-                    HapticFeedback.mediumImpact();
-                    vote(option);
-                  }
-                },
+              return Padding(
+                padding: const EdgeInsets.all(2.0),
                 child: Container(
-                  margin: const EdgeInsets.only(bottom: 7.5),
-                  decoration: new BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(borderRadius),
-                    border: Border.all(
-                      color: Colors.transparent,
-                      width: 0.75,
-                    ),
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      new Flexible(
-                        child: new Column(
-                          children: <Widget>[
-                            Center(
-                              child: Container(
-                                height: optionHeight,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 10.0, right: 15.0),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      option['content'],
-                                      style: TextStyle(
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(right: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            Text(
-                              "$percentStr ",
-                              style: TextStyle(
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ));
-        }
-      } else {
-        children.add(FutureBuilder<List>(
-            future: _getImages(options),
-            builder: (context, AsyncSnapshot<List> imageBytes) {
-              if (imageBytes.hasData) {
-                List imageBytesList = imageBytes.data;
-                int imageBytesListLength = imageBytesList.length;
-
-                double containerHeight;
-                if (imageBytesListLength == 2) {
-                  containerHeight = 200;
-                } else if (imageBytesListLength <= 4) {
-                  containerHeight = 400;
-                } else if (imageBytesListLength <= 6) {
-                  containerHeight = 250;
-                } else if (imageBytesListLength <= 9) {
-                  containerHeight = 375;
-                }
-
-                int highestVote = 0;
-                int highestIndex = 0;
-
-                for (var i = 0; i < options.length; i++) {
-                  var option = options[i];
-                  int votes = option['votes'];
-                  if (votes > highestVote) {
-                    highestVote = votes;
-                    highestIndex = i;
-                  }
-                }
-
-                return Container(
                   height: containerHeight,
                   child: GridView.count(
                       physics: new NeverScrollableScrollPhysics(),
@@ -423,98 +281,98 @@ class _PollWidgetState extends State<PollWidget> {
 
                         Image image = Image.memory(imageBytesList[index]);
 
-                        return GestureDetector(
-                          onDoubleTap: () {
-                            if (!completed) {
-                              HapticFeedback.mediumImpact();
-                              vote(options[index]);
-                            }
-                          },
-                          child: Stack(
-                            children: [
-                              Container(
-                                child: image,
-                                width: imageBytesListLength > 4 ? 300 : 600,
-                                height: imageBytesListLength > 4 ? 300 : 600,
-                              ),
-                              completed
-                                  ? Stack(children: [
-                                      Opacity(
-                                        opacity: 0.5,
-                                        child: Container(
-                                          decoration: new BoxDecoration(
-                                            color: Theme.of(context)
-                                                .highlightColor,
-                                          ),
-                                          width: imageBytesListLength > 4
-                                              ? 300
-                                              : 600,
-                                          height: imageBytesListLength > 4
-                                              ? 300
-                                              : 600,
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Text(
-                                          percentStr,
-                                          style: TextStyle(
-                                            fontSize: imageBytesListLength > 4 ? 15.0 : 16.0,
-                                            fontWeight: FontWeight.w600,
-                                            color: highestIndex == index ? const Color(0xffFF3A5B) : Colors.white
+                        return Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: GestureDetector(
+                            onDoubleTap: () {
+                              if (!completed) {
+                                HapticFeedback.mediumImpact();
+                                vote(options[index]);
+                              }
+                            },
+                            child: Stack(
+                              children: [
+                                Container(
+                                  child: image,
+                                  width: imageBytesListLength > 4 ? 300 : 600,
+                                  height: imageBytesListLength > 4 ? 300 : 600,
+                                ),
+                                completed
+                                    ? Stack(children: [
+                                        Opacity(
+                                          opacity: 0.5,
+                                          child: Container(
+                                            decoration: new BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .highlightColor,
+                                            ),
+                                            width: imageBytesListLength > 4
+                                                ? 300
+                                                : 600,
+                                            height: imageBytesListLength > 4
+                                                ? 300
+                                                : 600,
                                           ),
                                         ),
-                                      ),
-                                      selectedOptions
-                                                  .indexOf(option['_id']) >=
-                                              0
-                                          ? Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.only(top: 3.0, right: 3.0),
-                                                  child: new Icon(
-                                                    Icons.check_circle,
-                                                    size: 20.0,
+                                        Center(
+                                          child: Text(
+                                            percentStr,
+                                            style: TextStyle(
+                                                fontSize:
+                                                    imageBytesListLength > 4
+                                                        ? 15.0
+                                                        : 16.5,
+                                                fontWeight: FontWeight.w600,
+                                                color: highestIndex == index
+                                                    ? Colors.red
+                                                    : Colors.white),
+                                          ),
+                                        ),
+                                        selectedOptions
+                                                    .indexOf(option['_id']) >=
+                                                0
+                                            ? Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 2.5,
+                                                            right: 3.0),
+                                                    child: Opacity(
+                                                      opacity: 0.7,
+                                                      child: new Icon(
+                                                        Icons.check_circle,
+                                                        size: 20.0,
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
-                                            )
-                                          : new SizedBox(
-                                              width: 0.0, height: 0.0),
-                                    ])
-                                  : Container(),
-                            ],
+                                                ],
+                                              )
+                                            : new SizedBox(
+                                                width: 0.0, height: 0.0),
+                                      ])
+                                    : Container(),
+                              ],
+                            ),
                           ),
                         );
                       })),
-                );
-              } else {
-                return new Container(
-                  width: 100,
-                  height: 100,
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-            }));
-      }
-    }
+                ),
+              );
+            } else {
+              return new Container(
+                width: 100,
+                height: 100,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+          }));
 
-//    children.add(
-//      Row(
-//        children: <Widget>[
-//          Icon(
-//            Icons.favorite,
-//            color: Colors.redAccent,
-//            size: 20.0,
-//          ),
-//          Icon(
-//            Icons.mode_comment,
-//            size: 20.0,
-//          ),
-//        ],
-//      )
-//    );
+      // TODO: Temporary Bottom Padding
+      children.add(SizedBox(height: 60.0));
+    }
 
     return Container(
       child: Column(
