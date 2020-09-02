@@ -14,14 +14,6 @@ import 'package:path/path.dart' as p;
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 
-void showAlert(context, text) {
-  Navigator.of(context)
-      .overlay
-      .insert(OverlayEntry(builder: (BuildContext context) {
-    return AlertComponent(text: text);
-  }));
-}
-
 Future generatePreAssignedUrl(String fileType) async {
   const url = 'http://localhost:4000/option/generatePreAssignedUrl';
 
@@ -158,12 +150,12 @@ class PollCreate extends StatefulWidget {
 
 class _PollCreateState extends State<PollCreate> {
   InputComponent questionInput = new InputComponent(
-    hintText: 'Ask a question...',
+    hintText: 'Provide an interesting title',
     obscureText: false,
     maxLines: 4,
     borderColor: Colors.transparent,
     padding: 0.0,
-    fontSize: 15.0,
+    fontSize: 16.0,
   );
 
   List<Asset> images = List<Asset>();
@@ -207,9 +199,6 @@ class _PollCreateState extends State<PollCreate> {
       ),
     );
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
 
     setState(() {
@@ -255,8 +244,7 @@ class _PollCreateState extends State<PollCreate> {
 
                     if (prompt == null ||
                         prompt.replaceAll(new RegExp(r"\s+"), "").length == 0) {
-                      print('hello');
-                      return showAlert(context, 'Please ask a question');
+                      return showAlert(context, 'Please provide a title');
                     }
 
                     if (images.length >= 2) {

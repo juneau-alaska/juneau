@@ -46,6 +46,7 @@ class _InputComponentState extends State<InputComponent> {
             maxLines: maxLines,
             style: TextStyle(
               fontSize: fontSize,
+              fontWeight: FontWeight.w500
             ),
             decoration: InputDecoration(
               isDense: true,

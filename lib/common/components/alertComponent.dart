@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+void showAlert(context, text) {
+  Navigator.of(context)
+    .overlay
+    .insert(OverlayEntry(builder: (BuildContext context) {
+    return AlertComponent(text: text);
+  }));
+}
+
 class AlertComponent extends StatefulWidget {
   final text;
 
