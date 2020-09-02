@@ -248,9 +248,9 @@ class _PollWidgetState extends State<PollWidget> {
               } else if (imageBytesListLength <= 4) {
                 containerHeight = 400;
               } else if (imageBytesListLength <= 6) {
-                containerHeight = 250;
+                containerHeight = 300;
               } else if (imageBytesListLength <= 9) {
-                containerHeight = 375;
+                containerHeight = 400;
               }
 
               int highestVote = 0;

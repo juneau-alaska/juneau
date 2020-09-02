@@ -14,6 +14,14 @@ import 'package:path/path.dart' as p;
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 
+void showAlert(context, text) {
+  Navigator.of(context)
+      .overlay
+      .insert(OverlayEntry(builder: (BuildContext context) {
+    return AlertComponent(text: text);
+  }));
+}
+
 Future generatePreAssignedUrl(String fileType) async {
   const url = 'http://localhost:4000/option/generatePreAssignedUrl';
 
@@ -35,8 +43,7 @@ Future generatePreAssignedUrl(String fileType) async {
     var jsonResponse = jsonDecode(response.body);
     return jsonResponse;
   } else {
-    print('Request failed with status: ${response.statusCode}.');
-    return null;
+    throw ('Request failed with status: ${response.statusCode}.');
   }
 }
 
@@ -52,7 +59,7 @@ Future<void> uploadFile(String url, Asset asset) async {
   }
 }
 
-void createOptions(prompt, options) async {
+void createOptions(prompt, options, context) async {
   const url = 'http://localhost:4000/option';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -77,21 +84,21 @@ void createOptions(prompt, options) async {
         var jsonResponse = jsonDecode(response.body);
         return jsonResponse['_id'];
       } else {
-        print('Request failed with status: ${response.statusCode}.');
-        return null;
+        throw ('Request failed with status: ${response.statusCode}.');
       }
     }
 
     futures.add(future());
   }
 
-  // TODO: PREVENT CREATING POLL IF OPTIONS FAIL AND DON'T CLOSE MODAL AND DELETE CREATED OPTIONS?
   await Future.wait(futures).then((results) {
-    createPoll(prompt, results);
+    createPoll(prompt, results, context);
+  }).catchError((err) {
+    return showAlert(context, 'Something went wrong, please try again');
   });
 }
 
-void createPoll(prompt, optionIds) async {
+void createPoll(prompt, optionIds, context) async {
   const url = 'http://localhost:4000/poll';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -110,13 +117,13 @@ void createPoll(prompt, optionIds) async {
   if (response.statusCode == 200) {
     var jsonResponse = jsonDecode(response.body), pollId = jsonResponse['_id'];
 
-    updateUserCreatedPolls(pollId);
+    updateUserCreatedPolls(pollId, context);
   } else {
-    print('Request failed with status: ${response.statusCode}.');
+    return showAlert(context, 'Something went wrong, please try again');
   }
 }
 
-void updateUserCreatedPolls(pollId) async {
+void updateUserCreatedPolls(pollId, context) async {
   const url = 'http://localhost:4000/user/';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -138,12 +145,9 @@ void updateUserCreatedPolls(pollId) async {
     var body = jsonEncode({'createdPolls': createdPolls});
 
     response = await http.put(url + userId, headers: headers, body: body);
-
-    if (response.statusCode != 200) {
-      print('Request failed with status: ${response.statusCode}.');
-    }
+    Navigator.pop(context);
   } else {
-    print('Request failed with status: ${response.statusCode}.');
+    return showAlert(context, 'Something went wrong, please try again');
   }
 }
 
@@ -249,13 +253,10 @@ class _PollCreateState extends State<PollCreate> {
                     String prompt = questionInput.controller.text;
                     List options = [];
 
-                    if (prompt == null || prompt.replaceAll(new RegExp(r"\s+"), "").length == 0) {
-                      Navigator.of(context)
-                          .overlay
-                          .insert(OverlayEntry(builder: (BuildContext context) {
-                        return AlertComponent(text: 'Please ask a question');
-                      }));
-                      return;
+                    if (prompt == null ||
+                        prompt.replaceAll(new RegExp(r"\s+"), "").length == 0) {
+                      print('hello');
+                      return showAlert(context, 'Please ask a question');
                     }
 
                     if (images.length >= 2) {
@@ -270,34 +271,32 @@ class _PollCreateState extends State<PollCreate> {
 
                         String fileExtension = p.extension(file.path);
                         var preAssignedUrl =
-                            await generatePreAssignedUrl(fileExtension);
+                            await generatePreAssignedUrl(fileExtension)
+                                .catchError((err) {
+                          return showAlert(context,
+                              'Something went wrong, please try again');
+                        });
 
-                        if (preAssignedUrl != null) {
-                          String uploadUrl = preAssignedUrl['uploadUrl'];
-                          String downloadUrl = preAssignedUrl['downloadUrl'];
+                        String uploadUrl = preAssignedUrl['uploadUrl'];
+                        String downloadUrl = preAssignedUrl['downloadUrl'];
 
-                          await uploadFile(uploadUrl, images[i]);
+                        await uploadFile(uploadUrl, images[i]).then((result) {
                           options.add(downloadUrl);
-                        } else {
-                          // TODO: LOAD ERROR MESSAGE POPUP
-                        }
+                        }).catchError((err) {
+                          return showAlert(context,
+                              'Something went wrong, please try again');
+                        });
                       }
                       // TODO: LOADING BAR OR SPINNER WHILE THIS TAKES PLACE? MAKE A COMPONENT?
                     } else {
-                      Navigator.of(context)
-                        .overlay
-                        .insert(OverlayEntry(builder: (BuildContext context) {
-                        return AlertComponent(text: 'Please select at least 2 images');
-                      }));
-                      return;
+                      return showAlert(context, 'Please select at least 2 images');
                     }
 
-                    // TODO: WAIT FOR IMAGE TO GENERATE URL FROM S3
                     if (options.length >= 2) {
-                      createOptions(prompt, options);
-                      Navigator.pop(context);
+                      createOptions(prompt, options, context);
                     } else {
-                      // TODO: DISPLAY ERROR POPUP OR TEXT
+                      return showAlert(
+                          context, 'Something went wrong, please try again');
                     }
                   },
                   child: Text(
