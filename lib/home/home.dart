@@ -32,7 +32,7 @@ Future<List> _getPolls() async {
     var jsonResponse = jsonDecode(response.body);
 
     if (jsonResponse.length > 0) {
-      createdAtBefore = jsonResponse[jsonResponse.length-1]['createdAt'];
+      createdAtBefore = jsonResponse[jsonResponse.length - 1]['createdAt'];
     }
 
     return jsonResponse;
@@ -59,14 +59,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   var user, polls;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchData();
-    });
-  }
-
   _fetchData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var userId = prefs.getString('userId');
@@ -88,7 +80,16 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  RefreshController _refreshController = RefreshController(initialRefresh: false);
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _onRefresh();
+    });
+  }
+
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
 
   void _onRefresh() async {
     createdAtBefore = null;
@@ -99,9 +100,10 @@ class _HomePageState extends State<HomePage> {
   void _onLoading() async {
     var nextPolls = await _getPolls();
     if (nextPolls != null && nextPolls.length > 0) {
-      if (mounted) setState(() {
-        polls += nextPolls;
-      });
+      if (mounted)
+        setState(() {
+          polls += nextPolls;
+        });
     }
     _refreshController.loadComplete();
   }
@@ -138,15 +140,15 @@ class _HomePageState extends State<HomePage> {
     );
 
     /**
-            return Scaffold(
-            backgroundColor: Theme.of(context).backgroundColor,
-            appBar: appBar(),
-            body: PageView(
-            children: pages,
-            ),
-            bottomNavigationBar: navBar(),
-            );
-         **/
+      return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      appBar: appBar(),
+      body: PageView(
+      children: pages,
+      ),
+      bottomNavigationBar: navBar(),
+      );
+     **/
   }
 }
 

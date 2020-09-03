@@ -170,13 +170,10 @@ class _PollCreateState extends State<PollCreate> {
       crossAxisCount: images.length > 4 ? 3 : 2,
       children: List.generate(images.length, (index) {
         Asset asset = images[index];
-        return Padding(
-          padding: const EdgeInsets.all(2.0),
-          child: AssetThumb(
-            asset: asset,
-            width: images.length > 4 ? 300 : 600,
-            height: images.length > 4 ? 300 : 600,
-          ),
+        return AssetThumb(
+          asset: asset,
+          width: images.length > 4 ? 300 : 600,
+          height: images.length > 4 ? 300 : 600,
         );
       }),
     );

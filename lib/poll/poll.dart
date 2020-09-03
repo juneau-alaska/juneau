@@ -176,21 +176,20 @@ class _PollWidgetState extends State<PollWidget> {
   Widget buildPoll() {
     var createdAt = DateTime.parse(widget.poll['createdAt']),
         time = timeago.format(createdAt, locale: 'en_short');
-
     List<Widget> children = [
       Padding(
         padding: const EdgeInsets.only(
-            left: 10.0, right: 10.0, top: 3.0, bottom: 3.0),
+            left: 10.0, right: 10.0, top: 10.0, bottom: 3.0),
         child: Text(
           widget.poll['prompt'],
           style: TextStyle(
             fontFamily: 'Lato Black',
-            fontSize: 20.0,
+            fontSize: 18.0,
           ),
         ),
       ),
       Padding(
-        padding: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 3.0),
+        padding: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
         child: Row(
           children: <Widget>[
             GestureDetector(
@@ -198,19 +197,19 @@ class _PollWidgetState extends State<PollWidget> {
                   pollCreator['username'],
                   style: TextStyle(
                     color: Theme.of(context).hintColor,
-                    fontSize: 14.0,
+                    fontSize: 13.0,
                   ),
                 ),
                 onTap: () {
                   print(pollCreator['email']);
                 }),
             Padding(
-              padding: const EdgeInsets.only(top: 0.0, left: 2.0),
+              padding: const EdgeInsets.only(left: 2.0),
               child: Text(
                 time,
                 style: TextStyle(
-                  color: Colors.blue,
-                  fontSize: 14,
+                  color: Theme.of(context).hintColor,
+                  fontSize: 12,
                   wordSpacing: -4.0,
                 ),
               ),
@@ -223,15 +222,19 @@ class _PollWidgetState extends State<PollWidget> {
     if (options.length > 0) {
       var poll = widget.poll,
           user = widget.user[0],
-          selectedOptions = user['selectedOptions'],
           completedPolls = user['completedPolls'];
 
       bool completed = completedPolls.indexOf(poll['_id']) >= 0;
       int totalVotes = 0;
+      int highestVote = 0;
 
       if (completed) {
         for (var c in options) {
-          totalVotes += c['votes'];
+          int votes = c['votes'];
+          totalVotes += votes;
+          if (votes > highestVote) {
+            highestVote = votes;
+          }
         }
       }
 
@@ -244,122 +247,77 @@ class _PollWidgetState extends State<PollWidget> {
 
               double containerHeight;
               if (imageBytesListLength == 2) {
-                containerHeight = 200;
+                containerHeight = 205;
               } else if (imageBytesListLength <= 4) {
-                containerHeight = 400;
+                containerHeight = 410;
               } else if (imageBytesListLength <= 6) {
-                containerHeight = 300;
+                containerHeight = 274;
               } else if (imageBytesListLength <= 9) {
-                containerHeight = 400;
+                containerHeight = 411;
               }
 
-              int highestVote = 0;
-              int highestIndex = 0;
+              return Container(
+                height: containerHeight,
+                child: GridView.count(
+                    physics: new NeverScrollableScrollPhysics(),
+                    crossAxisCount: imageBytesListLength > 4 ? 3 : 2,
+                    children: List.generate(imageBytesListLength, (index) {
+                      var option = options[index];
+                      int votes = option['votes'];
+                      double percent = votes > 0 ? votes / totalVotes : 0;
+                      String percentStr =
+                          (percent * 100.0).toStringAsFixed(0) + '%';
 
-              for (var i = 0; i < options.length; i++) {
-                var option = options[i];
-                int votes = option['votes'];
-                if (votes > highestVote) {
-                  highestVote = votes;
-                  highestIndex = i;
-                }
-              }
+                      Image image = Image.memory(imageBytesList[index]);
 
-              return Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Container(
-                  height: containerHeight,
-                  child: GridView.count(
-                      physics: new NeverScrollableScrollPhysics(),
-                      crossAxisCount: imageBytesListLength > 4 ? 3 : 2,
-                      children: List.generate(imageBytesListLength, (index) {
-                        var option = options[index];
-                        int votes = option['votes'];
-                        double percent = votes > 0 ? votes / totalVotes : 0;
-                        String percentStr =
-                            (percent * 100.0).toStringAsFixed(0) + '%';
-
-                        Image image = Image.memory(imageBytesList[index]);
-
-                        return Padding(
-                          padding: const EdgeInsets.all(2.0),
-                          child: GestureDetector(
-                            onDoubleTap: () {
-                              if (!completed) {
-                                HapticFeedback.mediumImpact();
-                                vote(options[index]);
-                              }
-                            },
-                            child: Stack(
-                              children: [
-                                Container(
-                                  child: image,
-                                  width: imageBytesListLength > 4 ? 300 : 600,
-                                  height: imageBytesListLength > 4 ? 300 : 600,
-                                ),
-                                completed
-                                    ? Stack(children: [
-                                        Opacity(
-                                          opacity: 0.5,
-                                          child: Container(
-                                            decoration: new BoxDecoration(
-                                              color: Theme.of(context)
-                                                  .highlightColor,
-                                            ),
-                                            width: imageBytesListLength > 4
-                                                ? 300
-                                                : 600,
-                                            height: imageBytesListLength > 4
-                                                ? 300
-                                                : 600,
-                                          ),
-                                        ),
-                                        Center(
-                                          child: Text(
-                                            percentStr,
-                                            style: TextStyle(
-                                                fontSize:
-                                                    imageBytesListLength > 4
-                                                        ? 15.0
-                                                        : 16.5,
-                                                fontWeight: FontWeight.w600,
-                                                color: highestIndex == index
-                                                    ? Colors.red
-                                                    : Colors.white),
-                                          ),
-                                        ),
-                                        selectedOptions
-                                                    .indexOf(option['_id']) >=
-                                                0
-                                            ? Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.end,
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            top: 2.5,
-                                                            right: 3.0),
-                                                    child: Opacity(
-                                                      opacity: 0.7,
-                                                      child: new Icon(
-                                                        Icons.check_circle,
-                                                        size: 20.0,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            : new SizedBox(
-                                                width: 0.0, height: 0.0),
-                                      ])
-                                    : Container(),
-                              ],
+                      return GestureDetector(
+                        onDoubleTap: () {
+                          if (!completed) {
+                            HapticFeedback.mediumImpact();
+                            vote(options[index]);
+                          }
+                        },
+                        child: Stack(
+                          children: [
+                            Container(
+                              child: image,
+                              width: imageBytesListLength > 4 ? 300 : 600,
+                              height: imageBytesListLength > 4 ? 300 : 600,
                             ),
-                          ),
-                        );
-                      })),
-                ),
+                            completed
+                                ? Stack(children: [
+                                    Opacity(
+                                      opacity: 0.5,
+                                      child: Container(
+                                        decoration: new BoxDecoration(
+                                          color:
+                                              Theme.of(context).highlightColor,
+                                        ),
+                                        width: imageBytesListLength > 4
+                                            ? 300
+                                            : 600,
+                                        height: imageBytesListLength > 4
+                                            ? 300
+                                            : 600,
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Text(
+                                        percentStr,
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.w600,
+                                            color: highestVote == votes
+                                                ? Colors.lightGreenAccent
+                                                : Colors.white),
+                                      ),
+                                    ),
+                                  ])
+                                : Container(),
+                          ],
+                        ),
+                      );
+                    })),
               );
             } else {
               return new Container(
@@ -370,8 +328,18 @@ class _PollWidgetState extends State<PollWidget> {
             }
           }));
 
-      // TODO: Temporary Bottom Padding
-      children.add(SizedBox(height: 60.0));
+      children.add(Padding(
+        padding: const EdgeInsets.only(left: 10.0, top: 10.0),
+        child: Text(
+          totalVotes == 1 ? '$totalVotes vote' : '$totalVotes votes',
+          style: TextStyle(
+              fontSize: 12.0,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).hintColor),
+        ),
+      ));
+
+      children.add(SizedBox(height: 10.0));
     }
 
     return Container(
