@@ -287,7 +287,7 @@ class _PollWidgetState extends State<PollWidget> {
                             completed
                                 ? Stack(children: [
                                     Opacity(
-                                      opacity: 0.5,
+                                      opacity: 0.3,
                                       child: Container(
                                         decoration: new BoxDecoration(
                                           color:
@@ -308,7 +308,7 @@ class _PollWidgetState extends State<PollWidget> {
                                             fontSize: 16.0,
                                             fontWeight: FontWeight.w600,
                                             color: highestVote == votes
-                                                ? Colors.lightGreenAccent
+                                                ? Theme.of(context).accentColor
                                                 : Colors.white),
                                       ),
                                     ),

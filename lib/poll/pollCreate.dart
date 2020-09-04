@@ -13,6 +13,7 @@ import 'package:path/path.dart' as p;
 
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/components/progressIndicatorComponent.dart';
 
 Future generatePreAssignedUrl(String fileType) async {
   const url = 'http://localhost:4000/option/generatePreAssignedUrl';
@@ -199,159 +200,179 @@ class _PollCreateState extends State<PollCreate> {
     if (!mounted) return;
 
     setState(() {
+      isLoading = false;
       images = resultList;
     });
   }
 
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(15.0, 65.0, 15.0, 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    "Cancel",
-                    style: TextStyle(
-                      fontSize: 16,
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Theme.of(context).backgroundColor,
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(15.0, 65.0, 15.0, 20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Text(
-                  "Create New Poll",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () async {
-                    String prompt = questionInput.controller.text;
-                    List options = [];
+                    Text(
+                      "Create New Poll",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        String prompt = questionInput.controller.text;
+                        List options = [];
 
-                    if (prompt == null ||
-                        prompt.replaceAll(new RegExp(r"\s+"), "").length == 0) {
-                      return showAlert(context, 'Please provide a title');
-                    }
-
-                    if (images.length >= 2) {
-                      for (int i = 0; i < images.length; i++) {
-                        String path = await FlutterAbsolutePath.getAbsolutePath(
-                            images[i].identifier);
-
-                        final file = File(path);
-                        if (!file.existsSync()) {
-                          file.createSync(recursive: true);
+                        if (prompt == null ||
+                            prompt.replaceAll(new RegExp(r"\s+"), "").length ==
+                                0) {
+                          return showAlert(context, 'Please provide a title');
                         }
 
-                        String fileExtension = p.extension(file.path);
-                        var preAssignedUrl =
-                            await generatePreAssignedUrl(fileExtension)
-                                .catchError((err) {
+                        if (images.length >= 2) {
+                          for (int i = 0; i < images.length; i++) {
+                            String path =
+                                await FlutterAbsolutePath.getAbsolutePath(
+                                    images[i].identifier);
+
+                            final file = File(path);
+                            if (!file.existsSync()) {
+                              file.createSync(recursive: true);
+                            }
+
+                            String fileExtension = p.extension(file.path);
+                            var preAssignedUrl =
+                                await generatePreAssignedUrl(fileExtension)
+                                    .catchError((err) {
+                              return showAlert(context,
+                                  'Something went wrong, please try again');
+                            });
+
+                            String uploadUrl = preAssignedUrl['uploadUrl'];
+                            String downloadUrl = preAssignedUrl['downloadUrl'];
+
+                            await uploadFile(uploadUrl, images[i])
+                                .then((result) {
+                              options.add(downloadUrl);
+                            }).catchError((err) {
+                              return showAlert(context,
+                                  'Something went wrong, please try again');
+                            });
+                          }
+                          // TODO: LOADING BAR OR SPINNER WHILE THIS TAKES PLACE? MAKE A COMPONENT?
+                        } else {
+                          return showAlert(
+                              context, 'Please select at least 2 images');
+                        }
+
+                        if (options.length >= 2) {
+                          createOptions(prompt, options, context);
+                        } else {
                           return showAlert(context,
                               'Something went wrong, please try again');
-                        });
-
-                        String uploadUrl = preAssignedUrl['uploadUrl'];
-                        String downloadUrl = preAssignedUrl['downloadUrl'];
-
-                        await uploadFile(uploadUrl, images[i]).then((result) {
-                          options.add(downloadUrl);
-                        }).catchError((err) {
-                          return showAlert(context,
-                              'Something went wrong, please try again');
-                        });
-                      }
-                      // TODO: LOADING BAR OR SPINNER WHILE THIS TAKES PLACE? MAKE A COMPONENT?
-                    } else {
-                      return showAlert(context, 'Please select at least 2 images');
-                    }
-
-                    if (options.length >= 2) {
-                      createOptions(prompt, options, context);
-                    } else {
-                      return showAlert(
-                          context, 'Something went wrong, please try again');
-                    }
-                  },
-                  child: Text(
-                    "Create",
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          questionInput,
-          SizedBox(height: 30.0),
-          Padding(
-            padding: const EdgeInsets.only(left: 15.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(
-                  children: [
-                    Text(
-                      "Add Options",
-                      style: TextStyle(
-                          fontSize: 15.0, fontWeight: FontWeight.w600),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 3.0, top: 1.0),
+                        }
+                      },
                       child: Text(
-                        "(max 9)",
+                        "Create",
                         style: TextStyle(
-                          color: Theme.of(context).hintColor,
-                          fontSize: 12.0,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
                         ),
                       ),
                     ),
                   ],
                 ),
-                Container(
-                  margin: const EdgeInsets.only(right: 15.0),
-                  child: GestureDetector(
-                    onTap: loadAssets,
-                    child: Row(
+              ),
+              questionInput,
+              SizedBox(height: 30.0),
+              Padding(
+                padding: const EdgeInsets.only(left: 15.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Row(
                       children: [
-                        Icon(
-                          Icons.photo_library,
-                          size: 18.0,
-                        ),
-                        SizedBox(width: 5.0),
                         Text(
-                          "SELECT IMAGES",
+                          "Add Options",
                           style: TextStyle(
-                            fontSize: 12.0,
+                              fontSize: 15.0, fontWeight: FontWeight.w600),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 3.0, top: 1.0),
+                          child: Text(
+                            "(max 9)",
+                            style: TextStyle(
+                              color: Theme.of(context).hintColor,
+                              fontSize: 12.0,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
+                    Container(
+                      margin: const EdgeInsets.only(right: 15.0),
+                      child: GestureDetector(
+                        onTap: loadAssets,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.photo_library,
+                              size: 18.0,
+                            ),
+                            SizedBox(width: 5.0),
+                            Text(
+                              "SELECT IMAGES",
+                              style: TextStyle(
+                                fontSize: 12.0,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              SizedBox(height: 10.0),
+              Expanded(
+                child: buildGridView(),
+              ),
+            ],
           ),
-          SizedBox(height: 10.0),
-          Expanded(
-            child: buildGridView(),
+        ),
+        isLoading ? Container(
+          color: Colors.black.withOpacity(0.5),
+          child: Center(
+            child: CircularProgressIndicator(),
           ),
-        ],
-      ),
+        ) : Container()
+      ],
     );
   }
 }
