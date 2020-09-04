@@ -164,6 +164,7 @@ class _PollCreateState extends State<PollCreate> {
   @override
   void initState() {
     super.initState();
+    loadAssets();
   }
 
   Widget buildGridView() {
