@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 void showAlert(context, text) {
-  Navigator.of(context)
-    .overlay
-    .insert(OverlayEntry(builder: (BuildContext context) {
+  Navigator.of(context).overlay.insert(OverlayEntry(builder: (BuildContext context) {
     return AlertComponent(text: text);
   }));
 }

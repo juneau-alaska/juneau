@@ -20,10 +20,7 @@ Future<List> _getPolls() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
 
-  var headers = {
-    HttpHeaders.contentTypeHeader: 'application/json',
-    HttpHeaders.authorizationHeader: token
-  };
+  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
 
   var body = jsonEncode({'createdAtBefore': createdAtBefore});
   var response = await http.post(url, headers: headers, body: body);
@@ -88,8 +85,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  RefreshController _refreshController =
-      RefreshController(initialRefresh: false);
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   void _onRefresh() async {
     createdAtBefore = null;

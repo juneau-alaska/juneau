@@ -28,9 +28,8 @@ class InputComponent extends StatefulWidget {
 class _InputComponentState extends State<InputComponent> {
   @override
   Widget build(BuildContext context) {
-    EdgeInsets edgeInset = widget.padding != null
-        ? EdgeInsets.all(widget.padding)
-        : EdgeInsets.fromLTRB(11.0, 13.0, 11.0, 13.0);
+    EdgeInsets edgeInset =
+        widget.padding != null ? EdgeInsets.all(widget.padding) : EdgeInsets.fromLTRB(11.0, 13.0, 11.0, 13.0);
     int maxLines = widget.maxLines != null ? widget.maxLines : 1;
     double fontSize = widget.fontSize != null ? widget.fontSize : 14.0;
     bool obscureText = widget.obscureText != null ? widget.obscureText : false;
@@ -44,35 +43,26 @@ class _InputComponentState extends State<InputComponent> {
             obscuringCharacter: '•',
             obscureText: obscureText,
             maxLines: maxLines,
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.w500
-            ),
+            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w400),
             decoration: InputDecoration(
               isDense: true,
               contentPadding: edgeInset,
               hintText: widget.hintText,
-              hintStyle: TextStyle(
-                  color: Theme.of(context).hintColor,
-                  fontWeight: FontWeight.w300),
+              hintStyle: TextStyle(color: Theme.of(context).hintColor, fontWeight: FontWeight.w400),
               fillColor: Theme.of(context).backgroundColor,
               filled: true,
               errorText: widget.errorText,
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
                 borderSide: BorderSide(
-                  color: widget.borderColor != null
-                      ? widget.borderColor
-                      : Theme.of(context).hintColor,
+                  color: widget.borderColor != null ? widget.borderColor : Theme.of(context).hintColor,
                   width: 0.5,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
                 borderSide: BorderSide(
-                  color: widget.borderColor != null
-                      ? widget.borderColor
-                      : Theme.of(context).hintColor,
+                  color: widget.borderColor != null ? widget.borderColor : Theme.of(context).hintColor,
                   width: 0.5,
                 ),
               ),

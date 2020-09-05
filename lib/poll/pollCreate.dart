@@ -13,7 +13,6 @@ import 'package:path/path.dart' as p;
 
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/components/alertComponent.dart';
-import 'package:juneau/common/components/progressIndicatorComponent.dart';
 
 Future generatePreAssignedUrl(String fileType) async {
   const url = 'http://localhost:4000/option/generatePreAssignedUrl';
@@ -21,10 +20,7 @@ Future generatePreAssignedUrl(String fileType) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
 
-  var headers = {
-    HttpHeaders.contentTypeHeader: 'application/json',
-    HttpHeaders.authorizationHeader: token
-  };
+  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
 
   var body, response;
 
@@ -58,10 +54,7 @@ void createOptions(prompt, options, context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
 
-  var headers = {
-    HttpHeaders.contentTypeHeader: 'application/json',
-    HttpHeaders.authorizationHeader: token
-  };
+  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
 
   var body, response;
 
@@ -97,13 +90,9 @@ void createPoll(prompt, optionIds, context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token'), userId = prefs.getString('userId');
 
-  var headers = {
-    HttpHeaders.contentTypeHeader: 'application/json',
-    HttpHeaders.authorizationHeader: token
-  };
+  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
 
-  var body =
-      jsonEncode({'prompt': prompt, 'options': optionIds, 'createdBy': userId});
+  var body = jsonEncode({'prompt': prompt, 'options': optionIds, 'createdBy': userId});
 
   var response = await http.post(url, headers: headers, body: body);
 
@@ -122,16 +111,12 @@ void updateUserCreatedPolls(pollId, context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token'), userId = prefs.getString('userId');
 
-  var headers = {
-    HttpHeaders.contentTypeHeader: 'application/json',
-    HttpHeaders.authorizationHeader: token
-  };
+  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
 
   var response = await http.get(url + userId, headers: headers);
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body)[0],
-        createdPolls = jsonResponse['createdPolls'];
+    var jsonResponse = jsonDecode(response.body)[0], createdPolls = jsonResponse['createdPolls'];
 
     createdPolls.add(pollId);
 
@@ -156,7 +141,7 @@ class _PollCreateState extends State<PollCreate> {
     maxLines: 4,
     borderColor: Colors.transparent,
     padding: 0.0,
-    fontSize: 16.0,
+    fontSize: 15.0,
   );
 
   List<Asset> images = List<Asset>();
@@ -164,7 +149,6 @@ class _PollCreateState extends State<PollCreate> {
   @override
   void initState() {
     super.initState();
-    loadAssets();
   }
 
   Widget buildGridView() {
@@ -249,17 +233,13 @@ class _PollCreateState extends State<PollCreate> {
                         String prompt = questionInput.controller.text;
                         List options = [];
 
-                        if (prompt == null ||
-                            prompt.replaceAll(new RegExp(r"\s+"), "").length ==
-                                0) {
+                        if (prompt == null || prompt.replaceAll(new RegExp(r"\s+"), "").length == 0) {
                           return showAlert(context, 'Please provide a title');
                         }
 
                         if (images.length >= 2) {
                           for (int i = 0; i < images.length; i++) {
-                            String path =
-                                await FlutterAbsolutePath.getAbsolutePath(
-                                    images[i].identifier);
+                            String path = await FlutterAbsolutePath.getAbsolutePath(images[i].identifier);
 
                             final file = File(path);
                             if (!file.existsSync()) {
@@ -267,35 +247,28 @@ class _PollCreateState extends State<PollCreate> {
                             }
 
                             String fileExtension = p.extension(file.path);
-                            var preAssignedUrl =
-                                await generatePreAssignedUrl(fileExtension)
-                                    .catchError((err) {
-                              return showAlert(context,
-                                  'Something went wrong, please try again');
+                            var preAssignedUrl = await generatePreAssignedUrl(fileExtension).catchError((err) {
+                              return showAlert(context, 'Something went wrong, please try again');
                             });
 
                             String uploadUrl = preAssignedUrl['uploadUrl'];
                             String downloadUrl = preAssignedUrl['downloadUrl'];
 
-                            await uploadFile(uploadUrl, images[i])
-                                .then((result) {
+                            await uploadFile(uploadUrl, images[i]).then((result) {
                               options.add(downloadUrl);
                             }).catchError((err) {
-                              return showAlert(context,
-                                  'Something went wrong, please try again');
+                              return showAlert(context, 'Something went wrong, please try again');
                             });
                           }
                           // TODO: LOADING BAR OR SPINNER WHILE THIS TAKES PLACE? MAKE A COMPONENT?
                         } else {
-                          return showAlert(
-                              context, 'Please select at least 2 images');
+                          return showAlert(context, 'Please select at least 2 images');
                         }
 
                         if (options.length >= 2) {
                           createOptions(prompt, options, context);
                         } else {
-                          return showAlert(context,
-                              'Something went wrong, please try again');
+                          return showAlert(context, 'Something went wrong, please try again');
                         }
                       },
                       child: Text(
@@ -311,9 +284,24 @@ class _PollCreateState extends State<PollCreate> {
                 ),
               ),
               questionInput,
-              SizedBox(height: 30.0),
+//              Divider(
+//                thickness: 1.0,
+//              ),
+//              Container(
+//                  width: MediaQuery.of(context).size.width,
+//                  height: 80,
+//                  child: Padding(
+//                    padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+//                    child: Text(
+//                      "Categories",
+//                      style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400),
+//                    ),
+//                  )),
+//              Divider(
+//                thickness: 1.0,
+//              ),
               Padding(
-                padding: const EdgeInsets.only(left: 15.0),
+                padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -321,8 +309,7 @@ class _PollCreateState extends State<PollCreate> {
                       children: [
                         Text(
                           "Add Options",
-                          style: TextStyle(
-                              fontSize: 15.0, fontWeight: FontWeight.w600),
+                          style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(left: 3.0, top: 1.0),
@@ -367,12 +354,14 @@ class _PollCreateState extends State<PollCreate> {
             ],
           ),
         ),
-        isLoading ? Container(
-          color: Colors.black.withOpacity(0.5),
-          child: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ) : Container()
+        isLoading
+            ? Container(
+                color: Colors.black.withOpacity(0.5),
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : Container()
       ],
     );
   }

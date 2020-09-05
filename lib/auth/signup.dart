@@ -13,15 +13,12 @@ import 'dart:io';
 void signup(email, username, password, context) async {
   const url = 'http://localhost:4000/signup';
   const headers = {HttpHeaders.contentTypeHeader: 'application/json'};
-  var body =
-      jsonEncode({'email': email, 'username': username, 'password': password});
+  var body = jsonEncode({'email': email, 'username': username, 'password': password});
 
   var response = await http.post(url, headers: headers, body: body);
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body),
-        token = jsonResponse['token'],
-        user = jsonResponse['user'];
+    var jsonResponse = jsonDecode(response.body), token = jsonResponse['token'], user = jsonResponse['user'];
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -59,8 +56,7 @@ class _SignUpPageState extends State<SignUpPage> {
     final usernameController = usernameInput.controller;
 
     // "Password must be at least 6 characters, contain 1 capital and 1 lowercase, 1 number and 1 special character"
-    InputComponent passwordInput =
-        new InputComponent(hintText: 'Password', obscureText: true);
+    InputComponent passwordInput = new InputComponent(hintText: 'Password', obscureText: true);
     final passwordController = passwordInput.controller;
 
     return Scaffold(
@@ -105,8 +101,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   }
                 },
                 color: Theme.of(context).buttonColor,
-                shape: RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(6.0)),
+                shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(6.0)),
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Text(
@@ -119,8 +114,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: FlatButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/login');
