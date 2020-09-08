@@ -8,6 +8,8 @@ class InputComponent extends StatefulWidget {
   final borderColor;
   final padding;
   final fontSize;
+  final fontWeight;
+  final autofocus;
   final controller = TextEditingController();
 
   InputComponent({
@@ -19,6 +21,8 @@ class InputComponent extends StatefulWidget {
     this.borderColor,
     this.padding,
     this.fontSize,
+    this.fontWeight,
+    this.autofocus,
   }) : super(key: key);
 
   @override
@@ -28,12 +32,13 @@ class InputComponent extends StatefulWidget {
 class _InputComponentState extends State<InputComponent> {
   @override
   Widget build(BuildContext context) {
-    EdgeInsets edgeInset = widget.padding != null
-        ? EdgeInsets.all(widget.padding)
-        : EdgeInsets.fromLTRB(11.0, 13.0, 11.0, 13.0);
+    EdgeInsets edgeInset =
+        widget.padding != null ? widget.padding : EdgeInsets.fromLTRB(11.0, 13.0, 11.0, 13.0);
     int maxLines = widget.maxLines != null ? widget.maxLines : 1;
     double fontSize = widget.fontSize != null ? widget.fontSize : 14.0;
     bool obscureText = widget.obscureText != null ? widget.obscureText : false;
+    Color borderColor = widget.borderColor != null ? widget.borderColor : Theme.of(context).hintColor;
+    FontWeight fontWeight = widget.fontWeight != null ? widget.fontWeight : FontWeight.w400;
 
     return Container(
       color: Colors.transparent,
@@ -44,34 +49,27 @@ class _InputComponentState extends State<InputComponent> {
             obscuringCharacter: '•',
             obscureText: obscureText,
             maxLines: maxLines,
-            style: TextStyle(
-              fontSize: fontSize,
-            ),
+            autofocus: widget.autofocus,
+            style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
             decoration: InputDecoration(
               isDense: true,
               contentPadding: edgeInset,
               hintText: widget.hintText,
-              hintStyle: TextStyle(
-                  color: Theme.of(context).hintColor,
-                  fontWeight: FontWeight.w300),
+              hintStyle: TextStyle(color: Theme.of(context).hintColor, fontWeight: fontWeight),
               fillColor: Theme.of(context).backgroundColor,
               filled: true,
               errorText: widget.errorText,
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
                 borderSide: BorderSide(
-                  color: widget.borderColor != null
-                      ? widget.borderColor
-                      : Theme.of(context).hintColor,
+                  color: borderColor,
                   width: 0.5,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
                 borderSide: BorderSide(
-                  color: widget.borderColor != null
-                      ? widget.borderColor
-                      : Theme.of(context).hintColor,
+                  color: borderColor,
                   width: 0.5,
                 ),
               ),

@@ -27,9 +27,7 @@ void login(email, password, context) async {
   var response = await http.post(url, headers: headers, body: body);
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body),
-        token = jsonResponse['token'],
-        user = jsonResponse['user'];
+    var jsonResponse = jsonDecode(response.body), token = jsonResponse['token'], user = jsonResponse['user'];
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -60,12 +58,10 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    InputComponent emailInput =
-        new InputComponent(hintText: 'Username or email');
+    InputComponent emailInput = new InputComponent(hintText: 'Username or email');
     final emailController = emailInput.controller;
 
-    InputComponent passwordInput =
-        new InputComponent(hintText: 'Password', obscureText: true);
+    InputComponent passwordInput = new InputComponent(hintText: 'Password', obscureText: true);
     final passwordController = passwordInput.controller;
 
     return Scaffold(
@@ -135,8 +131,7 @@ class _LoginPageState extends State<LoginPage> {
                   }
                 },
                 color: Theme.of(context).buttonColor,
-                shape: RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(6.0)),
+                shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(6.0)),
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Text(
@@ -147,8 +142,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: FlatButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/signup');

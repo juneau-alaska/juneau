@@ -6,8 +6,7 @@ import 'package:juneau/poll/pollCreate.dart';
 void logout(context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs?.clear();
-  Navigator.of(context)
-      .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+  Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
 }
 
 Widget navBar() {
@@ -54,21 +53,21 @@ class _NavBarState extends State<NavBar> {
         items: [
           BottomNavigationBarItem(
             icon: new Icon(
-              Icons.exit_to_app,
+              Icons.home,
               color: Theme.of(context).hintColor,
             ),
             title: new Text(''),
           ),
           BottomNavigationBarItem(
             icon: new Icon(
-              Icons.add_box,
+              Icons.add,
               color: Theme.of(context).hintColor,
             ),
             title: new Text(''),
           ),
           BottomNavigationBarItem(
             icon: new Icon(
-              Icons.mail,
+              Icons.account_circle,
               color: Theme.of(context).hintColor,
             ),
             title: new Text(''),
