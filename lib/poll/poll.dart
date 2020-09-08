@@ -239,7 +239,7 @@ class _PollWidgetState extends State<PollWidget> {
               List imageBytesList = imageBytes.data;
 
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.5),
+                padding: const EdgeInsets.symmetric(horizontal: 0.75),
                 child: Container(
                   height: containerHeight,
                   child: GridView.count(
@@ -254,7 +254,7 @@ class _PollWidgetState extends State<PollWidget> {
                         Image image = Image.memory(imageBytesList[index]);
 
                         return Padding(
-                          padding: const EdgeInsets.all(0.5),
+                          padding: const EdgeInsets.all(0.75),
                           child: GestureDetector(
                             onDoubleTap: () {
                               if (!completed) {
@@ -275,21 +275,21 @@ class _PollWidgetState extends State<PollWidget> {
                                           opacity: 0.3,
                                           child: Container(
                                             decoration: new BoxDecoration(
-                                              color: Theme.of(context).highlightColor,
+                                              color: Theme.of(context).backgroundColor,
                                             ),
-                                            width: lengthGreaterThanFour ? 300 : 600,
-                                            height: lengthGreaterThanFour ? 300 : 600,
+                                            width: size,
+                                            height: size,
                                           ),
                                         ),
                                         Center(
                                           child: Text(
                                             percentStr,
                                             style: TextStyle(
-                                                fontSize: 17.0,
+                                                fontSize: 16.0,
                                                 fontWeight: FontWeight.w600,
                                                 color: highestVote == votes
-                                                    ? Colors.lightGreenAccent
-                                                    : Colors.white),
+                                                    ? Colors.white
+                                                    : Colors.white54),
                                           ),
                                         ),
                                       ])
@@ -303,7 +303,7 @@ class _PollWidgetState extends State<PollWidget> {
               );
             } else {
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.5),
+                padding: const EdgeInsets.symmetric(horizontal: 0.75),
                 child: new Container(
                   height: containerHeight,
                   child: GridView.count(
@@ -311,7 +311,7 @@ class _PollWidgetState extends State<PollWidget> {
                     crossAxisCount: lengthGreaterThanFour ? 3 : 2,
                     children: List.generate(optionsLength, (index) {
                       return Padding(
-                        padding: const EdgeInsets.all(0.5),
+                        padding: const EdgeInsets.all(0.75),
                         child: Container(
                           width: size,
                           height: size,
