@@ -219,87 +219,108 @@ class _PollWidgetState extends State<PollWidget> {
         }
       }
 
+      double screenWidth = MediaQuery.of(context).size.width;
+      int optionsLength = options.length;
+      bool lengthGreaterThanFour = optionsLength > 4;
+      double divider = lengthGreaterThanFour ? 3 : 2;
+      double size = screenWidth / divider;
+      double containerHeight;
+
+      if (lengthGreaterThanFour) {
+        containerHeight = optionsLength > 6 ? size * 3 : size * 2;
+      } else {
+        containerHeight = optionsLength > 2 ? size * 2 : size;
+      }
+
       children.add(FutureBuilder<List>(
           future: _getImages(options),
           builder: (context, AsyncSnapshot<List> imageBytes) {
             if (imageBytes.hasData) {
               List imageBytesList = imageBytes.data;
-              int imageBytesListLength = imageBytesList.length;
 
-              double screenWidth = MediaQuery.of(context).size.width;
-              bool is3x3 = imageBytesListLength > 4;
-              double divider = is3x3 ? 3 : 2;
-              double size = screenWidth / divider;
-              double containerHeight;
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0.5),
+                child: Container(
+                  height: containerHeight,
+                  child: GridView.count(
+                      physics: new NeverScrollableScrollPhysics(),
+                      crossAxisCount: lengthGreaterThanFour ? 3 : 2,
+                      children: List.generate(optionsLength, (index) {
+                        var option = options[index];
+                        int votes = option['votes'];
+                        double percent = votes > 0 ? votes / totalVotes : 0;
+                        String percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
 
-              if (is3x3) {
-                containerHeight = imageBytesListLength > 6 ? size * 3 : size * 2;
-              } else {
-                containerHeight = imageBytesListLength > 2 ? size * 2 : size;
-              }
+                        Image image = Image.memory(imageBytesList[index]);
 
-              return Container(
-                height: containerHeight,
-                child: GridView.count(
-                    physics: new NeverScrollableScrollPhysics(),
-                    crossAxisCount: is3x3 ? 3 : 2,
-                    children: List.generate(imageBytesListLength, (index) {
-                      var option = options[index];
-                      int votes = option['votes'];
-                      double percent = votes > 0 ? votes / totalVotes : 0;
-                      String percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
-
-                      Image image = Image.memory(imageBytesList[index]);
-
-                      return GestureDetector(
-                        onDoubleTap: () {
-                          if (!completed) {
-                            HapticFeedback.mediumImpact();
-                            vote(options[index]);
-                          }
-                        },
-                        child: Stack(
-                          children: [
-                            Container(
-                              child: image,
-                              width: size,
-                              height: size,
-                            ),
-                            completed
-                                ? Stack(children: [
-                                    Opacity(
-                                      opacity: 0.3,
-                                      child: Container(
-                                        decoration: new BoxDecoration(
-                                          color: Theme.of(context).highlightColor,
+                        return Padding(
+                          padding: const EdgeInsets.all(0.5),
+                          child: GestureDetector(
+                            onDoubleTap: () {
+                              if (!completed) {
+                                HapticFeedback.mediumImpact();
+                                vote(options[index]);
+                              }
+                            },
+                            child: Stack(
+                              children: [
+                                Container(
+                                  child: image,
+                                  width: size,
+                                  height: size,
+                                ),
+                                completed
+                                    ? Stack(children: [
+                                        Opacity(
+                                          opacity: 0.3,
+                                          child: Container(
+                                            decoration: new BoxDecoration(
+                                              color: Theme.of(context).highlightColor,
+                                            ),
+                                            width: lengthGreaterThanFour ? 300 : 600,
+                                            height: lengthGreaterThanFour ? 300 : 600,
+                                          ),
                                         ),
-                                        width: is3x3 ? 300 : 600,
-                                        height: is3x3 ? 300 : 600,
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Text(
-                                        percentStr,
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.w600,
-                                            color: highestVote == votes
-                                                ? Theme.of(context).accentColor
-                                                : Colors.white),
-                                      ),
-                                    ),
-                                  ])
-                                : Container(),
-                          ],
-                        ),
-                      );
-                    })),
+                                        Center(
+                                          child: Text(
+                                            percentStr,
+                                            style: TextStyle(
+                                                fontSize: 17.0,
+                                                fontWeight: FontWeight.w600,
+                                                color: highestVote == votes
+                                                    ? Colors.lightGreenAccent
+                                                    : Colors.white),
+                                          ),
+                                        ),
+                                      ])
+                                    : Container(),
+                              ],
+                            ),
+                          ),
+                        );
+                      })),
+                ),
               );
             } else {
-              return new Container(
-                width: 100,
-                height: 100,
-                child: Center(child: CircularProgressIndicator()),
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0.5),
+                child: new Container(
+                  height: containerHeight,
+                  child: GridView.count(
+                    physics: new NeverScrollableScrollPhysics(),
+                    crossAxisCount: lengthGreaterThanFour ? 3 : 2,
+                    children: List.generate(optionsLength, (index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(0.5),
+                        child: Container(
+                          width: size,
+                          height: size,
+                          color: Theme.of(context).highlightColor
+                        ),
+                      );
+                    })
+                  )
+                ),
               );
             }
           }));

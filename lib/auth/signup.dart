@@ -55,7 +55,6 @@ class _SignUpPageState extends State<SignUpPage> {
     InputComponent usernameInput = new InputComponent(hintText: 'Username');
     final usernameController = usernameInput.controller;
 
-    // "Password must be at least 6 characters, contain 1 capital and 1 lowercase, 1 number and 1 special character"
     InputComponent passwordInput = new InputComponent(hintText: 'Password', obscureText: true);
     final passwordController = passwordInput.controller;
 

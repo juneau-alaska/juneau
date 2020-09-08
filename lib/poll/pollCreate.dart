@@ -136,13 +136,11 @@ class PollCreate extends StatefulWidget {
 
 class _PollCreateState extends State<PollCreate> {
   InputComponent questionInput = new InputComponent(
-    hintText: 'Provide an interesting title',
-    obscureText: false,
-    maxLines: 4,
-    borderColor: Colors.transparent,
-    padding: 0.0,
-    fontSize: 15.0,
-  );
+      hintText: 'Provide a question...',
+      borderColor: Colors.transparent,
+      padding: EdgeInsets.symmetric(vertical: 10.0),
+      fontSize: 16.0,
+      autofocus: true);
 
   List<Asset> images = List<Asset>();
 
@@ -219,10 +217,10 @@ class _PollCreateState extends State<PollCreate> {
                       ),
                     ),
                     Text(
-                      "Create New Poll",
+                      "Image Poll",
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 18,
+                        fontSize: 17,
                       ),
                     ),
                     GestureDetector(
@@ -284,61 +282,56 @@ class _PollCreateState extends State<PollCreate> {
                 ),
               ),
               questionInput,
-//              Divider(
-//                thickness: 1.0,
-//              ),
-//              Container(
-//                  width: MediaQuery.of(context).size.width,
-//                  height: 80,
-//                  child: Padding(
-//                    padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-//                    child: Text(
-//                      "Categories",
-//                      style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400),
-//                    ),
-//                  )),
-//              Divider(
-//                thickness: 1.0,
-//              ),
+              Divider(
+                thickness: 1.0,
+              ),
+              GestureDetector(
+                onTap: () {},
+                behavior: HitTestBehavior.opaque,
+                child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Categories",
+                            style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 15.0,
+                          )
+                        ],
+                      ),
+                    )),
+              ),
+              Divider(
+                thickness: 1.0,
+              ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+                padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Row(
-                      children: [
-                        Text(
-                          "Add Options",
-                          style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 3.0, top: 1.0),
-                          child: Text(
-                            "(max 9)",
-                            style: TextStyle(
-                              color: Theme.of(context).hintColor,
-                              fontSize: 12.0,
-                            ),
-                          ),
-                        ),
-                      ],
+                    Text(
+                      "Add Selections",
+                      style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400),
                     ),
                     Container(
-                      margin: const EdgeInsets.only(right: 15.0),
                       child: GestureDetector(
                         onTap: loadAssets,
                         child: Row(
                           children: [
                             Icon(
                               Icons.photo_library,
-                              size: 18.0,
+                              size: 16.0,
                             ),
                             SizedBox(width: 5.0),
                             Text(
                               "SELECT IMAGES",
-                              style: TextStyle(
-                                fontSize: 12.0,
-                              ),
+                              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w300),
                             ),
                           ],
                         ),
@@ -347,7 +340,7 @@ class _PollCreateState extends State<PollCreate> {
                   ],
                 ),
               ),
-              SizedBox(height: 10.0),
+              SizedBox(height: 8.0),
               Expanded(
                 child: buildGridView(),
               ),
