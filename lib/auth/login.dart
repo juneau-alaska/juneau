@@ -95,28 +95,26 @@ class _LoginPageState extends State<LoginPage> {
             emailInput,
             passwordInput,
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 4.0),
-              child: Container(
-                height: 40.0,
-                child: FlatButton(
-                  onPressed: () {
-                    print('');
-                  },
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      'Forgot password?',
-                      style: TextStyle(
-                        color: Theme.of(context).buttonColor,
-                        fontSize: 12.0,
-                      ),
+              padding: const EdgeInsets.only(top: 5.0, bottom: 10.0, right: 10.0),
+              child: GestureDetector(
+                onTap: () {
+                  // TODO: RESET PASSWORD
+                  print('');
+                },
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    'Forgot password?',
+                    style: TextStyle(
+                      color: Theme.of(context).hintColor,
+                      fontSize: 14.0,
                     ),
                   ),
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: FlatButton(
                 onPressed: () {
                   String email = emailController.text;
@@ -131,9 +129,9 @@ class _LoginPageState extends State<LoginPage> {
                   }
                 },
                 color: Theme.of(context).buttonColor,
-                shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(6.0)),
+                shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(10.0)),
                 child: Padding(
-                  padding: const EdgeInsets.all(15.0),
+                  padding: const EdgeInsets.all(13.0),
                   child: Text(
                     'Log In',
                     style: TextStyle(color: Theme.of(context).backgroundColor),
@@ -142,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: FlatButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/signup');

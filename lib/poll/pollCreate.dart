@@ -13,6 +13,7 @@ import 'package:path/path.dart' as p;
 
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/category/categorySearchSelect.dart';
 
 Future generatePreAssignedUrl(String fileType) async {
   const url = 'http://localhost:4000/option/generatePreAssignedUrl';
@@ -136,11 +137,13 @@ class PollCreate extends StatefulWidget {
 
 class _PollCreateState extends State<PollCreate> {
   InputComponent questionInput = new InputComponent(
-      hintText: 'Provide a question...',
-      borderColor: Colors.transparent,
-      padding: EdgeInsets.symmetric(vertical: 10.0),
-      fontSize: 16.0,
-      autofocus: true);
+    hintText: 'Provide a question...',
+    borderColor: Colors.transparent,
+    padding: EdgeInsets.symmetric(horizontal: 15.0),
+    contentPadding: EdgeInsets.symmetric(vertical: 10.0),
+    fontSize: 16.0,
+    autoFocus: true,
+  );
 
   List<Asset> images = List<Asset>();
 
@@ -207,7 +210,7 @@ class _PollCreateState extends State<PollCreate> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.fromLTRB(15.0, 65.0, 15.0, 20.0),
+                padding: const EdgeInsets.fromLTRB(15.0, 50.0, 15.0, 20.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -226,7 +229,7 @@ class _PollCreateState extends State<PollCreate> {
                       "Image Poll",
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 17,
+                        fontSize: 16,
                       ),
                     ),
                     GestureDetector(
@@ -264,7 +267,6 @@ class _PollCreateState extends State<PollCreate> {
                               return showAlert(context, 'Something went wrong, please try again');
                             });
                           }
-                          // TODO: LOADING BAR OR SPINNER WHILE THIS TAKES PLACE? MAKE A COMPONENT?
                         } else {
                           return showAlert(context, 'Please select at least 2 images');
                         }
@@ -292,7 +294,14 @@ class _PollCreateState extends State<PollCreate> {
                 thickness: 1.0,
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  showModalBottomSheet(
+                      isScrollControlled: true,
+                      context: context,
+                      builder: (BuildContext context) {
+                        return new CategorySearchSelect();
+                      });
+                },
                 behavior: HitTestBehavior.opaque,
                 child: Container(
                     width: MediaQuery.of(context).size.width,
@@ -303,7 +312,7 @@ class _PollCreateState extends State<PollCreate> {
                         children: [
                           Text(
                             "Categories",
-                            style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400),
+                            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400),
                           ),
                           Icon(
                             Icons.arrow_forward_ios,
@@ -317,13 +326,13 @@ class _PollCreateState extends State<PollCreate> {
                 thickness: 1.0,
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+                padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 18.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
                       "Add Selections",
-                      style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w400),
+                      style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400),
                     ),
                     Container(
                       child: GestureDetector(
@@ -332,12 +341,12 @@ class _PollCreateState extends State<PollCreate> {
                           children: [
                             Icon(
                               Icons.photo_library,
-                              size: 16.0,
+                              size: 18.0,
                             ),
                             SizedBox(width: 5.0),
                             Text(
                               "SELECT IMAGES",
-                              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w300),
+                              style: TextStyle(fontSize: 13.0),
                             ),
                           ],
                         ),
@@ -346,7 +355,6 @@ class _PollCreateState extends State<PollCreate> {
                   ],
                 ),
               ),
-              SizedBox(height: 8.0),
               Expanded(
                 child: buildGridView(),
               ),

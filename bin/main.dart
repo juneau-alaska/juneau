@@ -8,6 +8,10 @@ import 'package:juneau/home/home.dart';
 
 void main() => runApp(new MyApp());
 
+TextStyle textStyle = TextStyle(
+  fontFamily: 'Lato Regular',
+);
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -19,6 +23,11 @@ class MyApp extends StatelessWidget {
         hintColor: const Color(0xff595959),
         highlightColor: const Color(0xff252525),
         buttonColor: Colors.white,
+        textTheme: TextTheme(
+          bodyText1: textStyle,
+          bodyText2: textStyle,
+          button: textStyle,
+        ),
       ),
       initialRoute: '/splash',
       routes: {

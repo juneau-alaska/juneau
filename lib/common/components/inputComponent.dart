@@ -7,9 +7,11 @@ class InputComponent extends StatefulWidget {
   final maxLines;
   final borderColor;
   final padding;
+  final contentPadding;
   final fontSize;
   final fontWeight;
-  final autofocus;
+  final autoFocus;
+  final prefixIcon;
   final controller = TextEditingController();
 
   InputComponent({
@@ -20,9 +22,11 @@ class InputComponent extends StatefulWidget {
     this.maxLines,
     this.borderColor,
     this.padding,
+    this.contentPadding,
     this.fontSize,
     this.fontWeight,
-    this.autofocus,
+    this.autoFocus,
+    this.prefixIcon,
   }) : super(key: key);
 
   @override
@@ -32,48 +36,43 @@ class InputComponent extends StatefulWidget {
 class _InputComponentState extends State<InputComponent> {
   @override
   Widget build(BuildContext context) {
-    EdgeInsets edgeInset =
-        widget.padding != null ? widget.padding : EdgeInsets.fromLTRB(11.0, 13.0, 11.0, 13.0);
-    int maxLines = widget.maxLines != null ? widget.maxLines : 1;
-    double fontSize = widget.fontSize != null ? widget.fontSize : 14.0;
-    bool obscureText = widget.obscureText != null ? widget.obscureText : false;
-    Color borderColor = widget.borderColor != null ? widget.borderColor : Theme.of(context).hintColor;
-    FontWeight fontWeight = widget.fontWeight != null ? widget.fontWeight : FontWeight.w400;
+    EdgeInsets contentPadding = widget.contentPadding == null ? EdgeInsets.all(12.0) : widget.contentPadding;
+    int maxLines = widget.maxLines == null ? 1 : widget.maxLines;
+    double fontSize = widget.fontSize == null ? 15.0 : widget.fontSize;
+    bool obscureText = widget.obscureText == null ? false : widget.obscureText;
+    Color borderColor = widget.borderColor == null ? Theme.of(context).hintColor : widget.borderColor;
+    FontWeight fontWeight = widget.fontWeight == null ? FontWeight.w500 : widget.fontWeight;
+    bool autoFocus = widget.autoFocus == null ? false : widget.autoFocus;
+    EdgeInsets padding = widget.padding == null ? EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0) : widget.padding;
+
+    OutlineInputBorder borderOutline = OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: BorderSide(
+          color: borderColor,
+          width: 0.5,
+        ));
 
     return Container(
       color: Colors.transparent,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 15.0),
+        padding: padding,
         child: Container(
           child: TextField(
             obscuringCharacter: '•',
             obscureText: obscureText,
             maxLines: maxLines,
-            autofocus: widget.autofocus,
+            autofocus: autoFocus,
             style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
             decoration: InputDecoration(
-              isDense: true,
-              contentPadding: edgeInset,
-              hintText: widget.hintText,
-              hintStyle: TextStyle(color: Theme.of(context).hintColor, fontWeight: fontWeight),
-              fillColor: Theme.of(context).backgroundColor,
-              filled: true,
-              errorText: widget.errorText,
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide(
-                  color: borderColor,
-                  width: 0.5,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide(
-                  color: borderColor,
-                  width: 0.5,
-                ),
-              ),
-            ),
+                prefixIcon: widget.prefixIcon,
+                isDense: true,
+                contentPadding: contentPadding,
+                hintText: widget.hintText,
+                hintStyle: TextStyle(color: Theme.of(context).hintColor, fontWeight: fontWeight, fontFamily: 'Lato Regular'),
+                filled: false,
+                errorText: widget.errorText,
+                focusedBorder: borderOutline,
+                enabledBorder: borderOutline),
             controller: widget.controller,
           ),
         ),

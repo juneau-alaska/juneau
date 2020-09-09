@@ -84,7 +84,7 @@ class _SignUpPageState extends State<SignUpPage> {
             usernameInput,
             passwordInput,
             Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: FlatButton(
                 onPressed: () {
                   String email = emailController.text;
@@ -100,9 +100,9 @@ class _SignUpPageState extends State<SignUpPage> {
                   }
                 },
                 color: Theme.of(context).buttonColor,
-                shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(6.0)),
+                shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(10.0)),
                 child: Padding(
-                  padding: const EdgeInsets.all(15.0),
+                  padding: const EdgeInsets.all(13.0),
                   child: Text(
                     'Sign Up',
                     style: TextStyle(
@@ -113,7 +113,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: FlatButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/login');
