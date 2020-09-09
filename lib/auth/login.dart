@@ -52,18 +52,34 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  InputComponent emailInput;
+  TextEditingController emailController;
+  InputComponent passwordInput;
+  TextEditingController passwordController;
+
   bool _isPasswordValid = false;
   bool _isEmailValid = false;
   bool _isUsernameValid = false;
 
   @override
+  void initState() {
+    emailInput = new InputComponent(hintText: 'Username or email');
+    emailController = emailInput.controller;
+
+    passwordInput = new InputComponent(hintText: 'Password', obscureText: true);
+    passwordController = passwordInput.controller;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    InputComponent emailInput = new InputComponent(hintText: 'Username or email');
-    final emailController = emailInput.controller;
-
-    InputComponent passwordInput = new InputComponent(hintText: 'Password', obscureText: true);
-    final passwordController = passwordInput.controller;
-
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: Padding(

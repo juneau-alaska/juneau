@@ -8,14 +8,37 @@ class CategorySearchSelect extends StatefulWidget {
 }
 
 class _CategorySearchSelectState extends State<CategorySearchSelect> {
+  InputComponent searchBar;
+  TextEditingController searchBarController;
+  List<String> categories;
+
   @override
-  Widget build(BuildContext context) {
-    InputComponent searchBar = new InputComponent(
+  void initState() {
+    searchBar = new InputComponent(
       hintText: "Search",
       padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
       contentPadding: EdgeInsets.fromLTRB(35.0, 12.0, 12.0, 12.0),
     );
+    searchBarController = searchBar.controller;
+    categories = [];
 
+    searchBarController.addListener(() {
+      setState(() {
+        String text = searchBarController.text;
+        categories.add(text);
+      });
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    searchBarController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
         color: Theme.of(context).backgroundColor,
         child: Column(
@@ -56,13 +79,20 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
               searchBar,
               Padding(
                 padding: const EdgeInsets.only(left: 25.0, top: 21.0),
-                child: Icon(
-                  Icons.search,
-                  color: Theme.of(context).hintColor,
-                  size: 20.0
+                child: Icon(Icons.search, color: Theme.of(context).hintColor, size: 20.0),
+              ),
+            ]),
+            Expanded(
+              child: SizedBox(
+                height: 200.0,
+                child: new ListView.builder(
+                  itemCount: categories.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return new Text(categories[index]);
+                  },
                 ),
               ),
-            ])
+            ),
           ],
         ));
   }

@@ -43,21 +43,40 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  InputComponent emailInput;
+  TextEditingController emailController;
+  InputComponent usernameInput;
+  TextEditingController usernameController;
+  InputComponent passwordInput;
+  TextEditingController passwordController;
+
   bool _isPasswordValid = false;
   bool _isEmailValid = false;
   bool _isUsernameValid = false;
 
   @override
+  void initState() {
+    emailInput = new InputComponent(hintText: 'Email');
+    emailController = emailInput.controller;
+
+    usernameInput = new InputComponent(hintText: 'Username');
+    usernameController = usernameInput.controller;
+
+    passwordInput = new InputComponent(hintText: 'Password', obscureText: true);
+    passwordController = passwordInput.controller;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    InputComponent emailInput = new InputComponent(hintText: 'Email');
-    final emailController = emailInput.controller;
-
-    InputComponent usernameInput = new InputComponent(hintText: 'Username');
-    final usernameController = usernameInput.controller;
-
-    InputComponent passwordInput = new InputComponent(hintText: 'Password', obscureText: true);
-    final passwordController = passwordInput.controller;
-
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: Padding(
