@@ -49,7 +49,7 @@ Future<void> uploadFile(String url, Asset asset) async {
   }
 }
 
-void createOptions(prompt, options, context) async {
+void createOptions(prompt, options, categories, context) async {
   const url = 'http://localhost:4000/option';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -79,13 +79,13 @@ void createOptions(prompt, options, context) async {
   }
 
   await Future.wait(futures).then((results) {
-    createPoll(prompt, results, context);
+    createPoll(prompt, results, categories, context);
   }).catchError((err) {
     return showAlert(context, 'Something went wrong, please try again');
   });
 }
 
-void createPoll(prompt, optionIds, context) async {
+void createPoll(prompt, optionIds, categories, context) async {
   const url = 'http://localhost:4000/poll';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -93,7 +93,7 @@ void createPoll(prompt, optionIds, context) async {
 
   var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
 
-  var body = jsonEncode({'prompt': prompt, 'options': optionIds, 'createdBy': userId});
+  var body = jsonEncode({'prompt': prompt, 'options': optionIds, 'categories': categories, 'createdBy': userId});
 
   var response = await http.post(url, headers: headers, body: body);
 
@@ -275,7 +275,7 @@ class _PollCreateState extends State<PollCreate> {
                         }
 
                         if (options.length >= 2) {
-                          createOptions(prompt, options, context);
+                          createOptions(prompt, options, selectedCategories, context);
                         } else {
                           return showAlert(context, 'Something went wrong, please try again');
                         }
@@ -306,7 +306,7 @@ class _PollCreateState extends State<PollCreate> {
                       selectedCategories[0] = selectedCategory;
                       categoryContainerHeight = 32.0;
                       categoryContainerPadding = const EdgeInsets.fromLTRB(10.0, 9.0, 10.0, 10.0);
-                    } else {
+                    } else if (!selectedCategories.contains(selectedCategory)) {
                       selectedCategories.add(selectedCategory);
                     }
                     setState(() {});
@@ -341,12 +341,12 @@ class _PollCreateState extends State<PollCreate> {
                     itemCount: selectedCategories.length,
                     itemBuilder: (BuildContext context, int index) {
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
                         child: Container(
-                          decoration:
-                              new BoxDecoration(color: Theme.of(context).highlightColor, borderRadius: new BorderRadius.all(const Radius.circular(3.0))),
+                          decoration: new BoxDecoration(
+                              color: Theme.of(context).highlightColor, borderRadius: new BorderRadius.all(const Radius.circular(15.0))),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 7.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
                             child: Center(
                               child: Row(
                                 children: [
