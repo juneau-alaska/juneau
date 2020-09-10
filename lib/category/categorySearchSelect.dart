@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// TODO: throttle or debounce getCategories
-import 'package:rxdart/rxdart.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -11,7 +10,7 @@ import 'dart:io';
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 
-void getCategories(String partialText, context) async {
+Future<List> getCategories(String partialText, context) async {
   const url = 'http://localhost:4000/categories';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -27,13 +26,12 @@ void getCategories(String partialText, context) async {
 
     return jsonResponse;
   } else {
-    return showAlert(context, 'Something went wrong, please try again');
+    showAlert(context, 'Something went wrong, please try again');
+    return [];
   }
 }
 
 void createCategory(name, context) async {
-  Navigator.pop(context, name);
-  return;
   const url = 'http://localhost:4000/category';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -60,36 +58,80 @@ class CategorySearchSelect extends StatefulWidget {
 class _CategorySearchSelectState extends State<CategorySearchSelect> {
   InputComponent searchBar;
   TextEditingController searchBarController;
-  List<Widget> categories;
+  List<Widget> categoriesList = [Container()];
+  final debouncer = Debouncer<String>(Duration(milliseconds: 200));
 
   @override
   void initState() {
+    super.initState();
     searchBar = new InputComponent(
       hintText: "Search",
       padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
       contentPadding: EdgeInsets.fromLTRB(35.0, 12.0, 12.0, 12.0),
     );
     searchBarController = searchBar.controller;
-    categories = [Container()];
 
-    searchBarController.addListener(() {
-      setState(() {
-        String text = searchBarController.text;
-        categories[0] = GestureDetector(
+    searchBarController.addListener(() => debouncer.value = searchBarController.text.trim());
+
+    void buildCategories(text) async {
+      if (text == "") {
+        categoriesList[0] = Container();
+      } else {
+        categoriesList = [Container()];
+        List categories = await getCategories(text, context);
+
+        bool hasText = false;
+
+        for (var i = 0; i < categories.length; i++) {
+          var category = categories[i], name = category['name'];
+
+          if (name == text) {
+            hasText = true;
+          }
+
+          categoriesList.add(GestureDetector(
             onTap: () {
-              createCategory(text, context);
+              Navigator.pop(context, name);
             },
             behavior: HitTestBehavior.opaque,
             child: Container(
+              width: MediaQuery.of(context).size.width,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name,
+                      style: TextStyle(
+                        fontSize: 16.0,
+                      )),
+                    Text(category['followers'].length.toString() + ' following',
+                      style: TextStyle(fontSize: 13.0, color: Theme.of(context).hintColor)),
+                  ],
+                ),
+              ))));
+
+          if (!hasText) {
+            categoriesList[0] = GestureDetector(
+              onTap: () {
+                createCategory(text, context);
+              },
+              behavior: HitTestBehavior.opaque,
+              child: Container(
                 width: MediaQuery.of(context).size.width,
                 child: Text(text,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.blue,
-                    ))));
-      });
-    });
-    super.initState();
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.blue,
+                  ))));
+          }
+        }
+      }
+
+      setState(() {});
+    }
+
+    debouncer.values.listen((text) => buildCategories(text));
   }
 
   @override
@@ -147,11 +189,11 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
             child: SizedBox(
               height: 200.0,
               child: new ListView.builder(
-                itemCount: categories.length,
+                itemCount: categoriesList.length,
                 itemBuilder: (BuildContext context, int index) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    child: categories[index],
+                    child: categoriesList[index],
                   );
                 },
               ),

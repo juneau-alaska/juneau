@@ -344,7 +344,7 @@ class _PollCreateState extends State<PollCreate> {
                         padding: const EdgeInsets.symmetric(horizontal: 3.0),
                         child: Container(
                           decoration:
-                              new BoxDecoration(color: Theme.of(context).accentColor, borderRadius: new BorderRadius.all(const Radius.circular(3.0))),
+                              new BoxDecoration(color: Theme.of(context).highlightColor, borderRadius: new BorderRadius.all(const Radius.circular(3.0))),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 7.0),
                             child: Center(
