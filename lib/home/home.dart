@@ -14,7 +14,7 @@ import 'dart:io';
 
 var createdAtBefore;
 
-Future<List> _getPolls() async {
+Future<List> getPolls() async {
   const url = 'http://localhost:4000/polls';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
 
     await Future.wait([
       userMethods.getUser(userId),
-      _getPolls(),
+      getPolls(),
     ]).then((results) {
       setState(() {
         var userResult = results[0], pollsResult = results[1];
@@ -94,7 +94,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onLoading() async {
-    var nextPolls = await _getPolls();
+    var nextPolls = await getPolls();
     if (nextPolls != null && nextPolls.length > 0) {
       if (mounted)
         setState(() {

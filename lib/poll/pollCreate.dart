@@ -198,6 +198,9 @@ class _PollCreateState extends State<PollCreate> {
   }
 
   bool isLoading = false;
+  List<String> selectedCategories = [""];
+  double categoryContainerHeight = 0.0;
+  EdgeInsets categoryContainerPadding = EdgeInsets.all(0.0);
 
   @override
   Widget build(BuildContext context) {
@@ -294,13 +297,20 @@ class _PollCreateState extends State<PollCreate> {
                 thickness: 1.0,
               ),
               GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                      isScrollControlled: true,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return new CategorySearchSelect();
-                      });
+                onTap: () async {
+                  String selectedCategory = await showModalBottomSheet(
+                      isScrollControlled: true, context: context, builder: (BuildContext context) => CategorySearchSelect());
+
+                  if (selectedCategory != null) {
+                    if (selectedCategories[0] == "") {
+                      selectedCategories[0] = selectedCategory;
+                      categoryContainerHeight = 36.0;
+                      categoryContainerPadding = const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0);
+                    } else {
+                      selectedCategories.add(selectedCategory);
+                    }
+                    setState(() {});
+                  }
                 },
                 behavior: HitTestBehavior.opaque,
                 child: Container(
@@ -321,6 +331,36 @@ class _PollCreateState extends State<PollCreate> {
                         ],
                       ),
                     )),
+              ),
+              Padding(
+                padding: categoryContainerPadding,
+                child: SizedBox(
+                  height: categoryContainerHeight,
+                  child: new ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: selectedCategories.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                        child: Container(
+                          decoration: new BoxDecoration(
+                              color: Theme.of(context).highlightColor, borderRadius: new BorderRadius.all(const Radius.circular(40.0))),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Center(
+                              child: Text(
+                                selectedCategories[index],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
               Divider(
                 thickness: 1.0,
