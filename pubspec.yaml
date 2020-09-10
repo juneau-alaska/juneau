@@ -34,6 +34,3 @@ flutter:
     - family: Lato Black
       fonts:
       - asset: fonts/Lato-Black.ttf
-    - family: Lato Regular
-      fonts:
-      - asset: fonts/Lato-Regular.ttf

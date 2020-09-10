@@ -200,7 +200,7 @@ class _PollCreateState extends State<PollCreate> {
   bool isLoading = false;
   List<String> selectedCategories = [""];
   double categoryContainerHeight = 0.0;
-  EdgeInsets categoryContainerPadding = EdgeInsets.all(0.0);
+  EdgeInsets categoryContainerPadding = EdgeInsets.only(bottom: 10.0);
 
   @override
   Widget build(BuildContext context) {
@@ -304,8 +304,8 @@ class _PollCreateState extends State<PollCreate> {
                   if (selectedCategory != null) {
                     if (selectedCategories[0] == "") {
                       selectedCategories[0] = selectedCategory;
-                      categoryContainerHeight = 36.0;
-                      categoryContainerPadding = const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 10.0);
+                      categoryContainerHeight = 32.0;
+                      categoryContainerPadding = const EdgeInsets.fromLTRB(10.0, 9.0, 10.0, 10.0);
                     } else {
                       selectedCategories.add(selectedCategory);
                     }
@@ -316,7 +316,7 @@ class _PollCreateState extends State<PollCreate> {
                 child: Container(
                     width: MediaQuery.of(context).size.width,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+                      padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 0.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -343,16 +343,42 @@ class _PollCreateState extends State<PollCreate> {
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 3.0),
                         child: Container(
-                          decoration: new BoxDecoration(
-                              color: Theme.of(context).highlightColor, borderRadius: new BorderRadius.all(const Radius.circular(40.0))),
+                          decoration:
+                              new BoxDecoration(color: Theme.of(context).accentColor, borderRadius: new BorderRadius.all(const Radius.circular(3.0))),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 7.0),
                             child: Center(
-                              child: Text(
-                                selectedCategories[index],
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    selectedCategories[index],
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  SizedBox(width: 4.0),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        selectedCategories.removeAt(index);
+                                        if (selectedCategories.length == 0) {
+                                          selectedCategories.add("");
+                                          categoryContainerHeight = 0.0;
+                                          categoryContainerPadding = EdgeInsets.only(bottom: 10.0);
+                                        }
+                                      });
+                                    },
+                                    child: selectedCategories[index] == ""
+                                        ? Container()
+                                        : Container(
+                                            height: 10.0,
+                                            child: Icon(
+                                              Icons.clear,
+                                              size: 12.0,
+                                            ),
+                                          ),
+                                  )
+                                ],
                               ),
                             ),
                           ),
