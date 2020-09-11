@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+OverlayEntry entry;
+
 void showAlert(context, text) {
-  Navigator.of(context).overlay.insert(OverlayEntry(builder: (BuildContext context) {
+  if (entry != null) {
+    entry.remove();
+  }
+
+  entry = OverlayEntry(builder: (BuildContext context) {
     return AlertComponent(text: text);
-  }));
+  });
+
+  Navigator.of(context).overlay.insert(entry);
 }
 
 class AlertComponent extends StatefulWidget {

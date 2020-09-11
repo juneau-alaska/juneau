@@ -238,9 +238,7 @@ class _PollCreateState extends State<PollCreate> {
                     ),
                     GestureDetector(
                       onTap: () async {
-                        setState(() {
-                          isLoading = true;
-                        });
+                        setState(() {});
                         String prompt = questionInput.controller.text;
                         List options = [];
 
@@ -249,6 +247,7 @@ class _PollCreateState extends State<PollCreate> {
                         }
 
                         if (images.length >= 2) {
+                          isLoading = true;
                           for (int i = 0; i < images.length; i++) {
                             String path = await FlutterAbsolutePath.getAbsolutePath(images[i].identifier);
 
@@ -268,16 +267,19 @@ class _PollCreateState extends State<PollCreate> {
                             await uploadFile(uploadUrl, images[i]).then((result) {
                               options.add(downloadUrl);
                             }).catchError((err) {
+                              isLoading = false;
                               return showAlert(context, 'Something went wrong, please try again');
                             });
                           }
                         } else {
+                          isLoading = false;
                           return showAlert(context, 'Please select at least 2 images');
                         }
 
                         if (options.length >= 2) {
                           createOptions(prompt, options, selectedCategories, context);
                         } else {
+                          isLoading = false;
                           return showAlert(context, 'Something went wrong, please try again');
                         }
                       },

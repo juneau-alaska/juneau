@@ -76,9 +76,11 @@ class PollWidget extends StatefulWidget {
 }
 
 class _PollWidgetState extends State<PollWidget> {
-  var user, poll, pollCreator, options;
-  List followingCategories;
   final streamController = StreamController();
+  var user, poll, pollCreator;
+  List options;
+  List followingCategories;
+  bool warning = false;
 
   @override
   void initState() {
@@ -102,11 +104,17 @@ class _PollWidgetState extends State<PollWidget> {
       });
     });
 
-    streamController.stream.throttleTime(Duration(milliseconds: 5000)).listen((category) {
+    streamController.stream.throttleTime(Duration(milliseconds: 1000)).listen((category) {
       bool unfollow = false;
       if (followingCategories.contains(category)) {
         unfollow = true;
       }
+
+      warning = true;
+      Timer(Duration(milliseconds: 1000), () {
+        warning = false;
+      });
+
       followCategory(category, unfollow, context);
     });
 
@@ -305,7 +313,9 @@ class _PollWidgetState extends State<PollWidget> {
                       borderRadius: new BorderRadius.all(const Radius.circular(15.0))),
                   child: GestureDetector(
                     onTap: () {
-                      //TODO: follow/unfollow category "debounce and alert" - too frequent
+                      if (warning) {
+                        showAlert(context, "You're going that too fast. Take a break.");
+                      }
                       streamController.add(pollCategories[index]);
                     },
                     child: Padding(
