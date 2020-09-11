@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:debounce_throttle/debounce_throttle.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/components/alertComponent.dart';
@@ -59,34 +59,25 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
   InputComponent searchBar;
   TextEditingController searchBarController;
   List<Widget> categoriesList = [Container()];
-  final debouncer = Debouncer<String>(Duration(milliseconds: 200));
+  final streamController = StreamController<String>();
 
-  @override
-  void initState() {
-    super.initState();
-    searchBar = new InputComponent(
-      hintText: "Search",
-      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
-      contentPadding: EdgeInsets.fromLTRB(35.0, 12.0, 12.0, 12.0),
-    );
-    searchBarController = searchBar.controller;
+  void buildCategoryOptions(text) async {
+    if (text == "") {
+      categoriesList[0] = Container();
+    } else {
+      categoriesList = [Container()];
+      List categories = await getCategories(text, context);
 
-    searchBarController.addListener(() => debouncer.value = searchBarController.text.trim());
+      print(categories);
 
-    void buildCategories(text) async {
-      if (text == "") {
-        categoriesList[0] = Container();
-      } else {
-        categoriesList = [Container()];
-        List categories = await getCategories(text, context);
+      bool hasMatchingText = false;
 
-        bool hasText = false;
-
+      if (categories.length > 0) {
         for (var i = 0; i < categories.length; i++) {
           var category = categories[i], name = category['name'];
 
           if (name == text) {
-            hasText = true;
+            hasMatchingText = true;
           }
 
           categoriesList.add(GestureDetector(
@@ -110,33 +101,49 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
                   ],
                 ),
               ))));
-
-          if (!hasText) {
-            categoriesList[0] = GestureDetector(
-              onTap: () {
-                createCategory(text, context);
-              },
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                child: Text(text,
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.blue,
-                  ))));
-          }
         }
       }
 
+      if (!hasMatchingText) {
+        categoriesList[0] = GestureDetector(
+          onTap: () {
+            createCategory(text, context);
+          },
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            child: Text(text,
+              style: TextStyle(
+                fontSize: 16.0,
+                color: Colors.blue,
+              ))));
+      }
+    }
+    if (this.mounted) {
       setState(() {});
     }
+  }
 
-    debouncer.values.listen((text) => buildCategories(text));
+  @override
+  void initState() {
+    super.initState();
+    searchBar = new InputComponent(
+      hintText: "Search",
+      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+      contentPadding: EdgeInsets.fromLTRB(35.0, 12.0, 12.0, 12.0),
+    );
+    searchBarController = searchBar.controller;
+    searchBarController.addListener(() => streamController.add(searchBarController.text.trim()));
+
+    streamController.stream.debounceTime(Duration(milliseconds: 250)).listen((text) {
+      buildCategoryOptions(text);
+    });
   }
 
   @override
   void dispose() {
     searchBarController.dispose();
+    streamController.close();
     super.dispose();
   }
 

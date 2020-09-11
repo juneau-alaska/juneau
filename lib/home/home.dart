@@ -68,7 +68,7 @@ class _HomePageState extends State<HomePage> {
         var userResult = results[0], pollsResult = results[1];
 
         if (userResult != null) {
-          user = userResult;
+          user = userResult[0];
         }
         if (pollsResult != null) {
           polls = pollsResult;
