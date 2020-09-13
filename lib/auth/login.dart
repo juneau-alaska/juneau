@@ -5,6 +5,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:juneau/common/methods/validator.dart';
 
 import 'package:juneau/common/components/inputComponent.dart';
+import 'package:juneau/common/components/alertComponent.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -42,7 +43,7 @@ void login(email, password, context) async {
 
     Navigator.pushNamed(context, '/home');
   } else {
-    print('Request failed with status: ${response.statusCode}.');
+    return showAlert(context, 'Incorrect email, username or password.');
   }
 }
 
@@ -142,6 +143,8 @@ class _LoginPageState extends State<LoginPage> {
 
                   if (_isPasswordValid && (_isEmailValid || _isUsernameValid)) {
                     login(email, password, context);
+                  } else {
+                    return showAlert(context, 'Incorrect email, username or password.');
                   }
                 },
                 color: Theme.of(context).buttonColor,

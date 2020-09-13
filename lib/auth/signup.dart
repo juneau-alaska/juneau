@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:juneau/common/components/inputComponent.dart';
+import 'package:juneau/common/components/alertComponent.dart';
 
 import 'package:email_validator/email_validator.dart';
 import 'package:juneau/common/methods/validator.dart';
@@ -33,7 +34,8 @@ void signup(email, username, password, context) async {
 
     Navigator.pushNamed(context, '/home');
   } else {
-    print('Request failed with status: ${response.statusCode}.');
+    var jsonResponse = jsonDecode(response.body), msg = jsonResponse['msg'];
+    return showAlert(context, msg);
   }
 }
 
@@ -113,6 +115,16 @@ class _SignUpPageState extends State<SignUpPage> {
                   _isPasswordValid = validator.validatePassword(password);
                   _isEmailValid = EmailValidator.validate(email);
                   _isUsernameValid = validator.validateUsername(username);
+
+                  if (password.length < 6) {
+                    return showAlert(context, 'Password must be at least 6 characters.');
+                  } else if (!_isPasswordValid) {
+                    return showAlert(context, 'Password contains invalid characters.');
+                  } else if (!_isEmailValid) {
+                    return showAlert(context, 'Invalid email address.');
+                  } else if (!_isUsernameValid) {
+                    return showAlert(context, 'Username contains invalid characters.');
+                  }
 
                   if (_isPasswordValid && _isEmailValid && _isUsernameValid) {
                     signup(email, username, password, context);
