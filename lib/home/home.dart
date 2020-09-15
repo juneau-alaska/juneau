@@ -14,7 +14,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 
-var createdAtBefore;
+String prevId;
 
 Future<List> getPolls(context) async {
   const url = 'http://localhost:4000/polls';
@@ -24,14 +24,15 @@ Future<List> getPolls(context) async {
 
   var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
 
-  var body = jsonEncode({'createdAtBefore': createdAtBefore});
+  var body = jsonEncode({'prevId': prevId});
+
   var response = await http.post(url, headers: headers, body: body);
 
   if (response.statusCode == 200) {
     var jsonResponse = jsonDecode(response.body);
 
     if (jsonResponse.length > 0) {
-      createdAtBefore = jsonResponse[jsonResponse.length - 1]['createdAt'];
+      prevId = jsonResponse.last['_id'];
     }
 
     return jsonResponse;
@@ -66,32 +67,31 @@ class _HomePageState extends State<HomePage> {
       userMethods.getUser(userId),
       getPolls(context),
     ]).then((results) {
-      setState(() {
-        var userResult = results[0],
-          pollsResult = results[1];
+      var userResult = results[0], pollsResult = results[1];
 
-        if (userResult != null) {
-          user = userResult[0];
-        }
-        if (pollsResult != null) {
-          polls = pollsResult;
-        }
-      });
+      if (userResult != null) {
+        user = userResult[0];
+      }
+      if (pollsResult != null) {
+        polls = pollsResult;
+      }
     });
+
+    setState(() {});
   }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _onRefresh();
+      _fetchData();
     });
   }
 
   RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   void _onRefresh() async {
-    createdAtBefore = null;
+    prevId = null;
     await _fetchData();
     _refreshController.refreshCompleted();
   }
@@ -101,19 +101,7 @@ class _HomePageState extends State<HomePage> {
     if (nextPolls != null && nextPolls.length > 0) {
       if (mounted)
         setState(() {
-          for (int i = 0; i < nextPolls.length; i++) {
-            var newPoll = nextPolls[i],
-              unique = true;
-            for (int j = 0; j < polls.length; j++) {
-              if (newPoll['_id'] == polls[j]['_id']) {
-                unique = false;
-                break;
-              }
-            }
-            if (unique) {
-              polls.add(newPoll);
-            }
-          }
+          polls += nextPolls;
         });
     }
     _refreshController.loadComplete();
@@ -128,9 +116,7 @@ class _HomePageState extends State<HomePage> {
     List pages = createPages(polls, user);
 
     return Scaffold(
-      backgroundColor: Theme
-        .of(context)
-        .backgroundColor,
+      backgroundColor: Theme.of(context).backgroundColor,
       appBar: appBar(),
       body: SmartRefresher(
         enablePullDown: true,
@@ -164,86 +150,3 @@ class _HomePageState extends State<HomePage> {
      **/
   }
 }
-
-//class CollectPersonalInfoPage extends StatelessWidget {
-//  @override
-//  Widget build(BuildContext context) {
-//    return DefaultTextStyle(
-//      style: Theme.of(context).textTheme.display1,
-//      child: GestureDetector(
-//        onTap: () {
-//          // This moves from the personal info page to the credentials page,
-//          // replacing this page with that one.
-//          Navigator.of(context)
-//              .pushReplacementNamed('signup/choose_credentials');
-//        },
-//        child: Container(
-//          color: Colors.lightBlue,
-//          alignment: Alignment.center,
-//          child: Text('Collect Personal Info Page'),
-//        ),
-//      ),
-//    );
-//  }
-//}
-
-//class ChooseCredentialsPage extends StatelessWidget {
-//  const ChooseCredentialsPage({
-//    this.onSignupComplete,
-//  });
-//
-//  final VoidCallback onSignupComplete;
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return GestureDetector(
-//      onTap: onSignupComplete,
-//      child: DefaultTextStyle(
-//        style: Theme.of(context).textTheme.display1,
-//        child: Container(
-//          color: Colors.pinkAccent,
-//          alignment: Alignment.center,
-//          child: Text('Choose Credentials Page'),
-//        ),
-//      ),
-//    );
-//  }
-//}
-//
-//class SignUpPage extends StatelessWidget {
-//  @override
-//  Widget build(BuildContext context) {
-//    // SignUpPage builds its own Navigator which ends up being a nested
-//    // Navigator in our app.
-//    return Navigator(
-//      initialRoute: 'signup/personal_info',
-//      onGenerateRoute: (RouteSettings settings) {
-//        WidgetBuilder builder;
-//        switch (settings.name) {
-//          case 'signup/personal_info':
-//          // Assume CollectPersonalInfoPage collects personal info and then
-//          // navigates to 'signup/choose_credentials'.
-//            builder = (BuildContext _) => CollectPersonalInfoPage();
-//            break;
-//          case 'signup/choose_credentials':
-//          // Assume ChooseCredentialsPage collects new credentials and then
-//          // invokes 'onSignupComplete()'.
-//            builder = (BuildContext _) => ChooseCredentialsPage(
-//              onSignupComplete: () {
-//                // Referencing Navigator.of(context) from here refers to the
-//                // top level Navigator because SignUpPage is above the
-//                // nested Navigator that it created. Therefore, this pop()
-//                // will pop the entire "sign up" journey and return to the
-//                // "/" route, AKA HomePage.
-//                Navigator.of(context).pop();
-//              },
-//            );
-//            break;
-//          default:
-//            throw Exception('Invalid route: ${settings.name}');
-//        }
-//        return MaterialPageRoute(builder: builder, settings: settings);
-//      },
-//    );
-//  }
-//}
