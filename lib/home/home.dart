@@ -8,13 +8,15 @@ import 'package:juneau/poll/poll.dart';
 
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import 'package:juneau/common/components/alertComponent.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 
 var createdAtBefore;
 
-Future<List> getPolls() async {
+Future<List> getPolls(context) async {
   const url = 'http://localhost:4000/polls';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -34,7 +36,7 @@ Future<List> getPolls() async {
 
     return jsonResponse;
   } else {
-    print('Request failed with status: ${response.statusCode}.');
+    showAlert(context, 'Something went wrong, please try again');
     return null;
   }
 }
@@ -58,14 +60,15 @@ class _HomePageState extends State<HomePage> {
 
   _fetchData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var userId = prefs.getString('userId');
+    String userId = prefs.getString('userId');
 
     await Future.wait([
       userMethods.getUser(userId),
-      getPolls(),
+      getPolls(context),
     ]).then((results) {
       setState(() {
-        var userResult = results[0], pollsResult = results[1];
+        var userResult = results[0],
+          pollsResult = results[1];
 
         if (userResult != null) {
           user = userResult[0];
@@ -94,11 +97,23 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onLoading() async {
-    var nextPolls = await getPolls();
+    var nextPolls = await getPolls(context);
     if (nextPolls != null && nextPolls.length > 0) {
       if (mounted)
         setState(() {
-          polls += nextPolls;
+          for (int i = 0; i < nextPolls.length; i++) {
+            var newPoll = nextPolls[i],
+              unique = true;
+            for (int j = 0; j < polls.length; j++) {
+              if (newPoll['_id'] == polls[j]['_id']) {
+                unique = false;
+                break;
+              }
+            }
+            if (unique) {
+              polls.add(newPoll);
+            }
+          }
         });
     }
     _refreshController.loadComplete();
@@ -113,7 +128,9 @@ class _HomePageState extends State<HomePage> {
     List pages = createPages(polls, user);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme
+        .of(context)
+        .backgroundColor,
       appBar: appBar(),
       body: SmartRefresher(
         enablePullDown: true,

@@ -255,7 +255,6 @@ class _PollWidgetState extends State<PollWidget> {
     DateTime createdAt = DateTime.parse(poll['createdAt']);
     List pollCategories = poll['categories'];
     String time = timeago.format(createdAt, locale: 'en_short');
-
     List<Widget> children = [
       Padding(
         padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 10.0, bottom: 3.0),

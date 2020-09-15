@@ -61,7 +61,7 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
   List<Widget> categoriesList = [Container()];
   final streamController = StreamController<String>();
 
-  void buildCategoryOptions(text) async {
+  void buildCategoryOptions(text, context) async {
     if (text == "") {
       categoriesList[0] = Container();
     } else {
@@ -133,11 +133,6 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
       contentPadding: EdgeInsets.fromLTRB(35.0, 12.0, 12.0, 12.0),
     );
     searchBarController = searchBar.controller;
-    searchBarController.addListener(() => streamController.add(searchBarController.text.trim()));
-
-    streamController.stream.debounceTime(Duration(milliseconds: 250)).listen((text) {
-      buildCategoryOptions(text);
-    });
   }
 
   @override
@@ -149,6 +144,11 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
 
   @override
   Widget build(BuildContext context) {
+    searchBarController.addListener(() => streamController.add(searchBarController.text.trim()));
+    streamController.stream.debounceTime(Duration(milliseconds: 250)).listen((text) {
+      buildCategoryOptions(text, context);
+    });
+
     return Container(
       color: Theme.of(context).backgroundColor,
       child: Column(

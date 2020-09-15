@@ -31,10 +31,9 @@ Future generatePreAssignedUrl(String fileType) async {
   response = await http.post(url, headers: headers, body: body);
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body);
-    return jsonResponse;
+    return jsonDecode(response.body);
   } else {
-    throw ('Request failed with status: ${response.statusCode}.');
+    return null;
   }
 }
 
@@ -50,7 +49,7 @@ Future<void> uploadFile(String url, Asset asset) async {
   }
 }
 
-void createOptions(prompt, options, categories, context) async {
+Future<bool> createOptions(prompt, options, categories, context) async {
   const url = 'http://localhost:4000/option';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -79,14 +78,19 @@ void createOptions(prompt, options, categories, context) async {
     futures.add(future());
   }
 
-  await Future.wait(futures).then((results) {
-    createPoll(prompt, results, categories, context);
+  bool success = false;
+
+  await Future.wait(futures).then((results) async {
+    success = await createPoll(prompt, results, categories, context);
   }).catchError((err) {
-    return showAlert(context, 'Something went wrong, please try again');
+    showAlert(context, 'Something went wrong, please try again');
+    success = false;
   });
+
+  return success;
 }
 
-void createPoll(prompt, optionIds, categories, context) async {
+Future<bool> createPoll(prompt, optionIds, categories, context) async {
   const url = 'http://localhost:4000/poll';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -101,13 +105,14 @@ void createPoll(prompt, optionIds, categories, context) async {
   if (response.statusCode == 200) {
     var jsonResponse = jsonDecode(response.body), pollId = jsonResponse['_id'];
 
-    updateUserCreatedPolls(pollId, context);
+    return await updateUserCreatedPolls(pollId, context);
   } else {
-    return showAlert(context, 'Something went wrong, please try again');
+    showAlert(context, 'Something went wrong, please try again');
+    return false;
   }
 }
 
-void updateUserCreatedPolls(pollId, context) async {
+Future<bool> updateUserCreatedPolls(pollId, context) async {
   const url = 'http://localhost:4000/user/';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -115,19 +120,20 @@ void updateUserCreatedPolls(pollId, context) async {
 
   var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
 
-  var response = await http.get(url + userId, headers: headers);
+  var response = await http.get(url + userId, headers: headers), body;
 
   if (response.statusCode == 200) {
     var jsonResponse = jsonDecode(response.body)[0], createdPolls = jsonResponse['createdPolls'];
 
     createdPolls.add(pollId);
-
-    var body = jsonEncode({'createdPolls': createdPolls});
+    body = jsonEncode({'createdPolls': createdPolls});
 
     response = await http.put(url + userId, headers: headers, body: body);
     Navigator.pop(context);
+    return true;
   } else {
-    return showAlert(context, 'Something went wrong, please try again');
+    showAlert(context, 'Something went wrong, please try again');
+    return false;
   }
 }
 
@@ -147,6 +153,10 @@ class _PollCreateState extends State<PollCreate> {
   );
 
   List<Asset> images = List<Asset>();
+  bool isLoading = false;
+  List<String> selectedCategories = [""];
+  double categoryContainerHeight = 0.0;
+  EdgeInsets categoryContainerPadding = EdgeInsets.only(bottom: 10.0);
 
   @override
   void initState() {
@@ -198,11 +208,6 @@ class _PollCreateState extends State<PollCreate> {
     });
   }
 
-  bool isLoading = false;
-  List<String> selectedCategories = [""];
-  double categoryContainerHeight = 0.0;
-  EdgeInsets categoryContainerPadding = EdgeInsets.only(bottom: 10.0);
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -238,15 +243,13 @@ class _PollCreateState extends State<PollCreate> {
                     ),
                     GestureDetector(
                       onTap: () async {
-                        setState(() {});
                         String prompt = questionInput.controller.text;
                         List options = [];
+                        setState(() {});
 
                         if (prompt == null || prompt.replaceAll(new RegExp(r"\s+"), "").length == 0) {
-                          return showAlert(context, 'Please provide a title');
-                        }
-
-                        if (images.length >= 2) {
+                          showAlert(context, 'Please provide a title');
+                        } else if (images.length >= 2) {
                           isLoading = true;
                           for (int i = 0; i < images.length; i++) {
                             String path = await FlutterAbsolutePath.getAbsolutePath(images[i].identifier);
@@ -258,30 +261,33 @@ class _PollCreateState extends State<PollCreate> {
 
                             String fileExtension = p.extension(file.path);
                             var preAssignedUrl = await generatePreAssignedUrl(fileExtension).catchError((err) {
-                              return showAlert(context, 'Something went wrong, please try again');
+                              showAlert(context, 'Something went wrong, please try again');
                             });
 
-                            String uploadUrl = preAssignedUrl['uploadUrl'];
-                            String downloadUrl = preAssignedUrl['downloadUrl'];
+                            if (preAssignedUrl != null) {
+                              String uploadUrl = preAssignedUrl['uploadUrl'];
+                              String downloadUrl = preAssignedUrl['downloadUrl'];
 
-                            await uploadFile(uploadUrl, images[i]).then((result) {
-                              options.add(downloadUrl);
-                            }).catchError((err) {
-                              isLoading = false;
-                              return showAlert(context, 'Something went wrong, please try again');
-                            });
+                              await uploadFile(uploadUrl, images[i]).then((result) {
+                                options.add(downloadUrl);
+                              }).catchError((err) {
+                                isLoading = false;
+                                showAlert(context, 'Something went wrong, please try again');
+                              });
+                            }
                           }
                         } else {
                           isLoading = false;
-                          return showAlert(context, 'Please select at least 2 images');
+                          showAlert(context, 'Please select at least 2 images');
                         }
 
                         if (options.length >= 2) {
-                          createOptions(prompt, options, selectedCategories, context);
+                          isLoading = await createOptions(prompt, options, selectedCategories, context);
                         } else {
                           isLoading = false;
-                          return showAlert(context, 'Something went wrong, please try again');
+                          showAlert(context, 'Something went wrong, please try again');
                         }
+                        setState(() {});
                       },
                       child: Text(
                         "Create",
