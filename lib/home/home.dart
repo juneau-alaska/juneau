@@ -77,14 +77,14 @@ class _HomePageState extends State<HomePage> {
       }
     });
 
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchData();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _fetchData();
     });
   }
 
@@ -116,6 +116,7 @@ class _HomePageState extends State<HomePage> {
     List pages = createPages(polls, user);
 
     return Scaffold(
+      key: UniqueKey(),
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appBar(),
       body: SmartRefresher(
@@ -129,6 +130,7 @@ class _HomePageState extends State<HomePage> {
         onRefresh: _onRefresh,
         onLoading: _onLoading,
         child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
           itemCount: pages.length,
           itemBuilder: (context, index) {
             return pages[index];

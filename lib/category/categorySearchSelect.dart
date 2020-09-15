@@ -62,13 +62,13 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
   final streamController = StreamController<String>();
 
   void buildCategoryOptions(text, context) async {
+    if (context == null) return;
+
     if (text == "") {
       categoriesList[0] = Container();
     } else {
       categoriesList = [Container()];
       List categories = await getCategories(text, context);
-
-      print(categories);
 
       bool hasMatchingText = false;
 
@@ -81,42 +81,42 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
           }
 
           categoriesList.add(GestureDetector(
-            onTap: () {
-              Navigator.pop(context, name);
-            },
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(name,
-                      style: TextStyle(
-                        fontSize: 16.0,
-                      )),
-                    Text(category['followers'].length.toString() + ' following',
-                      style: TextStyle(fontSize: 13.0, color: Theme.of(context).hintColor)),
-                  ],
-                ),
-              ))));
+              onTap: () {
+                Navigator.pop(context, name);
+              },
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name,
+                            style: TextStyle(
+                              fontSize: 16.0,
+                            )),
+                        Text(category['followers'].length.toString() + ' following',
+                            style: TextStyle(fontSize: 13.0, color: Theme.of(context).hintColor)),
+                      ],
+                    ),
+                  ))));
         }
       }
 
       if (!hasMatchingText) {
         categoriesList[0] = GestureDetector(
-          onTap: () {
-            createCategory(text, context);
-          },
-          behavior: HitTestBehavior.opaque,
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            child: Text(text,
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Colors.blue,
-              ))));
+            onTap: () {
+              createCategory(text, context);
+            },
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+                width: MediaQuery.of(context).size.width,
+                child: Text(text,
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.blue,
+                    ))));
       }
     }
     if (this.mounted) {
@@ -133,6 +133,10 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
       contentPadding: EdgeInsets.fromLTRB(35.0, 12.0, 12.0, 12.0),
     );
     searchBarController = searchBar.controller;
+    searchBarController.addListener(() => streamController.add(searchBarController.text.trim()));
+    streamController.stream.debounceTime(Duration(milliseconds: 250)).listen((text) {
+      buildCategoryOptions(text, context);
+    });
   }
 
   @override
@@ -144,11 +148,6 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
 
   @override
   Widget build(BuildContext context) {
-    searchBarController.addListener(() => streamController.add(searchBarController.text.trim()));
-    streamController.stream.debounceTime(Duration(milliseconds: 250)).listen((text) {
-      buildCategoryOptions(text, context);
-    });
-
     return Container(
       color: Theme.of(context).backgroundColor,
       child: Column(
