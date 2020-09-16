@@ -68,18 +68,23 @@ Future<List> _getOptions(poll) async {
 class PollWidget extends StatefulWidget {
   final poll;
   final user;
+  final updatedUserModel;
+  final parentController;
 
-  PollWidget({Key key, @required this.poll, this.user}) : super(key: key);
+  PollWidget({Key key, @required this.poll, this.user, this.updatedUserModel, this.parentController}) : super(key: key);
 
   @override
   _PollWidgetState createState() => _PollWidgetState();
 }
 
 class _PollWidgetState extends State<PollWidget> {
-  final streamController = StreamController();
   var user, poll, pollCreator;
+
   List options;
   List followingCategories;
+  Widget imageOptions;
+
+  final streamController = StreamController();
   bool warning = false;
 
   @override
@@ -118,6 +123,14 @@ class _PollWidgetState extends State<PollWidget> {
       followCategory(category, unfollow, context);
     });
 
+    widget.parentController.stream.asBroadcastStream().listen((newUser) {
+      if (mounted)
+        setState(() {
+          user = newUser;
+          followingCategories = user['followingCategories'];
+        });
+    });
+
     super.initState();
   }
 
@@ -127,7 +140,20 @@ class _PollWidgetState extends State<PollWidget> {
     super.dispose();
   }
 
-  void followCategory(String category, bool unfollow, context) async {
+  Future categoryAddFollower(String category, String userId, bool unfollow) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    String userId = prefs.getString('userId');
+
+    String url = 'http://localhost:4000/category/followers';
+
+    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+
+    var body = jsonEncode({'name': category, 'userId': userId, 'unfollow': unfollow});
+    await http.put(url, headers: headers, body: body);
+  }
+
+  Future followCategory(String category, bool unfollow, context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
     String userId = prefs.getString('userId');
@@ -155,7 +181,11 @@ class _PollWidgetState extends State<PollWidget> {
         response = await http.put(url, headers: headers, body: body);
 
         if (response.statusCode == 200) {
-          setState(() {});
+          var jsonResponse = jsonDecode(response.body);
+          user = jsonResponse['user'];
+
+          await categoryAddFollower(category, userId, unfollow);
+          widget.updatedUserModel(user);
         } else {
           return showAlert(context, 'Something went wrong, please try again');
         }
@@ -307,8 +337,7 @@ class _PollWidgetState extends State<PollWidget> {
                 padding: const EdgeInsets.symmetric(horizontal: 2.0),
                 child: Container(
                   decoration: new BoxDecoration(
-                      color:
-                          followingCategories.contains(pollCategories[index]) ? Theme.of(context).accentColor : Theme.of(context).highlightColor,
+                      color: followingCategories.contains(pollCategories[index]) ? Theme.of(context).accentColor : Theme.of(context).highlightColor,
                       borderRadius: new BorderRadius.all(const Radius.circular(15.0))),
                   child: GestureDetector(
                     onTap: () {
@@ -367,90 +396,94 @@ class _PollWidgetState extends State<PollWidget> {
         containerHeight = optionsLength > 2 ? size * 2 : size;
       }
 
-      children.add(FutureBuilder<List>(
-          future: _getImages(options),
-          builder: (context, AsyncSnapshot<List> imageBytes) {
-            if (imageBytes.hasData) {
-              List imageBytesList = imageBytes.data;
+      if (imageOptions == null) {
+        imageOptions = FutureBuilder<List>(
+            future: _getImages(options),
+            builder: (context, AsyncSnapshot<List> imageBytes) {
+              if (imageBytes.hasData) {
+                List imageBytesList = imageBytes.data;
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.75),
-                child: Container(
-                  height: containerHeight,
-                  child: GridView.count(
-                      physics: new NeverScrollableScrollPhysics(),
-                      crossAxisCount: lengthGreaterThanFour ? 3 : 2,
-                      children: List.generate(optionsLength, (index) {
-                        var option = options[index];
-                        int votes = option['votes'];
-                        double percent = votes > 0 ? votes / totalVotes : 0;
-                        String percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
-
-                        Image image = Image.memory(imageBytesList[index]);
-
-                        return Padding(
-                          padding: const EdgeInsets.all(0.75),
-                          child: GestureDetector(
-                            onDoubleTap: () {
-                              if (!completed) {
-                                HapticFeedback.mediumImpact();
-                                vote(options[index]);
-                              }
-                            },
-                            child: Stack(
-                              children: [
-                                Container(
-                                  child: image,
-                                  width: size,
-                                  height: size,
-                                ),
-                                completed
-                                    ? Stack(children: [
-                                        Opacity(
-                                          opacity: 0.3,
-                                          child: Container(
-                                            decoration: new BoxDecoration(
-                                              color: Theme.of(context).backgroundColor,
-                                            ),
-                                            width: size,
-                                            height: size,
-                                          ),
-                                        ),
-                                        Center(
-                                          child: Text(
-                                            percentStr,
-                                            style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.w600,
-                                                color: highestVote == votes ? Colors.white : Colors.white54),
-                                          ),
-                                        ),
-                                      ])
-                                    : Container(),
-                              ],
-                            ),
-                          ),
-                        );
-                      })),
-                ),
-              );
-            } else {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.75),
-                child: new Container(
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0.75),
+                  child: Container(
                     height: containerHeight,
                     child: GridView.count(
                         physics: new NeverScrollableScrollPhysics(),
                         crossAxisCount: lengthGreaterThanFour ? 3 : 2,
                         children: List.generate(optionsLength, (index) {
+                          var option = options[index];
+                          int votes = option['votes'];
+                          double percent = votes > 0 ? votes / totalVotes : 0;
+                          String percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
+
+                          Image image = Image.memory(imageBytesList[index]);
+
                           return Padding(
                             padding: const EdgeInsets.all(0.75),
-                            child: Container(width: size, height: size, color: Theme.of(context).highlightColor),
+                            child: GestureDetector(
+                              onDoubleTap: () {
+                                if (!completed) {
+                                  HapticFeedback.mediumImpact();
+                                  vote(options[index]);
+                                }
+                              },
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    child: image,
+                                    width: size,
+                                    height: size,
+                                  ),
+                                  completed
+                                      ? Stack(children: [
+                                          Opacity(
+                                            opacity: 0.3,
+                                            child: Container(
+                                              decoration: new BoxDecoration(
+                                                color: Theme.of(context).backgroundColor,
+                                              ),
+                                              width: size,
+                                              height: size,
+                                            ),
+                                          ),
+                                          Center(
+                                            child: Text(
+                                              percentStr,
+                                              style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: highestVote == votes ? Colors.white : Colors.white54),
+                                            ),
+                                          ),
+                                        ])
+                                      : Container(),
+                                ],
+                              ),
+                            ),
                           );
-                        }))),
-              );
-            }
-          }));
+                        })),
+                  ),
+                );
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0.75),
+                  child: new Container(
+                      height: containerHeight,
+                      child: GridView.count(
+                          physics: new NeverScrollableScrollPhysics(),
+                          crossAxisCount: lengthGreaterThanFour ? 3 : 2,
+                          children: List.generate(optionsLength, (index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(0.75),
+                              child: Container(width: size, height: size, color: Theme.of(context).highlightColor),
+                            );
+                          }))),
+                );
+              }
+            });
+      }
+
+      children.add(imageOptions);
 
       children.add(Padding(
         padding: const EdgeInsets.only(left: 10.0, top: 10.0),

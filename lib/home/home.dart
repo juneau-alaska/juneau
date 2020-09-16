@@ -13,6 +13,7 @@ import 'package:juneau/common/components/alertComponent.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 
 String prevId;
 
@@ -40,15 +41,6 @@ Future<List> getPolls(context) async {
     showAlert(context, 'Something went wrong, please try again');
     return null;
   }
-}
-
-List createPages(polls, user) {
-  List<Widget> pages = [];
-  for (var i = 0; i < polls.length; i++) {
-    var poll = polls[i];
-    pages.add(new PollWidget(poll: poll, user: user));
-  }
-  return pages;
 }
 
 class HomePage extends StatefulWidget {
@@ -80,6 +72,29 @@ class _HomePageState extends State<HomePage> {
     if (mounted) setState(() {});
   }
 
+  final parentController = new StreamController.broadcast();
+
+  void updatedUserModel(updatedUser) {
+    user = updatedUser;
+    parentController.add(user);
+  }
+
+  List createPages(polls, user) {
+    List<Widget> pages = [];
+    for (var i = 0; i < polls.length; i++) {
+      var poll = polls[i];
+      pages.add(
+        new PollWidget(
+          poll: poll,
+          user: user,
+          updatedUserModel: updatedUserModel,
+          parentController: parentController
+        )
+      );
+    }
+    return pages;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -88,12 +103,12 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  RefreshController _refreshController = RefreshController(initialRefresh: false);
+  RefreshController refreshController = RefreshController(initialRefresh: false);
 
   void _onRefresh() async {
     prevId = null;
     await _fetchData();
-    _refreshController.refreshCompleted();
+    refreshController.refreshCompleted();
   }
 
   void _onLoading() async {
@@ -104,7 +119,14 @@ class _HomePageState extends State<HomePage> {
           polls += nextPolls;
         });
     }
-    _refreshController.loadComplete();
+    refreshController.loadComplete();
+  }
+
+  @override
+  void dispose() {
+    parentController.close();
+    refreshController.dispose();
+    super.dispose();
   }
 
   @override
@@ -126,7 +148,7 @@ class _HomePageState extends State<HomePage> {
         footer: ClassicFooter(
           loadStyle: LoadStyle.ShowWhenLoading,
         ),
-        controller: _refreshController,
+        controller: refreshController,
         onRefresh: _onRefresh,
         onLoading: _onLoading,
         child: ListView.builder(
