@@ -186,19 +186,23 @@ class _PollCreateState extends State<PollCreate> {
   Future<void> loadAssets() async {
     List<Asset> resultList = List<Asset>();
 
-    resultList = await MultiImagePicker.pickImages(
-      maxImages: 9,
-      enableCamera: true,
-      selectedAssets: images,
-      cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
-      materialOptions: MaterialOptions(
-        actionBarColor: "#58E0C0",
-        actionBarTitle: "Juneau",
-        allViewTitle: "All Photos",
-        useDetailsView: false,
-        selectCircleStrokeColor: "#58E0C0",
-      ),
-    );
+    try {
+      resultList = await MultiImagePicker.pickImages(
+        maxImages: 9,
+        enableCamera: true,
+        selectedAssets: images,
+        cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
+        materialOptions: MaterialOptions(
+          actionBarColor: "#58E0C0",
+          actionBarTitle: "Juneau",
+          allViewTitle: "All Photos",
+          useDetailsView: false,
+          selectCircleStrokeColor: "#58E0C0",
+        ),
+      );
+    } on Exception catch (e) {
+      print(e.toString());
+    }
 
     if (!mounted) return;
 
@@ -230,6 +234,7 @@ class _PollCreateState extends State<PollCreate> {
                       child: Text(
                         "Cancel",
                         style: TextStyle(
+                          fontWeight: FontWeight.w300,
                           fontSize: 16,
                         ),
                       ),
@@ -237,7 +242,7 @@ class _PollCreateState extends State<PollCreate> {
                     Text(
                       "Image Poll",
                       style: TextStyle(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         fontSize: 16,
                       ),
                     ),
@@ -293,7 +298,7 @@ class _PollCreateState extends State<PollCreate> {
                         "Create",
                         style: TextStyle(
                           color: Colors.blue,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                           fontSize: 16,
                         ),
                       ),
@@ -313,7 +318,7 @@ class _PollCreateState extends State<PollCreate> {
                   if (selectedCategory != null) {
                     if (selectedCategories[0] == "") {
                       selectedCategories[0] = selectedCategory;
-                      categoryContainerHeight = 32.0;
+                      categoryContainerHeight = 30.0;
                       categoryContainerPadding = const EdgeInsets.fromLTRB(10.0, 9.0, 10.0, 10.0);
                     } else if (!selectedCategories.contains(selectedCategory)) {
                       selectedCategories.add(selectedCategory);
@@ -331,7 +336,7 @@ class _PollCreateState extends State<PollCreate> {
                         children: [
                           Text(
                             "Categories",
-                            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400),
+                            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w300),
                           ),
                           Icon(
                             Icons.arrow_forward_ios,
@@ -350,10 +355,10 @@ class _PollCreateState extends State<PollCreate> {
                     itemCount: selectedCategories.length,
                     itemBuilder: (BuildContext context, int index) {
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 2.5),
                         child: Container(
                           decoration: new BoxDecoration(
-                              color: Theme.of(context).highlightColor, borderRadius: new BorderRadius.all(const Radius.circular(15.0))),
+                              color: Theme.of(context).highlightColor, borderRadius: new BorderRadius.all(const Radius.circular(14.0))),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 10.0),
                             child: Center(
@@ -361,9 +366,7 @@ class _PollCreateState extends State<PollCreate> {
                                 children: [
                                   Text(
                                     selectedCategories[index],
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                    ),
+                                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
                                   ),
                                   SizedBox(width: 4.0),
                                   GestureDetector(
@@ -407,7 +410,7 @@ class _PollCreateState extends State<PollCreate> {
                   children: <Widget>[
                     Text(
                       "Add Selections",
-                      style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400),
+                      style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w300),
                     ),
                     Container(
                       child: GestureDetector(
@@ -421,7 +424,7 @@ class _PollCreateState extends State<PollCreate> {
                             SizedBox(width: 5.0),
                             Text(
                               "SELECT IMAGES",
-                              style: TextStyle(fontSize: 13.0),
+                              style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.w300),
                             ),
                           ],
                         ),

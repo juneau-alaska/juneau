@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
+import 'package:juneau/poll/pollMenu.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 
 import 'package:juneau/common/methods/userMethods.dart';
@@ -287,63 +288,89 @@ class _PollWidgetState extends State<PollWidget> {
     String time = timeago.format(createdAt, locale: 'en_short');
     List<Widget> children = [
       Padding(
-        padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 10.0, bottom: 3.0),
-        child: Text(
-          poll['prompt'],
-          style: TextStyle(
-            fontFamily: 'Lato Black',
-            fontSize: 18.0,
-          ),
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 6.0),
+        padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 0.0),
         child: Row(
-          children: <Widget>[
-            GestureDetector(
-                child: Text(
-                  pollCreator['username'],
-                  style: TextStyle(
-                    color: Theme.of(context).hintColor,
-                    fontSize: 13.0,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 5.0),
+                  child: Text(
+                    poll['prompt'],
+                    style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700),
                   ),
                 ),
-                onTap: () {
-                  print(pollCreator['email']);
-                }),
-            Padding(
-              padding: const EdgeInsets.only(left: 2.0),
-              child: Text(
-                time,
-                style: TextStyle(
-                  color: Theme.of(context).hintColor,
-                  fontSize: 12,
-                  wordSpacing: -4.0,
+                Row(
+                  children: <Widget>[
+                    GestureDetector(
+                        child: Text(
+                          pollCreator['username'],
+                          style: TextStyle(
+                            color: Theme.of(context).hintColor,
+                            fontSize: 13.0,
+                          ),
+                        ),
+                        onTap: () {
+                          print(pollCreator['email']);
+                        }),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                      child: Text('•',
+                          style: TextStyle(
+                            color: Theme.of(context).hintColor,
+                          )),
+                    ),
+                    Text(
+                      time,
+                      style: TextStyle(
+                        color: Theme.of(context).hintColor,
+                        fontSize: 12,
+                        wordSpacing: -4.0,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
+              ],
             ),
+            GestureDetector(
+              onTap: () {
+                showModalBottomSheet(
+                  backgroundColor: Colors.transparent,
+                  context: context,
+                  builder: (BuildContext context) => PollMenu()
+                );
+              },
+              child: Icon(
+                Icons.more_horiz,
+                size: 20.0,
+                color: Theme.of(context).hintColor,
+              ),
+            )
           ],
         ),
       ),
       Padding(
-        padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 10.0),
+        padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 12.0),
         child: SizedBox(
-          height: 32.0,
+          height: 30.0,
           child: new ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: pollCategories.length,
             itemBuilder: (BuildContext context, int index) {
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                padding: const EdgeInsets.symmetric(horizontal: 2.5),
                 child: Container(
                   decoration: new BoxDecoration(
                       color: followingCategories.contains(pollCategories[index]) ? Theme.of(context).accentColor : Theme.of(context).highlightColor,
-                      borderRadius: new BorderRadius.all(const Radius.circular(15.0))),
+                      borderRadius: new BorderRadius.all(const Radius.circular(14.0))),
                   child: GestureDetector(
                     onTap: () {
                       if (warning) {
                         showAlert(context, "You're going that too fast. Take a break.");
                       }
+                      HapticFeedback.mediumImpact();
                       streamController.add(pollCategories[index]);
                     },
                     child: Padding(
@@ -351,9 +378,7 @@ class _PollWidgetState extends State<PollWidget> {
                       child: Center(
                         child: Text(
                           pollCategories[index],
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
                         ),
                       ),
                     ),
@@ -451,8 +476,8 @@ class _PollWidgetState extends State<PollWidget> {
                                               percentStr,
                                               style: TextStyle(
                                                   fontSize: 16.0,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: highestVote == votes ? Colors.white : Colors.white54),
+                                                  fontWeight: FontWeight.w700,
+                                                  color: highestVote == votes ? Colors.white : Colors.white70),
                                             ),
                                           ),
                                         ])
