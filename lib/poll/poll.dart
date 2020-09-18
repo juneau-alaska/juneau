@@ -336,10 +336,11 @@ class _PollWidgetState extends State<PollWidget> {
             ),
             GestureDetector(
               onTap: () {
+                bool isCreator = user['_id'] == pollCreator['_id'];
                 showModalBottomSheet(
                   backgroundColor: Colors.transparent,
                   context: context,
-                  builder: (BuildContext context) => PollMenu()
+                  builder: (BuildContext context) => PollMenu(isCreator: isCreator)
                 );
               },
               child: Icon(
