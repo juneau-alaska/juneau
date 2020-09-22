@@ -69,10 +69,12 @@ Future<List> _getOptions(poll) async {
 class PollWidget extends StatefulWidget {
   final poll;
   final user;
+  final dismissPoll;
+  final index;
   final updatedUserModel;
   final parentController;
 
-  PollWidget({Key key, @required this.poll, this.user, this.updatedUserModel, this.parentController}) : super(key: key);
+  PollWidget({Key key, @required this.poll, this.user, this.dismissPoll, this.index, this.updatedUserModel, this.parentController}) : super(key: key);
 
   @override
   _PollWidgetState createState() => _PollWidgetState();
@@ -282,6 +284,33 @@ class _PollWidgetState extends State<PollWidget> {
     }
   }
 
+  void deletePoll() async {
+    String url = 'http://localhost:4000/poll/' + poll['_id'].toString();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+
+    var response = await http.delete(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      showAlert(context, 'Successfully deleted poll', true);
+    } else {
+      showAlert(context, 'Something went wrong, please try again');
+    }
+
+    widget.dismissPoll(widget.index);
+  }
+
+  void handleAction(String action) {
+    switch (action) {
+      case 'delete':
+        deletePoll();
+        break;
+    }
+  }
+
   Widget buildPoll() {
     DateTime createdAt = DateTime.parse(poll['createdAt']);
     List pollCategories = poll['categories'];
@@ -334,21 +363,21 @@ class _PollWidgetState extends State<PollWidget> {
                 ),
               ],
             ),
-            GestureDetector(
-              onTap: () {
-                bool isCreator = user['_id'] == pollCreator['_id'];
-                showModalBottomSheet(
-                  backgroundColor: Colors.transparent,
-                  context: context,
-                  builder: (BuildContext context) => PollMenu(isCreator: isCreator)
-                );
-              },
-              child: Icon(
-                Icons.more_horiz,
-                size: 20.0,
-                color: Theme.of(context).hintColor,
-              ),
-            )
+            user['_id'] == pollCreator['_id']
+                ? GestureDetector(
+                    onTap: () async {
+                      bool isCreator = user['_id'] == pollCreator['_id'];
+                      String action = await showModalBottomSheet(
+                          backgroundColor: Colors.transparent, context: context, builder: (BuildContext context) => PollMenu(isCreator: isCreator));
+                      handleAction(action);
+                    },
+                    child: Icon(
+                      Icons.more_horiz,
+                      size: 20.0,
+                      color: Theme.of(context).hintColor,
+                    ),
+                  )
+                : Container(),
           ],
         ),
       ),

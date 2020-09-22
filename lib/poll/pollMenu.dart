@@ -26,39 +26,24 @@ class _PollMenuState extends State<PollMenu> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
-          children: [
+          children: widget.isCreator ? [
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.pop(context, 'delete');
+              },
               behavior: HitTestBehavior.opaque,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 10.0),
                 child: Container(
-                    child: Row(children: [
-                  Icon(Icons.flag, size: 22.0),
-                  SizedBox(
-                    width: 13.0,
-                  ),
-                  Text('Report', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w300))
-                ])),
+                  child: Row(children: [
+                    Icon(Icons.delete, size: 25.0),
+                    SizedBox(
+                      width: 13.0,
+                    ),
+                    Text('Delete', style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300))
+                  ])),
               ),
             ),
-            widget.isCreator
-                ? GestureDetector(
-                    onTap: () {},
-                    behavior: HitTestBehavior.opaque,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 10.0),
-                      child: Container(
-                          child: Row(children: [
-                        Icon(Icons.delete, size: 22.0),
-                        SizedBox(
-                          width: 13.0,
-                        ),
-                        Text('Delete', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w300))
-                      ])),
-                    ),
-                  )
-                : Container(),
             GestureDetector(
               onTap: () {},
               behavior: HitTestBehavior.opaque,
@@ -73,7 +58,58 @@ class _PollMenuState extends State<PollMenu> {
                   child: Center(
                     child: Text(
                       'Cancel',
-                      style: TextStyle(color: Theme.of(context).hintColor, fontSize: 13, fontWeight: FontWeight.w300),
+                      style: TextStyle(color: Theme.of(context).hintColor, fontSize: 13.0, fontWeight: FontWeight.w300),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ] : [
+            GestureDetector(
+              onTap: () {},
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 10.0),
+                child: Container(
+                  child: Row(children: [
+                    Icon(Icons.flag, size: 25.0, color: Colors.red),
+                    SizedBox(
+                      width: 13.0,
+                    ),
+                    Text('Report', style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300, color: Colors.red))
+                  ])),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {},
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 10.0),
+                child: Container(
+                  child: Row(children: [
+                    Icon(Icons.bookmark, size: 25.0),
+                    SizedBox(
+                      width: 13.0,
+                    ),
+                    Text('Save', style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300))
+                  ])),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {},
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 14.0),
+                decoration: new BoxDecoration(
+                  borderRadius: new BorderRadius.circular(8.0),
+                  color: Theme.of(context).highlightColor,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 13.0),
+                  child: Center(
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: Theme.of(context).hintColor, fontSize: 13.0, fontWeight: FontWeight.w300),
                     ),
                   ),
                 ),

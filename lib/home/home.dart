@@ -79,22 +79,6 @@ class _HomePageState extends State<HomePage> {
     parentController.add(user);
   }
 
-  List createPages(polls, user) {
-    List<Widget> pages = [];
-    for (var i = 0; i < polls.length; i++) {
-      var poll = polls[i];
-      pages.add(
-        new PollWidget(
-          poll: poll,
-          user: user,
-          updatedUserModel: updatedUserModel,
-          parentController: parentController
-        )
-      );
-    }
-    return pages;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -129,13 +113,31 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  List<Widget> pages = [];
+  bool pagesCreated = false;
+
+  void dismissPoll(index) {
+    setState(() {
+      pages.removeAt(index);
+    });
+  }
+
+  void createPages(polls, user) {
+    pagesCreated = true;
+    for (var i = 0; i < polls.length; i++) {
+      var poll = polls[i];
+      pages.add(new PollWidget(
+        poll: poll, user: user, dismissPoll: dismissPoll, index: i, updatedUserModel: updatedUserModel, parentController: parentController));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (polls == null) {
       return new Container();
+    } else if (!pagesCreated) {
+      createPages(polls, user);
     }
-
-    List pages = createPages(polls, user);
 
     return Scaffold(
       key: UniqueKey(),

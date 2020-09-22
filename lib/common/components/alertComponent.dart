@@ -3,13 +3,15 @@ import 'dart:async';
 
 OverlayEntry entry;
 
-void showAlert(context, text) {
+void showAlert(context, text, [bool success = false]) {
   if (entry != null) {
     entry.remove();
   }
 
+  Color color = success ? Colors.green : Colors.red;
+
   entry = OverlayEntry(builder: (BuildContext context) {
-    return AlertComponent(text: text);
+    return AlertComponent(text: text, color: color);
   });
 
   Navigator.of(context).overlay.insert(entry);
@@ -17,18 +19,19 @@ void showAlert(context, text) {
 
 class AlertComponent extends StatefulWidget {
   final text;
+  final color;
 
   AlertComponent({
     Key key,
     @required this.text,
+    this.color,
   }) : super(key: key);
 
   @override
   _AlertComponentState createState() => _AlertComponentState();
 }
 
-class _AlertComponentState extends State<AlertComponent>
-    with SingleTickerProviderStateMixin {
+class _AlertComponentState extends State<AlertComponent> with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation<Offset> position;
 
@@ -36,10 +39,8 @@ class _AlertComponentState extends State<AlertComponent>
   void initState() {
     super.initState();
 
-    controller =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 100));
-    position = Tween<Offset>(begin: Offset(0.0, 2.0), end: Offset.zero)
-        .animate(controller);
+    controller = AnimationController(vsync: this, duration: Duration(milliseconds: 100));
+    position = Tween<Offset>(begin: Offset(0.0, 2.0), end: Offset.zero).animate(controller);
 
     controller.forward();
     new Future.delayed(const Duration(seconds: 2), () => controller.reverse());
@@ -59,17 +60,14 @@ class _AlertComponentState extends State<AlertComponent>
               height: 40,
               decoration: new BoxDecoration(
                 borderRadius: new BorderRadius.circular(8.0),
-                color: Colors.red,
+                color: widget.color,
               ),
               child: Center(
                 child: Material(
                   color: Colors.transparent,
                   child: Text(
                     widget.text,
-                    style: TextStyle(
-                        fontSize: 14.0,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 14.0, color: Colors.white, fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
