@@ -14,7 +14,7 @@ import 'package:juneau/common/components/alertComponent.dart';
 
 import 'package:juneau/common/methods/userMethods.dart';
 
-Future<List> _getImages(List options) async {
+Future<List> getImages(List options) async {
   List imageBytes = [];
   for (var option in options) {
     String url = option['content'];
@@ -291,12 +291,7 @@ class _PollWidgetState extends State<PollWidget> {
     var token = prefs.getString('token');
     var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
 
-    List optionIds = [];
-    for (var i = 0; i < options.length; i++) {
-      optionIds.add(options[i]['_id']);
-    }
-
-    var body = jsonEncode({'optionIds': optionIds});
+    var body = jsonEncode({'optionsList': options});
     var response = await http.post(url, headers: headers, body: body);
 
     if (response.statusCode == 200) {
@@ -473,7 +468,7 @@ class _PollWidgetState extends State<PollWidget> {
 
       if (imageOptions == null) {
         imageOptions = FutureBuilder<List>(
-            future: _getImages(options),
+            future: getImages(options),
             builder: (context, AsyncSnapshot<List> imageBytes) {
               if (imageBytes.hasData) {
                 List imageBytesList = imageBytes.data;
