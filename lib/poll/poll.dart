@@ -284,23 +284,43 @@ class _PollWidgetState extends State<PollWidget> {
     }
   }
 
+  void deleteOptions() async {
+    String url = 'http://localhost:4000/options/delete';
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+
+    List optionIds = [];
+    for (var i = 0; i < options.length; i++) {
+      optionIds.add(options[i]['_id']);
+    }
+
+    var body = jsonEncode({'optionIds': optionIds});
+    var response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      showAlert(context, 'Successfully deleted poll', true);
+      widget.dismissPoll(widget.index);
+    } else {
+      showAlert(context, 'Something went wrong, please try again');
+    }
+  }
+
   void deletePoll() async {
     String url = 'http://localhost:4000/poll/' + poll['_id'].toString();
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
-
     var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
 
     var response = await http.delete(url, headers: headers);
 
     if (response.statusCode == 200) {
-      showAlert(context, 'Successfully deleted poll', true);
+      deleteOptions();
     } else {
       showAlert(context, 'Something went wrong, please try again');
     }
-
-    widget.dismissPoll(widget.index);
   }
 
   void handleAction(String action) {

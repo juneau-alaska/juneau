@@ -127,7 +127,7 @@ class _HomePageState extends State<HomePage> {
     for (var i = 0; i < polls.length; i++) {
       var poll = polls[i];
       pages.add(new PollWidget(
-        poll: poll, user: user, dismissPoll: dismissPoll, index: i, updatedUserModel: updatedUserModel, parentController: parentController));
+          poll: poll, user: user, dismissPoll: dismissPoll, index: i, updatedUserModel: updatedUserModel, parentController: parentController));
     }
   }
 
