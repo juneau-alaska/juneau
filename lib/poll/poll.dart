@@ -321,7 +321,62 @@ class _PollWidgetState extends State<PollWidget> {
   void handleAction(String action) {
     switch (action) {
       case 'delete':
-        deletePoll();
+        Widget cancelButton = FlatButton(
+          child: Text(
+            "CANCEL",
+            style: TextStyle(
+              fontSize: 14.0,
+              fontWeight: FontWeight.w700
+            )
+          ),
+          onPressed:  () {
+            Navigator.pop(context);
+          },
+        );
+
+        Widget continueButton = FlatButton(
+          child: Text(
+            "DELETE",
+            style: TextStyle(
+              fontSize: 14.0,
+              fontWeight: FontWeight.w700,
+              color: Colors.red
+            )
+          ),
+          onPressed:  () {
+            deletePoll();
+            Navigator.pop(context);
+          },
+        );
+
+        AlertDialog alertDialogue = AlertDialog(
+          backgroundColor: Theme.of(context).backgroundColor,
+          title: Text(
+            "Are you sure?",
+            style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.w700
+            )
+          ),
+          content: Text(
+            "Polls that are deleted cannot be retrieved.",
+            style: TextStyle(
+              fontSize: 16.0,
+              fontWeight: FontWeight.w300
+            )
+          ),
+          actions: [
+            cancelButton,
+            continueButton,
+          ],
+        );
+
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return alertDialogue;
+          },
+        );
         break;
     }
   }
