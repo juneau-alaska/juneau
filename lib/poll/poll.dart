@@ -284,6 +284,28 @@ class _PollWidgetState extends State<PollWidget> {
     }
   }
 
+  void removePollFromUser(pollId) async {
+    const url = 'http://localhost:4000/user/';
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token'), userId = prefs.getString('userId');
+
+    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+
+    var response = await http.get(url + userId, headers: headers), body;
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body)[0], createdPolls = jsonResponse['createdPolls'];
+
+      print(createdPolls.length);
+      createdPolls.remove(pollId);
+      print(createdPolls.length);
+      body = jsonEncode({'createdPolls': createdPolls});
+
+      response = await http.put(url + userId, headers: headers, body: body);
+    }
+  }
+
   void deleteOptions() async {
     String url = 'http://localhost:4000/options/delete';
 
@@ -303,7 +325,8 @@ class _PollWidgetState extends State<PollWidget> {
   }
 
   void deletePoll() async {
-    String url = 'http://localhost:4000/poll/' + poll['_id'].toString();
+    String _id = poll['_id'];
+    String url = 'http://localhost:4000/poll/' + _id;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
@@ -313,6 +336,7 @@ class _PollWidgetState extends State<PollWidget> {
 
     if (response.statusCode == 200) {
       deleteOptions();
+      removePollFromUser(_id);
     } else {
       showAlert(context, 'Something went wrong, please try again');
     }
