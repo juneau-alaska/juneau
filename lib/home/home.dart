@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/common/views/appBar.dart';
 import 'package:juneau/common/views/navBar.dart';
 import 'package:juneau/poll/poll.dart';
-
-import 'package:pull_to_refresh/pull_to_refresh.dart';
-
+import 'package:juneau/poll/pollPage.dart';
+import 'package:juneau/common/components/keepAlivePage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 
 import 'package:http/http.dart' as http;
@@ -49,7 +49,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var user, polls;
+  var user;
+  List polls;
+  List<Widget> pages;
+  List<Widget> pollsList;
+  SmartRefresher listViewBuilder;
+  bool preventReload = false;
 
   _fetchData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -81,21 +86,23 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _fetchData();
     });
+    super.initState();
   }
 
   RefreshController refreshController = RefreshController(initialRefresh: false);
 
   void _onRefresh() async {
+    preventReload = false;
     prevId = null;
     await _fetchData();
     refreshController.refreshCompleted();
   }
 
   void _onLoading() async {
+    preventReload = true;
     var nextPolls = await getPolls(context);
     if (nextPolls != null && nextPolls.length > 0) {
       if (mounted)
@@ -113,29 +120,62 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  List<Widget> pages = [];
-  bool pagesCreated = false;
-
   void dismissPoll(index) {
     setState(() {
-      pages.removeAt(index);
+      pollsList.removeAt(index);
     });
   }
 
+  void viewPoll() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return PollPage();
+      },
+    );
+  }
+
   void createPages(polls, user) {
-    pagesCreated = true;
+    pollsList = [];
     for (var i = 0; i < polls.length; i++) {
       var poll = polls[i];
-      pages.add(new PollWidget(
-          poll: poll, user: user, dismissPoll: dismissPoll, index: i, updatedUserModel: updatedUserModel, parentController: parentController));
+      pollsList.add(new PollWidget(
+          poll: poll,
+          user: user,
+          dismissPoll: dismissPoll,
+          viewPoll: viewPoll,
+          index: i,
+          updatedUserModel: updatedUserModel,
+          parentController: parentController));
     }
+
+    listViewBuilder = SmartRefresher(
+      enablePullDown: true,
+      enablePullUp: true,
+      header: ClassicHeader(),
+      footer: ClassicFooter(
+        loadStyle: LoadStyle.ShowWhenLoading,
+      ),
+      controller: refreshController,
+      onRefresh: _onRefresh,
+      onLoading: _onLoading,
+      child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: pollsList,
+      )
+    );
+
+    pages = [KeepAlivePage(child: listViewBuilder)];
   }
 
   @override
   Widget build(BuildContext context) {
     if (polls == null) {
       return new Container();
-    } else if (!pagesCreated) {
+    }
+
+    if (!preventReload) {
+      preventReload = false;
       createPages(polls, user);
     }
 
@@ -143,36 +183,10 @@ class _HomePageState extends State<HomePage> {
       key: UniqueKey(),
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appBar(),
-      body: SmartRefresher(
-        enablePullDown: true,
-        enablePullUp: true,
-        header: ClassicHeader(),
-        footer: ClassicFooter(
-          loadStyle: LoadStyle.ShowWhenLoading,
-        ),
-        controller: refreshController,
-        onRefresh: _onRefresh,
-        onLoading: _onLoading,
-        child: ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: pages.length,
-          itemBuilder: (context, index) {
-            return pages[index];
-          },
-        ),
+      body: PageView(
+        children: pages,
       ),
       bottomNavigationBar: navBar(),
     );
-
-    /**
-      return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appBar(),
-      body: PageView(
-      children: pages,
-      ),
-      bottomNavigationBar: navBar(),
-      );
-     **/
   }
 }

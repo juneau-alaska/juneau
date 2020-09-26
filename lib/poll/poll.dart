@@ -70,11 +70,12 @@ class PollWidget extends StatefulWidget {
   final poll;
   final user;
   final dismissPoll;
+  final viewPoll;
   final index;
   final updatedUserModel;
   final parentController;
 
-  PollWidget({Key key, @required this.poll, this.user, this.dismissPoll, this.index, this.updatedUserModel, this.parentController}) : super(key: key);
+  PollWidget({Key key, @required this.poll, this.user, this.dismissPoll, this.viewPoll, this.index, this.updatedUserModel, this.parentController}) : super(key: key);
 
   @override
   _PollWidgetState createState() => _PollWidgetState();
@@ -346,28 +347,15 @@ class _PollWidgetState extends State<PollWidget> {
     switch (action) {
       case 'delete':
         Widget cancelButton = FlatButton(
-          child: Text(
-            "CANCEL",
-            style: TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.w700
-            )
-          ),
-          onPressed:  () {
+          child: Text("CANCEL", style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w700)),
+          onPressed: () {
             Navigator.pop(context);
           },
         );
 
         Widget continueButton = FlatButton(
-          child: Text(
-            "DELETE",
-            style: TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.w700,
-              color: Colors.red
-            )
-          ),
-          onPressed:  () {
+          child: Text("DELETE", style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w700, color: Colors.red)),
+          onPressed: () {
             deletePoll();
             Navigator.pop(context);
           },
@@ -375,20 +363,8 @@ class _PollWidgetState extends State<PollWidget> {
 
         AlertDialog alertDialogue = AlertDialog(
           backgroundColor: Theme.of(context).backgroundColor,
-          title: Text(
-            "Are you sure?",
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.w700
-            )
-          ),
-          content: Text(
-            "Polls that are deleted cannot be retrieved.",
-            style: TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.w300
-            )
-          ),
+          title: Text("Are you sure?", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700)),
+          content: Text("Polls that are deleted cannot be retrieved.", style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w300)),
           actions: [
             cancelButton,
             continueButton,
@@ -430,26 +406,21 @@ class _PollWidgetState extends State<PollWidget> {
                     GestureDetector(
                         child: Text(
                           pollCreator['username'],
-                          style: TextStyle(
-                            color: Theme.of(context).hintColor,
-                            fontSize: 13.0,
-                          ),
+                          style: TextStyle(color: Theme.of(context).hintColor, fontSize: 13.0, fontWeight: FontWeight.w300),
                         ),
                         onTap: () {
                           print(pollCreator['email']);
                         }),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                      child: Text('•',
-                          style: TextStyle(
-                            color: Theme.of(context).hintColor,
-                          )),
+                      padding: const EdgeInsets.only(left: 3.0, right: 1.0),
+                      child: Text('•', style: TextStyle(color: Theme.of(context).hintColor, fontSize: 13.0, fontWeight: FontWeight.w700)),
                     ),
                     Text(
                       time,
                       style: TextStyle(
                         color: Theme.of(context).hintColor,
-                        fontSize: 12,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w300,
                         wordSpacing: -4.0,
                       ),
                     ),
@@ -631,18 +602,27 @@ class _PollWidgetState extends State<PollWidget> {
               }
             });
       }
-
       children.add(imageOptions);
 
-      children.add(Padding(
-        padding: const EdgeInsets.only(left: 10.0, top: 10.0),
-        child: Text(
-          totalVotes == 1 ? '$totalVotes vote' : '$totalVotes votes',
-          style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w500, color: Theme.of(context).hintColor),
-        ),
-      ));
+      int commentCount = poll['comments'] != null ? poll['comments'].length : 0;
 
-      children.add(SizedBox(height: 10.0));
+      children.add(Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              totalVotes == 1 ? '$totalVotes vote' : '$totalVotes votes',
+              style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
+            ),
+            GestureDetector(
+              onTap: () {
+                widget.viewPoll();
+              },
+              child: Text(
+                '$commentCount comments',
+                style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
+              ),
+            ),
+          ])));
     }
 
     return Container(
