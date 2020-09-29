@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 class PollPage extends StatefulWidget {
+  final pollWidget;
+
+  PollPage({Key key, @required this.pollWidget}) : super(key: key);
+
   @override
   _PollPageState createState() => _PollPageState();
 }
@@ -31,19 +35,45 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
+  void back() {
+    _controller.reverse();
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SlideTransition(
-      position: _animation,
-      textDirection: TextDirection.rtl,
-      child: GestureDetector(
-        onTap: () {
-          _controller.reverse();
-          Navigator.pop(context);
-        },
-        child: Container(
-          height:  MediaQuery.of(context).size.height,
-          color: Colors.blueGrey
+    return Dismissible(
+      key: UniqueKey(),
+      direction: DismissDirection.startToEnd,
+      onDismissed: (direction) {
+        print(direction);
+        back();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SlideTransition(position: _animation, textDirection: TextDirection.rtl,
+          child: Container(
+              height: MediaQuery.of(context).size.height,
+              color: Theme.of(context).backgroundColor,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                            onTap: () {
+                              back();
+                            },
+                            child: Icon(Icons.arrow_back, size: 25)),
+                      ],
+                    ),
+                  ),
+                  widget.pollWidget,
+                ],
+              )),
         ),
       ),
     );

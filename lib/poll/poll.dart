@@ -75,7 +75,8 @@ class PollWidget extends StatefulWidget {
   final updatedUserModel;
   final parentController;
 
-  PollWidget({Key key, @required this.poll, this.user, this.dismissPoll, this.viewPoll, this.index, this.updatedUserModel, this.parentController}) : super(key: key);
+  PollWidget({Key key, @required this.poll, this.user, this.dismissPoll, this.viewPoll, this.index, this.updatedUserModel, this.parentController})
+      : super(key: key);
 
   @override
   _PollWidgetState createState() => _PollWidgetState();
@@ -89,6 +90,9 @@ class _PollWidgetState extends State<PollWidget> {
   Widget imageOptions;
 
   final streamController = StreamController();
+
+  bool saved = false;
+  bool liked = false;
   bool warning = false;
 
   @override
@@ -608,20 +612,51 @@ class _PollWidgetState extends State<PollWidget> {
 
       children.add(Padding(
           padding: const EdgeInsets.all(10.0),
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center, children: [
             Text(
-              totalVotes == 1 ? '$totalVotes vote' : '$totalVotes votes',
-              style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
+              totalVotes == 1 ? '$totalVotes Vote' : '$totalVotes Votes',
+              style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
             ),
             GestureDetector(
               onTap: () {
-                widget.viewPoll();
+                widget.viewPoll(widget);
               },
-              child: Text(
-                '$commentCount comments',
-                style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
+              child: Row(
+                children: [
+                  Text(
+                    '$commentCount',
+                    style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
+                  ),
+                  SizedBox(
+                    width: 3,
+                  ),
+                  Icon(Icons.mode_comment, color: Theme.of(context).hintColor, size: 18)
+                ],
               ),
             ),
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    // TODO: set liked to if actually liked
+                    setState(() {
+                      liked = !liked;
+                    });
+                  },
+                  child:
+                      Icon(liked ? Icons.favorite : Icons.favorite_border, color: liked ? Colors.redAccent : Theme.of(context).hintColor, size: 23),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    // TODO: set saved to if actually saved
+                    setState(() {
+                      saved = !saved;
+                    });
+                  },
+                  child: Icon(saved ? Icons.bookmark : Icons.bookmark_border, color: saved ? Colors.white : Theme.of(context).hintColor, size: 23),
+                ),
+              ],
+            )
           ])));
     }
 

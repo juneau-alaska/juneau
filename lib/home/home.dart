@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -64,7 +65,8 @@ class _HomePageState extends State<HomePage> {
       userMethods.getUser(userId),
       getPolls(context),
     ]).then((results) {
-      var userResult = results[0], pollsResult = results[1];
+      var userResult = results[0],
+        pollsResult = results[1];
 
       if (userResult != null) {
         user = userResult[0];
@@ -126,12 +128,13 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void viewPoll() {
+  void viewPoll(Widget pollWidget) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return PollPage();
+        return PollPage(pollWidget: pollWidget);
       },
+      barrierColor: Color(0x01000000)
     );
   }
 
@@ -140,13 +143,13 @@ class _HomePageState extends State<HomePage> {
     for (var i = 0; i < polls.length; i++) {
       var poll = polls[i];
       pollsList.add(new PollWidget(
-          poll: poll,
-          user: user,
-          dismissPoll: dismissPoll,
-          viewPoll: viewPoll,
-          index: i,
-          updatedUserModel: updatedUserModel,
-          parentController: parentController));
+        poll: poll,
+        user: user,
+        dismissPoll: dismissPoll,
+        viewPoll: viewPoll,
+        index: i,
+        updatedUserModel: updatedUserModel,
+        parentController: parentController));
     }
 
     listViewBuilder = SmartRefresher(
@@ -159,9 +162,12 @@ class _HomePageState extends State<HomePage> {
       controller: refreshController,
       onRefresh: _onRefresh,
       onLoading: _onLoading,
-      child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: pollsList,
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: pollsList.length,
+        itemBuilder: (context, index) {
+          return pollsList[index];
+        },
       )
     );
 
@@ -181,7 +187,9 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       key: UniqueKey(),
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme
+        .of(context)
+        .backgroundColor,
       appBar: appBar(),
       body: PageView(
         children: pages,
