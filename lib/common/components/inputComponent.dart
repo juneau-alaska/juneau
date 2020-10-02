@@ -68,7 +68,7 @@ class _InputComponentState extends State<InputComponent> {
                 isDense: true,
                 contentPadding: contentPadding,
                 hintText: widget.hintText,
-                hintStyle: TextStyle(color: Theme.of(context).hintColor, fontWeight: fontWeight, fontFamily: 'Lato Regular'),
+                hintStyle: TextStyle(color: Theme.of(context).hintColor, fontWeight: fontWeight),
                 filled: false,
                 errorText: widget.errorText,
                 focusedBorder: borderOutline,

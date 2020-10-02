@@ -65,8 +65,7 @@ class _HomePageState extends State<HomePage> {
       userMethods.getUser(userId),
       getPolls(context),
     ]).then((results) {
-      var userResult = results[0],
-        pollsResult = results[1];
+      var userResult = results[0], pollsResult = results[1];
 
       if (userResult != null) {
         user = userResult[0];
@@ -128,14 +127,13 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void viewPoll(Widget pollWidget) {
+  void viewPoll(Widget pollWidget, String pollId) {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return PollPage(pollWidget: pollWidget);
-      },
-      barrierColor: Color(0x01000000)
-    );
+        context: context,
+        builder: (BuildContext context) {
+          return PollPage(pollWidget: pollWidget, pollId: pollId);
+        },
+        barrierColor: Color(0x01000000));
   }
 
   void createPages(polls, user) {
@@ -143,33 +141,32 @@ class _HomePageState extends State<HomePage> {
     for (var i = 0; i < polls.length; i++) {
       var poll = polls[i];
       pollsList.add(new PollWidget(
-        poll: poll,
-        user: user,
-        dismissPoll: dismissPoll,
-        viewPoll: viewPoll,
-        index: i,
-        updatedUserModel: updatedUserModel,
-        parentController: parentController));
+          poll: poll,
+          user: user,
+          dismissPoll: dismissPoll,
+          viewPoll: viewPoll,
+          index: i,
+          updatedUserModel: updatedUserModel,
+          parentController: parentController));
     }
 
     listViewBuilder = SmartRefresher(
-      enablePullDown: true,
-      enablePullUp: true,
-      header: ClassicHeader(),
-      footer: ClassicFooter(
-        loadStyle: LoadStyle.ShowWhenLoading,
-      ),
-      controller: refreshController,
-      onRefresh: _onRefresh,
-      onLoading: _onLoading,
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: pollsList.length,
-        itemBuilder: (context, index) {
-          return pollsList[index];
-        },
-      )
-    );
+        enablePullDown: true,
+        enablePullUp: true,
+        header: ClassicHeader(),
+        footer: ClassicFooter(
+          loadStyle: LoadStyle.ShowWhenLoading,
+        ),
+        controller: refreshController,
+        onRefresh: _onRefresh,
+        onLoading: _onLoading,
+        child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: pollsList.length,
+          itemBuilder: (context, index) {
+            return pollsList[index];
+          },
+        ));
 
     pages = [KeepAlivePage(child: listViewBuilder)];
   }
@@ -187,9 +184,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       key: UniqueKey(),
-      backgroundColor: Theme
-        .of(context)
-        .backgroundColor,
+      backgroundColor: Theme.of(context).backgroundColor,
       appBar: appBar(),
       body: PageView(
         children: pages,

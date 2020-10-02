@@ -75,8 +75,16 @@ class PollWidget extends StatefulWidget {
   final updatedUserModel;
   final parentController;
 
-  PollWidget({Key key, @required this.poll, this.user, this.dismissPoll, this.viewPoll, this.index, this.updatedUserModel, this.parentController})
-    : super(key: key);
+  PollWidget(
+      {Key key,
+      @required this.poll,
+      this.user,
+      this.dismissPoll,
+      this.viewPoll,
+      this.index,
+      this.updatedUserModel,
+      this.parentController})
+      : super(key: key);
 
   @override
   _PollWidgetState createState() => _PollWidgetState();
@@ -169,8 +177,8 @@ class _PollWidgetState extends State<PollWidget> {
     String url = 'http://localhost:4000/user/' + userId;
 
     var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token},
-      response,
-      body;
+        response,
+        body;
 
     response = await http.get(url, headers: headers);
 
@@ -237,8 +245,7 @@ class _PollWidgetState extends State<PollWidget> {
     var response = await http.put(url, headers: headers);
 
     if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body),
-        updateOption = jsonResponse['option'];
+      var jsonResponse = jsonDecode(response.body), updateOption = jsonResponse['option'];
 
       for (var i = 0; i < options.length; i++) {
         if (options[i]['_id'] == updateOption["_id"]) {
@@ -257,8 +264,7 @@ class _PollWidgetState extends State<PollWidget> {
     const url = 'http://localhost:4000/user/';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token'),
-      userId = prefs.getString('userId');
+    var token = prefs.getString('token'), userId = prefs.getString('userId');
 
     var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
 
@@ -266,8 +272,8 @@ class _PollWidgetState extends State<PollWidget> {
 
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body)[0],
-        completedPolls = jsonResponse['completedPolls'],
-        selectedOptions = jsonResponse['selectedOptions'];
+          completedPolls = jsonResponse['completedPolls'],
+          selectedOptions = jsonResponse['selectedOptions'];
 
       completedPolls.add(pollId);
       selectedOptions.add(optionId);
@@ -297,17 +303,14 @@ class _PollWidgetState extends State<PollWidget> {
     const url = 'http://localhost:4000/user/';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token'),
-      userId = prefs.getString('userId');
+    var token = prefs.getString('token'), userId = prefs.getString('userId');
 
     var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
 
-    var response = await http.get(url + userId, headers: headers),
-      body;
+    var response = await http.get(url + userId, headers: headers), body;
 
     if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body)[0],
-        createdPolls = jsonResponse['createdPolls'];
+      var jsonResponse = jsonDecode(response.body)[0], createdPolls = jsonResponse['createdPolls'];
 
       print(createdPolls.length);
       createdPolls.remove(pollId);
@@ -373,11 +376,10 @@ class _PollWidgetState extends State<PollWidget> {
         );
 
         AlertDialog alertDialogue = AlertDialog(
-          backgroundColor: Theme
-            .of(context)
-            .backgroundColor,
+          backgroundColor: Theme.of(context).backgroundColor,
           title: Text("Are you sure?", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700)),
-          content: Text("Polls that are deleted cannot be retrieved.", style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w300)),
+          content: Text("Polls that are deleted cannot be retrieved.",
+              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w300)),
           actions: [
             cancelButton,
             continueButton,
@@ -418,27 +420,24 @@ class _PollWidgetState extends State<PollWidget> {
                 Row(
                   children: <Widget>[
                     GestureDetector(
-                      child: Text(
-                        pollCreator['username'],
-                        style: TextStyle(color: Theme
-                          .of(context)
-                          .hintColor, fontSize: 13.0, fontWeight: FontWeight.w300),
-                      ),
-                      onTap: () {
-                        print(pollCreator['email']);
-                      }),
+                        child: Text(
+                          pollCreator['username'],
+                          style: TextStyle(
+                              color: Theme.of(context).hintColor, fontSize: 13.0, fontWeight: FontWeight.w300),
+                        ),
+                        onTap: () {
+                          print(pollCreator['email']);
+                        }),
                     Padding(
                       padding: const EdgeInsets.only(left: 3.0, right: 1.0),
-                      child: Text('•', style: TextStyle(color: Theme
-                        .of(context)
-                        .hintColor, fontSize: 13.0, fontWeight: FontWeight.w700)),
+                      child: Text('•',
+                          style: TextStyle(
+                              color: Theme.of(context).hintColor, fontSize: 13.0, fontWeight: FontWeight.w700)),
                     ),
                     Text(
                       time,
                       style: TextStyle(
-                        color: Theme
-                          .of(context)
-                          .hintColor,
+                        color: Theme.of(context).hintColor,
                         fontSize: 13,
                         fontWeight: FontWeight.w300,
                         wordSpacing: -4.0,
@@ -449,22 +448,22 @@ class _PollWidgetState extends State<PollWidget> {
               ],
             ),
             user['_id'] == pollCreator['_id']
-              ? GestureDetector(
-              onTap: () async {
-                bool isCreator = user['_id'] == pollCreator['_id'];
-                String action = await showModalBottomSheet(
-                  backgroundColor: Colors.transparent, context: context, builder: (BuildContext context) => PollMenu(isCreator: isCreator));
-                handleAction(action);
-              },
-              child: Icon(
-                Icons.more_horiz,
-                size: 20.0,
-                color: Theme
-                  .of(context)
-                  .hintColor,
-              ),
-            )
-              : Container(),
+                ? GestureDetector(
+                    onTap: () async {
+                      bool isCreator = user['_id'] == pollCreator['_id'];
+                      String action = await showModalBottomSheet(
+                          backgroundColor: Colors.transparent,
+                          context: context,
+                          builder: (BuildContext context) => PollMenu(isCreator: isCreator));
+                      handleAction(action);
+                    },
+                    child: Icon(
+                      Icons.more_horiz,
+                      size: 20.0,
+                      color: Theme.of(context).hintColor,
+                    ),
+                  )
+                : Container(),
           ],
         ),
       ),
@@ -480,12 +479,10 @@ class _PollWidgetState extends State<PollWidget> {
                 padding: const EdgeInsets.symmetric(horizontal: 2.5),
                 child: Container(
                   decoration: new BoxDecoration(
-                    color: followingCategories.contains(pollCategories[index]) ? Theme
-                      .of(context)
-                      .accentColor : Theme
-                      .of(context)
-                      .highlightColor,
-                    borderRadius: new BorderRadius.all(const Radius.circular(14.0))),
+                      color: followingCategories.contains(pollCategories[index])
+                          ? Theme.of(context).accentColor
+                          : Theme.of(context).highlightColor,
+                      borderRadius: new BorderRadius.all(const Radius.circular(14.0))),
                   child: GestureDetector(
                     onTap: () {
                       if (warning) {
@@ -529,10 +526,7 @@ class _PollWidgetState extends State<PollWidget> {
         }
       }
 
-      double screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+      double screenWidth = MediaQuery.of(context).size.width;
       int optionsLength = options.length;
       bool lengthGreaterThanFour = optionsLength > 4;
       double divider = lengthGreaterThanFour ? 3 : 2;
@@ -547,156 +541,161 @@ class _PollWidgetState extends State<PollWidget> {
 
       if (imageOptions == null) {
         imageOptions = FutureBuilder<List>(
-          future: getImages(options),
-          builder: (context, AsyncSnapshot<List> imageBytes) {
-            if (imageBytes.hasData) {
-              List imageBytesList = imageBytes.data;
+            future: getImages(options),
+            builder: (context, AsyncSnapshot<List> imageBytes) {
+              if (imageBytes.hasData) {
+                List imageBytesList = imageBytes.data;
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.75),
-                child: Container(
-                  height: containerHeight,
-                  child: GridView.count(
-                    physics: new NeverScrollableScrollPhysics(),
-                    crossAxisCount: lengthGreaterThanFour ? 3 : 2,
-                    children: List.generate(optionsLength, (index) {
-                      var option = options[index];
-                      int votes = option['votes'];
-                      double percent = votes > 0 ? votes / totalVotes : 0;
-                      String percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0.75),
+                  child: Container(
+                    height: containerHeight,
+                    child: GridView.count(
+                        physics: new NeverScrollableScrollPhysics(),
+                        crossAxisCount: lengthGreaterThanFour ? 3 : 2,
+                        children: List.generate(optionsLength, (index) {
+                          var option = options[index];
+                          int votes = option['votes'];
+                          double percent = votes > 0 ? votes / totalVotes : 0;
+                          String percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
 
-                      Image image = Image.memory(imageBytesList[index]);
+                          Image image = Image.memory(imageBytesList[index]);
 
-                      return Padding(
-                        padding: const EdgeInsets.all(0.75),
-                        child: GestureDetector(
-                          onDoubleTap: () {
-                            if (!completed) {
-                              HapticFeedback.mediumImpact();
-                              vote(options[index]);
-                            }
-                          },
-                          child: Stack(
-                            children: [
-                              Container(
-                                child: image,
-                                width: size,
-                                height: size,
-                              ),
-                              completed
-                                ? Stack(children: [
-                                Opacity(
-                                  opacity: 0.3,
-                                  child: Container(
-                                    decoration: new BoxDecoration(
-                                      color: Theme
-                                        .of(context)
-                                        .backgroundColor,
-                                    ),
+                          return Padding(
+                            padding: const EdgeInsets.all(0.75),
+                            child: GestureDetector(
+                              onDoubleTap: () {
+                                if (!completed) {
+                                  HapticFeedback.mediumImpact();
+                                  vote(options[index]);
+                                }
+                              },
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    child: image,
                                     width: size,
                                     height: size,
                                   ),
-                                ),
-                                Center(
-                                  child: Text(
-                                    percentStr,
-                                    style: TextStyle(
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w700,
-                                      color: highestVote == votes ? Colors.white : Colors.white70),
-                                  ),
-                                ),
-                              ])
-                                : Container(),
-                            ],
-                          ),
-                        ),
-                      );
-                    })),
-                ),
-              );
-            } else {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.75),
-                child: new Container(
-                  height: containerHeight,
-                  child: GridView.count(
-                    physics: new NeverScrollableScrollPhysics(),
-                    crossAxisCount: lengthGreaterThanFour ? 3 : 2,
-                    children: List.generate(optionsLength, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(0.75),
-                        child: Container(width: size, height: size, color: Theme
-                          .of(context)
-                          .highlightColor),
-                      );
-                    }))),
-              );
-            }
-          });
+                                  completed
+                                      ? Stack(children: [
+                                          Opacity(
+                                            opacity: 0.3,
+                                            child: Container(
+                                              decoration: new BoxDecoration(
+                                                color: Theme.of(context).backgroundColor,
+                                              ),
+                                              width: size,
+                                              height: size,
+                                            ),
+                                          ),
+                                          Center(
+                                            child: Text(
+                                              percentStr,
+                                              style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: highestVote == votes ? Colors.white : Colors.white70),
+                                            ),
+                                          ),
+                                        ])
+                                      : Container(),
+                                ],
+                              ),
+                            ),
+                          );
+                        })),
+                  ),
+                );
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0.75),
+                  child: new Container(
+                      height: containerHeight,
+                      child: GridView.count(
+                          physics: new NeverScrollableScrollPhysics(),
+                          crossAxisCount: lengthGreaterThanFour ? 3 : 2,
+                          children: List.generate(optionsLength, (index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(0.75),
+                              child: Container(width: size, height: size, color: Theme.of(context).highlightColor),
+                            );
+                          }))),
+                );
+              }
+            });
       }
       children.add(imageOptions);
 
       int commentCount = poll['comments'] != null ? poll['comments'].length : 0;
 
       children.add(Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center, children: [
-          Text(
-            totalVotes == 1 ? '$totalVotes Vote' : '$totalVotes Votes',
-            style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Theme
-              .of(context)
-              .hintColor),
-          ),
-          GestureDetector(
-            onTap: () {
-              widget.viewPoll(widget);
-            },
-            child: Row(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  '$commentCount',
-                  style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Theme
-                    .of(context)
-                    .hintColor),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      '$totalVotes ',
+                      style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
+                    ),
+                    Text(
+                      totalVotes == 1 ? 'vote' : 'votes',
+                      style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
+                    ),
+                  ],
                 ),
-                SizedBox(
-                  width: 3,
+                GestureDetector(
+                  onTap: () {
+                    widget.viewPoll(widget, poll['_id']);
+                  },
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        '$commentCount ',
+                        style:
+                            TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
+                      ),
+                      Text(
+                        poll['comments'].length == 1 ? 'comment' : 'comments',
+                        style:
+                            TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
+                      ),
+                    ],
+                  ),
                 ),
-                Icon(Icons.mode_comment, color: Theme
-                  .of(context)
-                  .hintColor, size: 18)
-              ],
-            ),
-          ),
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  // TODO: set liked to if actually liked
-                  setState(() {
-                    liked = !liked;
-                  });
-                },
-                child:
-                Icon(liked ? Icons.favorite : Icons.favorite_border, color: liked ? Colors.redAccent : Theme
-                  .of(context)
-                  .hintColor, size: 23),
-              ),
-              GestureDetector(
-                onTap: () {
-                  // TODO: set saved to if actually saved
-                  setState(() {
-                    saved = !saved;
-                  });
-                },
-                child: Icon(saved ? Icons.bookmark : Icons.bookmark_border, color: saved ? Colors.white : Theme
-                  .of(context)
-                  .hintColor, size: 23),
-              ),
-            ],
-          )
-        ])));
+//          Row(
+//            children: [
+//              GestureDetector(
+//                onTap: () {
+//                  // TODO: set liked to if actually liked
+//                  setState(() {
+//                    liked = !liked;
+//                  });
+//                },
+//                child:
+//                Icon(liked ? Icons.favorite : Icons.favorite_border, color: liked ? Colors.redAccent : Theme
+//                  .of(context)
+//                  .hintColor, size: 23),
+//              ),
+//              GestureDetector(
+//                onTap: () {
+//                  // TODO: set saved to if actually saved
+//                  setState(() {
+//                    saved = !saved;
+//                  });
+//                },
+//                child: Icon(saved ? Icons.bookmark : Icons.bookmark_border, color: saved ? Colors.white : Theme
+//                  .of(context)
+//                  .hintColor, size: 23),
+//              ),
+//            ],
+//          )
+              ])));
     }
 
     return Container(
