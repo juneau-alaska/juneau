@@ -127,13 +127,19 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void viewPoll(Widget pollWidget, String pollId) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return PollPage(pollWidget: pollWidget, pollId: pollId);
-        },
-        barrierColor: Color(0x01000000));
+  bool pollOpen = false;
+
+  void viewPoll(Widget pollWidget, String pollId) async {
+    if (!pollOpen) {
+      pollOpen = true;
+      await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return PollPage(pollWidget: pollWidget, pollId: pollId);
+          },
+          barrierColor: Color(0x01000000));
+      pollOpen = false;
+    }
   }
 
   void createPages(polls, user) {
