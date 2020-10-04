@@ -14,13 +14,16 @@ import 'package:juneau/common/components/alertComponent.dart';
 
 import 'package:juneau/common/methods/userMethods.dart';
 
+List imageBytes = [];
+
 Future<List> getImages(List options) async {
-  List imageBytes = [];
-  for (var option in options) {
-    String url = option['content'];
-    var response = await http.get(url);
-    if (response.statusCode == 200) {
-      imageBytes.add(response.bodyBytes);
+  if (imageBytes != null && imageBytes.length == 0) {
+    for (var option in options) {
+      String url = option['content'];
+      var response = await http.get(url);
+      if (response.statusCode == 200) {
+        imageBytes.add(response.bodyBytes);
+      }
     }
   }
   return imageBytes;

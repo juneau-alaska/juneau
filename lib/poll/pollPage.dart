@@ -258,7 +258,6 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
                 GestureDetector(
                   onTap: () async {
                     String comment = inputController.text;
-                    print(comment);
                     if (comment == null || comment
                       .replaceAll(new RegExp(r"\s+"), "")
                       .length == 0) {
