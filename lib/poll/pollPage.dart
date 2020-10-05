@@ -38,7 +38,10 @@ Future getCreatedByUser(String createdById) async {
 }
 
 Future<Widget> createCommentWidget(comment, context) async {
-  var createdBy = comment['createdBy'], creator = await getCreatedByUser(createdBy);
+  var createdBy = comment['createdBy'],
+      creator = await getCreatedByUser(createdBy),
+      replies = comment['replies'],
+      numReplies = replies.length;
 
   DateTime createdAt = DateTime.parse(comment['createdAt']);
   String time = timeago.format(createdAt, locale: 'en_short');
@@ -98,6 +101,17 @@ Future<Widget> createCommentWidget(comment, context) async {
               ),
             ),
           ]),
+          replies.length > 0
+              ? Center(
+                child: GestureDetector(
+                    onTap: () {},
+                    child: Text(
+                      numReplies == 1 ? '1 reply' : '$numReplies replies',
+                      style: TextStyle(fontSize: 13.0, color: Theme.of(context).hintColor),
+                    ),
+                  ),
+              )
+              : Container(), // TODO: CONTAINER FOR REPLIES INDENTED
         ],
       ),
     ),
