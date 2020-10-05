@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 
 class UserMethods {
-  Future<List> getUser(userId) async {
+  Future getUser(userId) async {
     var url = 'http://localhost:4000/user/' + userId;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();

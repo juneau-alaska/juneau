@@ -114,8 +114,8 @@ class _PollWidgetState extends State<PollWidget> {
     followingCategories = user['followingCategories'];
 
     userMethods.getUser(poll['createdBy']).then((pollUser) {
-      if (pollUser != null && pollUser.length > 0) {
-        pollCreator = pollUser[0];
+      if (pollUser != null) {
+        pollCreator = pollUser;
       }
       _getOptions(poll).then((pollOptions) {
         if (mounted) {

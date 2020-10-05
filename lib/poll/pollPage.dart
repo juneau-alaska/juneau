@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:timeago/timeago.dart' as timeago;
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -7,32 +9,182 @@ import 'dart:io';
 
 import 'package:juneau/common/components/alertComponent.dart';
 
+List<Widget> commentWidgets;
+List commentList;
+
+Future getCreatedByUser(String createdById) async {
+  String url = 'http://localhost:4000/user/' + createdById;
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  var response = await http.get(url, headers: headers);
+
+  if (response.statusCode == 200) {
+    var jsonResponse = jsonDecode(response.body);
+    return jsonResponse;
+  } else {
+    return null;
+  }
+}
+
+class CommentWidget extends StatefulWidget {
+  final pollId;
+
+  CommentWidget({Key key, @required this.pollId}) : super(key: key);
+
+  @override
+  _CommentWidgetState createState() => _CommentWidgetState();
+}
+
+class _CommentWidgetState extends State<CommentWidget> {
+  void fetchComments(String parentId) async {
+    String url = 'http://localhost:4000/comments/' + parentId;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    var response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+      commentList = jsonResponse;
+      buildComments();
+    } else {
+      // TODO: Remove and use inline text
+      showAlert(context, 'Something went wrong, please try again');
+    }
+  }
+
+  void buildComments() async {
+    if (commentWidgets == null) {
+      commentWidgets = [];
+      for (var i = 0; i < commentList.length; i++) {
+        var comment = commentList[i],
+            createdBy = comment['createdBy'],
+            creator = await getCreatedByUser(createdBy);
+
+        DateTime createdAt = DateTime.parse(comment['createdAt']);
+        String time = timeago.format(createdAt, locale: 'en_short');
+
+        commentWidgets.add(
+          Container(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    GestureDetector(
+                        child: Text(
+                          creator['username'],
+                          style: TextStyle(
+                              color: Theme.of(context).hintColor,
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.w300),
+                        ),
+                        onTap: () {
+                          print(creator['email']);
+                        }),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 3.0, right: 1.0),
+                      child: Text('•',
+                          style: TextStyle(
+                              color: Theme.of(context).hintColor,
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.w700)),
+                    ),
+                    Text(
+                      time,
+                      style: TextStyle(
+                        color: Theme.of(context).hintColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w300,
+                        wordSpacing: -4.0,
+                      ),
+                    ),
+                  ]),
+                  SizedBox(
+                    height: 3.0,
+                  ),
+                  Text(comment['content']),
+                  Row(),
+                ],
+              ),
+            ),
+          ),
+        );
+        setState(() {});
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: FIX, CAN'T KEEP FETCHING
+    if (commentList == null) {
+      fetchComments(widget.pollId);
+    }
+
+    return commentList != null
+        ? Container(
+            width: MediaQuery.of(context).size.width,
+            color: Theme.of(context).backgroundColor,
+            child: Column(
+              children: commentWidgets != null
+                  ? commentWidgets
+                  : [
+                      Container(
+                          child: Center(
+                        child: Text(
+                            commentList.length > 0 ? 'Failed to retrieve comments' : 'No comments',
+                            style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300)),
+                      )),
+                    ],
+            ),
+          )
+        : Container(
+            height: 100.0,
+            width: MediaQuery.of(context).size.width,
+            child: Center(child: CircularProgressIndicator()));
+  }
+}
+
 class PollPage extends StatefulWidget {
   final pollWidget;
   final pollId;
 
-  PollPage({Key key,
-    @required this.pollWidget,
-    this.pollId
-  }) : super(key: key);
+  PollPage({Key key, @required this.pollWidget, this.pollId}) : super(key: key);
 
   @override
   _PollPageState createState() => _PollPageState();
 }
 
 class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin {
+  TextEditingController inputController = TextEditingController();
   AnimationController _controller;
   Animation<Offset> _animation;
-  List commentList;
 
   Future postComment(String comment, String parentId) async {
     const url = 'http://localhost:4000/comment';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token'),
-      userId = prefs.getString('userId');
+    var token = prefs.getString('token'), userId = prefs.getString('userId');
 
-    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
 
     var body = jsonEncode({'content': comment, 'parent': parentId, 'createdBy': userId});
 
@@ -76,24 +228,26 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
 //  }
 
   Future<bool> updatePollComments(commentId) async {
-    const url = 'http://localhost:4000/poll';
+    String url = 'http://localhost:4000/poll/' + widget.pollId;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
 
-    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
 
-    var response = await http.get(url + '/' + widget.pollId, headers: headers);
+    var response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body),
-        comments = jsonResponse['comments'];
+      var jsonResponse = jsonDecode(response.body)[0], comments = jsonResponse['comments'];
 
       comments.add(commentId);
 
-      var body = jsonEncode({comments: comments});
+      var body = jsonEncode({'comments': comments});
 
-      response = await http.put('http://localhost:4000/comment', headers: headers, body: body);
+      response = await http.put(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
         return true;
@@ -107,26 +261,6 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
     }
   }
 
-  Future<List> fetchComments(String parentId) async {
-    String url = 'http://localhost:4000/comments/' + parentId;
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token');
-
-    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
-
-    var response = await http.get(url, headers: headers);
-
-    if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body);
-      return jsonResponse;
-    } else {
-      // TODO: Remove
-      showAlert(context, 'Something went wrong, please try again');
-      return null;
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -134,8 +268,7 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
-    )
-      ..forward();
+    )..forward();
     _animation = Tween<Offset>(
       begin: const Offset(-1.0, 0.0),
       end: const Offset(0.0, 0.0),
@@ -145,13 +278,12 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
     ));
 
     // TODO: FETCH COMMENTS USING POLL ID, ADD A LOADING CIRCLE IN COMMENTS SECTION - SHOW COMMENTS ON SUCCESS OR SHOW ERROR ON ERROR
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      commentList = await fetchComments(widget.pollId);
-    });
+//    WidgetsBinding.instance.addPostFrameCallback((_) => fetchComments(widget.pollId));
   }
 
   @override
   void dispose() {
+    inputController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -163,15 +295,12 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    // TODO: dispose?
-    TextEditingController inputController = TextEditingController();
-
     OutlineInputBorder borderOutline = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10.0),
-      borderSide: BorderSide(
-        color: Colors.transparent,
-        width: 0.5,
-      ));
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: BorderSide(
+          color: Colors.transparent,
+          width: 0.5,
+        ));
 
     return Dismissible(
       key: UniqueKey(),
@@ -186,96 +315,71 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
           position: _animation,
           textDirection: TextDirection.rtl,
           child: Container(
-            height: MediaQuery
-              .of(context)
-              .size
-              .height,
-            color: Theme
-              .of(context)
-              .backgroundColor,
-            child: ListView(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          back();
-                        },
-                        child: Icon(Icons.arrow_back, size: 25)),
-                    ],
+              height: MediaQuery.of(context).size.height,
+              color: Theme.of(context).backgroundColor,
+              child: ListView(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                            onTap: () {
+                              back();
+                            },
+                            child: Icon(Icons.arrow_back, size: 25)),
+                      ],
+                    ),
                   ),
-                ),
-                widget.pollWidget,
-                Container(
-                  height: MediaQuery
-                    .of(context)
-                    .size
-                    .height,
-                  width: MediaQuery
-                    .of(context)
-                    .size
-                    .width,
-                  color: Theme
-                    .of(context)
-                    .backgroundColor,
-                ),
-              ],
-            )),
+                  widget.pollWidget,
+                  CommentWidget(pollId: widget.pollId),
+                ],
+              )),
         ),
         bottomNavigationBar: Container(
-          width: MediaQuery
-            .of(context)
-            .size
-            .width,
-          color: Theme
-            .of(context)
-            .backgroundColor,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: TextField(
-                    style: TextStyle(fontWeight: FontWeight.w300),
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-                      hintText: 'Add a comment',
-                      hintStyle: TextStyle(color: Theme
-                        .of(context)
-                        .hintColor, fontWeight: FontWeight.w300),
-                      focusedBorder: borderOutline,
-                      enabledBorder: borderOutline
+            width: MediaQuery.of(context).size.width,
+            color: Theme.of(context).backgroundColor,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: TextField(
+                      style: TextStyle(fontWeight: FontWeight.w300),
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+                          hintText: 'Add a comment',
+                          hintStyle: TextStyle(
+                              color: Theme.of(context).hintColor, fontWeight: FontWeight.w300),
+                          focusedBorder: borderOutline,
+                          enabledBorder: borderOutline),
+                      controller: inputController,
                     ),
-                    controller: inputController,
                   ),
-                ),
-                GestureDetector(
-                  onTap: () async {
-                    String comment = inputController.text;
-                    if (comment == null || comment
-                      .replaceAll(new RegExp(r"\s+"), "")
-                      .length == 0) {
-                      var commentModel = await postComment(comment, widget.pollId);
-                      bool addedToPoll = await updatePollComments(commentModel['_id']);
-                      if (addedToPoll) {
-                        // TODO: ADD TO COLLECTION OF COMMENTS
-                        commentList.add(commentModel);
-                      }
-                    }
-                  },
-                  child: Text(
-                    'SUBMIT',
-                    style: TextStyle(fontSize: 15.0, color: Colors.blueAccent, fontWeight: FontWeight.w700),
-                  ))
-              ],
-            ),
-          )),
+                  GestureDetector(
+                      onTap: () async {
+                        String text = inputController.text;
+                        if (text != null || text.replaceAll(new RegExp(r"\s+"), "").length > 0) {
+                          var comment = await postComment(text, widget.pollId);
+                          bool addedToPoll = await updatePollComments(comment['_id']);
+                          if (addedToPoll) {
+                            // TODO: add new comment to comments list - controller detect change and create single widget and add to widget list and rerender?
+                            inputController.text = "";
+                          }
+                        }
+                      },
+                      child: Text(
+                        'SUBMIT',
+                        style: TextStyle(
+                            fontSize: 15.0, color: Colors.blueAccent, fontWeight: FontWeight.w700),
+                      ))
+                ],
+              ),
+            )),
       ),
     );
   }
