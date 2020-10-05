@@ -6,11 +6,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
+import 'package:rxdart/rxdart.dart';
 
 import 'package:juneau/common/components/alertComponent.dart';
 
 List<Widget> commentWidgets;
 List commentList;
+
+StreamController commentStreamController;
 
 Future getCreatedByUser(String createdById) async {
   String url = 'http://localhost:4000/user/' + createdById;
@@ -33,6 +37,73 @@ Future getCreatedByUser(String createdById) async {
   }
 }
 
+Future<Widget> createCommentWidget(comment, context) async {
+  var createdBy = comment['createdBy'], creator = await getCreatedByUser(createdBy);
+
+  DateTime createdAt = DateTime.parse(comment['createdAt']);
+  String time = timeago.format(createdAt, locale: 'en_short');
+
+  return Container(
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            GestureDetector(
+                child: Text(
+                  creator['username'],
+                  style: TextStyle(
+                      color: Theme.of(context).hintColor,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.w300),
+                ),
+                onTap: () {
+                  print(creator['email']);
+                }),
+            Padding(
+              padding: const EdgeInsets.only(left: 3.0, right: 1.0),
+              child: Text('•',
+                  style: TextStyle(
+                      color: Theme.of(context).hintColor,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.w700)),
+            ),
+            Text(
+              time,
+              style: TextStyle(
+                color: Theme.of(context).hintColor,
+                fontSize: 13,
+                fontWeight: FontWeight.w300,
+                wordSpacing: -4.0,
+              ),
+            ),
+          ]),
+          SizedBox(
+            height: 3.0,
+          ),
+          Text(comment['content']),
+          SizedBox(
+            height: 3.0,
+          ),
+          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            GestureDetector(
+              onTap: () {},
+              child: Text(
+                'REPLY',
+                style: TextStyle(
+                    fontSize: 13.0,
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).hintColor),
+              ),
+            ),
+          ]),
+        ],
+      ),
+    ),
+  );
+}
+
 class CommentWidget extends StatefulWidget {
   final pollId;
 
@@ -43,6 +114,18 @@ class CommentWidget extends StatefulWidget {
 }
 
 class _CommentWidgetState extends State<CommentWidget> {
+  @override
+  void initState() {
+    super.initState();
+
+    commentStreamController = StreamController();
+    commentStreamController.stream.listen((widget) {
+      setState(() {
+        commentWidgets.insert(0, widget);
+      });
+    });
+  }
+
   void fetchComments(String parentId) async {
     String url = 'http://localhost:4000/comments/' + parentId;
 
@@ -70,62 +153,10 @@ class _CommentWidgetState extends State<CommentWidget> {
     if (commentWidgets == null) {
       commentWidgets = [];
       for (var i = 0; i < commentList.length; i++) {
-        var comment = commentList[i],
-            createdBy = comment['createdBy'],
-            creator = await getCreatedByUser(createdBy);
-
-        DateTime createdAt = DateTime.parse(comment['createdAt']);
-        String time = timeago.format(createdAt, locale: 'en_short');
-
-        commentWidgets.add(
-          Container(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(children: [
-                    GestureDetector(
-                        child: Text(
-                          creator['username'],
-                          style: TextStyle(
-                              color: Theme.of(context).hintColor,
-                              fontSize: 13.0,
-                              fontWeight: FontWeight.w300),
-                        ),
-                        onTap: () {
-                          print(creator['email']);
-                        }),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 3.0, right: 1.0),
-                      child: Text('•',
-                          style: TextStyle(
-                              color: Theme.of(context).hintColor,
-                              fontSize: 13.0,
-                              fontWeight: FontWeight.w700)),
-                    ),
-                    Text(
-                      time,
-                      style: TextStyle(
-                        color: Theme.of(context).hintColor,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w300,
-                        wordSpacing: -4.0,
-                      ),
-                    ),
-                  ]),
-                  SizedBox(
-                    height: 3.0,
-                  ),
-                  Text(comment['content']),
-                  Row(),
-                ],
-              ),
-            ),
-          ),
-        );
-        setState(() {});
+        Widget commentWidget = await createCommentWidget(commentList[i], context);
+        commentWidgets.add(commentWidget);
       }
+      setState(() {});
     }
   }
 
@@ -276,13 +307,11 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
       parent: _controller,
       curve: Curves.easeInCubic,
     ));
-
-    // TODO: FETCH COMMENTS USING POLL ID, ADD A LOADING CIRCLE IN COMMENTS SECTION - SHOW COMMENTS ON SUCCESS OR SHOW ERROR ON ERROR
-//    WidgetsBinding.instance.addPostFrameCallback((_) => fetchComments(widget.pollId));
   }
 
   @override
   void dispose() {
+    commentStreamController.close();
     inputController.dispose();
     _controller.dispose();
     super.dispose();
@@ -290,6 +319,7 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
 
   void back() {
     _controller.reverse();
+    commentStreamController.close();
     Navigator.pop(context);
   }
 
@@ -306,7 +336,6 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
       key: UniqueKey(),
       direction: DismissDirection.startToEnd,
       onDismissed: (direction) {
-        print(direction);
         back();
       },
       child: Scaffold(
@@ -366,8 +395,11 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
                         if (text != null || text.replaceAll(new RegExp(r"\s+"), "").length > 0) {
                           var comment = await postComment(text, widget.pollId);
                           bool addedToPoll = await updatePollComments(comment['_id']);
+
                           if (addedToPoll) {
-                            // TODO: add new comment to comments list - controller detect change and create single widget and add to widget list and rerender?
+                            Widget commentWidget = await createCommentWidget(comment, context);
+                            commentList.insert(0, comment);
+                            commentStreamController.add(commentWidget);
                             inputController.text = "";
                           }
                         }
