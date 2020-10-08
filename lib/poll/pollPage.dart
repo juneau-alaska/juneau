@@ -21,6 +21,30 @@ StreamController replyStreamController;
 StreamController inputStreamController;
 
 Map<String, List<Widget>> commentReplyWidgets = {};
+Map<String, bool> commentRepliesOpened = {};
+
+Future<List> fetchComments(String parentId, context) async {
+  String url = 'http://localhost:4000/comments/' + parentId;
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  var response = await http.get(url, headers: headers);
+
+  if (response.statusCode == 200) {
+    var jsonResponse = jsonDecode(response.body);
+    return jsonResponse;
+  } else {
+    // TODO: Remove and use inline text
+    showAlert(context, 'Something went wrong, please try again');
+    return [];
+  }
+}
 
 Future createComment(String comment, String parentId, context) async {
   const url = 'http://localhost:4000/comment';
@@ -39,9 +63,11 @@ Future createComment(String comment, String parentId, context) async {
   var response = await http.post(url, headers: headers, body: body);
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body);
+    var jsonResponse = jsonDecode(response.body),
+      id = jsonResponse['_id'];
 
-    commentReplyWidgets[jsonResponse['_id']] = [];
+    commentReplyWidgets[id] = [];
+    commentRepliesOpened[id] = false;
 
     return jsonResponse;
   } else {
@@ -142,14 +168,30 @@ Future getCreatedByUser(String createdById) async {
   }
 }
 
+Future<List> buildComments(comments, context) async {
+  List<Widget> widgets = [];
+  for (var i = 0; i < comments.length; i++) {
+    var comment = comments[i];
+
+    if (commentReplyWidgets[comment['_id']] == null) {
+      commentReplyWidgets[comment['_id']] = [];
+    }
+
+    Widget commentWidget = await createCommentWidget(comment, context);
+    widgets.add(commentWidget);
+  }
+  return widgets;
+}
+
 Future<Widget> createCommentWidget(comment, context) async {
   var createdBy = comment['createdBy'],
     creator = await getCreatedByUser(createdBy),
     replies = comment['replies'],
     numReplies = replies.length,
-    _id = comment['_id'];
+    id = comment['_id'];
 
-  List<Widget> replyWidgets = commentReplyWidgets[_id];
+  List<Widget> replyWidgets = commentReplyWidgets[id];
+  bool repliesOpened = commentRepliesOpened[id] != null ? commentRepliesOpened[id] : false;
 
   DateTime createdAt = DateTime.parse(comment['createdAt']);
   String time = timeago.format(createdAt, locale: 'en_short');
@@ -210,7 +252,7 @@ Future<Widget> createCommentWidget(comment, context) async {
               GestureDetector(
                 onTap: () {
                   inputStreamController
-                    .add({'hint': 'Replying to ' + creator['username'], 'commentId': _id});
+                    .add({'hint': 'Replying to ' + creator['username'], 'commentId': id});
                   focusNode.requestFocus();
                 },
                 child: Row(
@@ -230,10 +272,16 @@ Future<Widget> createCommentWidget(comment, context) async {
                 ),
               ),
             ]),
-          replies.length > 0 && replyWidgets.length == 0
+          replies.length > 0 && !repliesOpened
             ? Center(
             child: GestureDetector(
-              onTap: () {},
+              onTap: () async {
+                List fetchedReplies = await fetchComments(id, context);
+                List fetchedReplyWidgets = await buildComments(fetchedReplies, context);
+                commentReplyWidgets[id] = replyWidgets + fetchedReplyWidgets;
+                commentRepliesOpened[id] = true;
+                replyStreamController.add(true);
+              },
               child: Text(
                 numReplies == 1 ? '1 reply' : '$numReplies replies',
                 style: TextStyle(fontSize: 15.0, color: Theme
@@ -241,39 +289,31 @@ Future<Widget> createCommentWidget(comment, context) async {
                   .hintColor),
               ),
             ),
-          )
-            : Container(
+          ) : Container(),
+          replyWidgets.length > 0 ?
+          Container(
             child: Column(children: replyWidgets),
-          ),
+          ) : Container()
         ],
       ),
     ),
   );
 }
 
-class CommentWidget extends StatefulWidget {
+class CommentsWidget extends StatefulWidget {
   @override
-  _CommentWidgetState createState() => _CommentWidgetState();
+  _CommentsWidgetState createState() => _CommentsWidgetState();
 }
 
-class _CommentWidgetState extends State<CommentWidget> {
-  void buildComments() async {
-    commentWidgets = [];
-    for (var i = 0; i < commentList.length; i++) {
-      var comment = commentList[i];
-
-      if (commentReplyWidgets[comment['_id']] == null) {
-        commentReplyWidgets[comment['_id']] = [];
-      }
-
-      Widget commentWidget = await createCommentWidget(comment, context);
-      commentWidgets.add(commentWidget);
-    }
-    setState(() {});
-  }
+class _CommentsWidgetState extends State<CommentsWidget> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      commentList = await fetchComments(pollId, context);
+      commentWidgets = await buildComments(commentList, context);
+      setState(() {});
+    });
     super.initState();
     commentReplyWidgets = {};
     commentStreamController = StreamController();
@@ -283,8 +323,9 @@ class _CommentWidgetState extends State<CommentWidget> {
       });
     });
     replyStreamController = StreamController();
-    replyStreamController.stream.listen((reply) {
-      buildComments();
+    replyStreamController.stream.listen((reply) async {
+      commentWidgets = await buildComments(commentList, context);
+      setState(() {});
     });
   }
 
@@ -295,36 +336,8 @@ class _CommentWidgetState extends State<CommentWidget> {
     super.dispose();
   }
 
-  void fetchComments(String parentId) async {
-    String url = 'http://localhost:4000/comments/' + parentId;
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token');
-
-    var headers = {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: token
-    };
-
-    var response = await http.get(url, headers: headers);
-
-    if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body);
-      commentList = jsonResponse;
-      buildComments();
-    } else {
-      // TODO: Remove and use inline text
-      showAlert(context, 'Something went wrong, please try again');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    // TODO: FIX, CAN'T KEEP FETCHING
-    if (commentList == null) {
-      fetchComments(pollId);
-    }
-
     return commentList != null
       ? Container(
       width: MediaQuery
@@ -468,7 +481,7 @@ class _BottomInputState extends State<BottomInput> {
                       if (addedToComment) {
                         Widget commentWidget = await createCommentWidget(comment, context);
                         commentReplyWidgets[parentId].add(commentWidget);
-                        replyStreamController.add(commentWidget);
+                        replyStreamController.add(true);
                       }
                     }
                     focusNode.unfocus();
@@ -591,7 +604,7 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
                   widget.pollWidget,
                   Padding(
                     padding: const EdgeInsets.only(bottom: 60.0),
-                    child: CommentWidget(),
+                    child: CommentsWidget(),
                   ),
                 ],
               )),
