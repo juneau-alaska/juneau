@@ -7,15 +7,20 @@ PODS:
   - Flutter (1.0.0)
   - flutter_absolute_path (0.0.1):
     - Flutter
+  - keyboard_visibility (0.5.0):
+    - Flutter
+    - Reachability
   - multi_image_picker (4.7.14):
     - BSImagePicker (~> 2.10.3)
     - Flutter
+  - Reachability (3.2)
   - shared_preferences (0.0.1):
     - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_absolute_path (from `.symlinks/plugins/flutter_absolute_path/ios`)
+  - keyboard_visibility (from `.symlinks/plugins/keyboard_visibility/ios`)
   - multi_image_picker (from `.symlinks/plugins/multi_image_picker/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
 
@@ -24,12 +29,15 @@ SPEC REPOS:
     - BSGridCollectionViewLayout
     - BSImagePicker
     - BSImageView
+    - Reachability
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
   flutter_absolute_path:
     :path: ".symlinks/plugins/flutter_absolute_path/ios"
+  keyboard_visibility:
+    :path: ".symlinks/plugins/keyboard_visibility/ios"
   multi_image_picker:
     :path: ".symlinks/plugins/multi_image_picker/ios"
   shared_preferences:
@@ -41,7 +49,9 @@ SPEC CHECKSUMS:
   BSImageView: a149459433a2687157d034c78e059d30ac7f2544
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_absolute_path: 5adb13678c88f0bdfba527f3851f9543d01dde66
+  keyboard_visibility: 96a24de806fe6823c3ad956c01ba2ec6d056616f
   multi_image_picker: c068931d08240565e0615fb01437d16984909183
+  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
 
 PODFILE CHECKSUM: a75497545d4391e2d394c3668e20cfb1c2bbd4aa

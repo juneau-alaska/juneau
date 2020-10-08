@@ -123,7 +123,7 @@ Future<bool> updateUserCreatedPolls(pollId, context) async {
   var response = await http.get(url + userId, headers: headers), body;
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body)[0], createdPolls = jsonResponse['createdPolls'];
+    var jsonResponse = jsonDecode(response.body), createdPolls = jsonResponse['createdPolls'];
 
     createdPolls.add(pollId);
     body = jsonEncode({'createdPolls': createdPolls});

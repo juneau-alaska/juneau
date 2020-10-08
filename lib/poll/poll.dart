@@ -274,7 +274,7 @@ class _PollWidgetState extends State<PollWidget> {
     var response = await http.get(url + userId, headers: headers);
 
     if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body)[0],
+      var jsonResponse = jsonDecode(response.body),
           completedPolls = jsonResponse['completedPolls'],
           selectedOptions = jsonResponse['selectedOptions'];
 
@@ -313,7 +313,7 @@ class _PollWidgetState extends State<PollWidget> {
     var response = await http.get(url + userId, headers: headers), body;
 
     if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body)[0], createdPolls = jsonResponse['createdPolls'];
+      var jsonResponse = jsonDecode(response.body), createdPolls = jsonResponse['createdPolls'];
 
       print(createdPolls.length);
       createdPolls.remove(pollId);

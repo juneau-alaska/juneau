@@ -1,20 +1,125 @@
 import 'package:flutter/material.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:keyboard_visibility/keyboard_visibility.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
-import 'package:rxdart/rxdart.dart';
 
 import 'package:juneau/common/components/alertComponent.dart';
 
 List<Widget> commentWidgets;
 List commentList;
+FocusNode focusNode;
+String pollId;
 
 StreamController commentStreamController;
+StreamController replyStreamController;
+StreamController inputStreamController;
+
+Map<String, List<Widget>> commentReplyWidgets = {};
+
+Future createComment(String comment, String parentId, context) async {
+  const url = 'http://localhost:4000/comment';
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token'),
+    userId = prefs.getString('userId');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  var body = jsonEncode({'content': comment, 'parent': parentId, 'createdBy': userId});
+
+  var response = await http.post(url, headers: headers, body: body);
+
+  if (response.statusCode == 200) {
+    var jsonResponse = jsonDecode(response.body);
+
+    commentReplyWidgets[jsonResponse['_id']] = [];
+
+    return jsonResponse;
+  } else {
+    showAlert(context, 'Something went wrong, please try again');
+    return null;
+  }
+}
+
+Future<bool> updateCommentReplies(commentId, replyId, context) async {
+  String url = 'http://localhost:4000/comment/' + commentId;
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  var response = await http.get(url, headers: headers),
+    body;
+
+  if (response.statusCode == 200) {
+    var jsonResponse = jsonDecode(response.body),
+      replies = jsonResponse['replies'];
+
+    replies.add(replyId);
+
+    body = jsonEncode({'replies': replies});
+
+    response = await http.put(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      showAlert(context, 'Something went wrong, please try again');
+      return false;
+    }
+  } else {
+    showAlert(context, 'Something went wrong, please try again');
+    return false;
+  }
+}
+
+Future<bool> updatePollComments(commentId, context) async {
+  String url = 'http://localhost:4000/poll/' + pollId;
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  var response = await http.get(url, headers: headers);
+
+  if (response.statusCode == 200) {
+    var jsonResponse = jsonDecode(response.body),
+      comments = jsonResponse['comments'];
+
+    comments.add(commentId);
+
+    var body = jsonEncode({'comments': comments});
+
+    response = await http.put(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      showAlert(context, 'Something went wrong, please try again');
+      return false;
+    }
+  } else {
+    showAlert(context, 'Something went wrong, please try again');
+    return false;
+  }
+}
 
 Future getCreatedByUser(String createdById) async {
   String url = 'http://localhost:4000/user/' + createdById;
@@ -39,9 +144,12 @@ Future getCreatedByUser(String createdById) async {
 
 Future<Widget> createCommentWidget(comment, context) async {
   var createdBy = comment['createdBy'],
-      creator = await getCreatedByUser(createdBy),
-      replies = comment['replies'],
-      numReplies = replies.length;
+    creator = await getCreatedByUser(createdBy),
+    replies = comment['replies'],
+    numReplies = replies.length,
+    _id = comment['_id'];
+
+  List<Widget> replyWidgets = commentReplyWidgets[_id];
 
   DateTime createdAt = DateTime.parse(comment['createdAt']);
   String time = timeago.format(createdAt, locale: 'en_short');
@@ -54,64 +162,89 @@ Future<Widget> createCommentWidget(comment, context) async {
         children: [
           Row(children: [
             GestureDetector(
-                child: Text(
-                  creator['username'],
-                  style: TextStyle(
-                      color: Theme.of(context).hintColor,
-                      fontSize: 13.0,
-                      fontWeight: FontWeight.w300),
-                ),
-                onTap: () {
-                  print(creator['email']);
-                }),
+              child: Text(
+                creator['username'],
+                style: TextStyle(
+                  color: Theme
+                    .of(context)
+                    .hintColor,
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w300),
+              ),
+              onTap: () {
+                print(creator['email']);
+              }),
             Padding(
               padding: const EdgeInsets.only(left: 3.0, right: 1.0),
               child: Text('•',
-                  style: TextStyle(
-                      color: Theme.of(context).hintColor,
-                      fontSize: 13.0,
-                      fontWeight: FontWeight.w700)),
+                style: TextStyle(
+                  color: Theme
+                    .of(context)
+                    .hintColor,
+                  fontSize: 13.0,
+                  fontWeight: FontWeight.w700)),
             ),
             Text(
               time,
               style: TextStyle(
-                color: Theme.of(context).hintColor,
-                fontSize: 13,
+                color: Theme
+                  .of(context)
+                  .hintColor,
+                fontSize: 14,
                 fontWeight: FontWeight.w300,
                 wordSpacing: -4.0,
               ),
             ),
           ]),
           SizedBox(
-            height: 3.0,
+            height: 1.0,
           ),
-          Text(comment['content']),
+          Text(comment['content'], style: TextStyle(fontSize: 16.0)),
           SizedBox(
             height: 3.0,
           ),
-          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-            GestureDetector(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  inputStreamController
+                    .add({'hint': 'Replying to ' + creator['username'], 'commentId': _id});
+                  focusNode.requestFocus();
+                },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Icon(Icons.reply, size: 20.0, color: Theme
+                      .of(context)
+                      .hintColor),
+                    SizedBox(width: 1.0),
+                    Text(
+                      'Reply',
+                      style: TextStyle(fontSize: 15.0, color: Theme
+                        .of(context)
+                        .hintColor),
+                    ),
+                  ],
+                ),
+              ),
+            ]),
+          replies.length > 0 && replyWidgets.length == 0
+            ? Center(
+            child: GestureDetector(
               onTap: () {},
               child: Text(
-                'REPLY',
-                style: TextStyle(
-                    fontSize: 13.0,
-                    fontWeight: FontWeight.w700,
-                    color: Theme.of(context).hintColor),
+                numReplies == 1 ? '1 reply' : '$numReplies replies',
+                style: TextStyle(fontSize: 15.0, color: Theme
+                  .of(context)
+                  .hintColor),
               ),
             ),
-          ]),
-          replies.length > 0
-              ? Center(
-                child: GestureDetector(
-                    onTap: () {},
-                    child: Text(
-                      numReplies == 1 ? '1 reply' : '$numReplies replies',
-                      style: TextStyle(fontSize: 13.0, color: Theme.of(context).hintColor),
-                    ),
-                  ),
-              )
-              : Container(), // TODO: CONTAINER FOR REPLIES INDENTED
+          )
+            : Container(
+            child: Column(children: replyWidgets),
+          ),
         ],
       ),
     ),
@@ -119,25 +252,47 @@ Future<Widget> createCommentWidget(comment, context) async {
 }
 
 class CommentWidget extends StatefulWidget {
-  final pollId;
-
-  CommentWidget({Key key, @required this.pollId}) : super(key: key);
-
   @override
   _CommentWidgetState createState() => _CommentWidgetState();
 }
 
 class _CommentWidgetState extends State<CommentWidget> {
+  void buildComments() async {
+    commentWidgets = [];
+    for (var i = 0; i < commentList.length; i++) {
+      var comment = commentList[i];
+
+      if (commentReplyWidgets[comment['_id']] == null) {
+        commentReplyWidgets[comment['_id']] = [];
+      }
+
+      Widget commentWidget = await createCommentWidget(comment, context);
+      commentWidgets.add(commentWidget);
+    }
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
-
+    commentReplyWidgets = {};
     commentStreamController = StreamController();
     commentStreamController.stream.listen((widget) {
       setState(() {
         commentWidgets.insert(0, widget);
       });
     });
+    replyStreamController = StreamController();
+    replyStreamController.stream.listen((reply) {
+      buildComments();
+    });
+  }
+
+  @override
+  void dispose() {
+    commentStreamController.close();
+    replyStreamController.close();
+    super.dispose();
   }
 
   void fetchComments(String parentId) async {
@@ -163,157 +318,212 @@ class _CommentWidgetState extends State<CommentWidget> {
     }
   }
 
-  void buildComments() async {
-    if (commentWidgets == null) {
-      commentWidgets = [];
-      for (var i = 0; i < commentList.length; i++) {
-        Widget commentWidget = await createCommentWidget(commentList[i], context);
-        commentWidgets.add(commentWidget);
-      }
-      setState(() {});
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     // TODO: FIX, CAN'T KEEP FETCHING
     if (commentList == null) {
-      fetchComments(widget.pollId);
+      fetchComments(pollId);
     }
 
     return commentList != null
-        ? Container(
-            width: MediaQuery.of(context).size.width,
-            color: Theme.of(context).backgroundColor,
-            child: Column(
-              children: commentWidgets != null
-                  ? commentWidgets
-                  : [
-                      Container(
-                          child: Center(
-                        child: Text(
-                            commentList.length > 0 ? 'Failed to retrieve comments' : 'No comments',
-                            style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300)),
-                      )),
-                    ],
-            ),
-          )
-        : Container(
-            height: 100.0,
-            width: MediaQuery.of(context).size.width,
-            child: Center(child: CircularProgressIndicator()));
+      ? Container(
+      width: MediaQuery
+        .of(context)
+        .size
+        .width,
+      color: Theme
+        .of(context)
+        .backgroundColor,
+      child: Column(
+        children: commentWidgets != null && commentWidgets.length > 0
+          ? commentWidgets
+          : [
+          Center(
+            child: Text(
+              commentList.length == 0 ? 'No comments' : 'Failed to retrieve comments',
+              style: TextStyle(
+                fontSize: 15.0,
+                fontWeight: FontWeight.w300,
+                color: Theme
+                  .of(context)
+                  .hintColor,
+              )),
+          ),
+        ],
+      ),
+    )
+      : Container(
+      height: 100.0,
+      width: MediaQuery
+        .of(context)
+        .size
+        .width,
+      child: Center(child: CircularProgressIndicator()));
+  }
+}
+
+class BottomInput extends StatefulWidget {
+  @override
+  _BottomInputState createState() => _BottomInputState();
+}
+
+class _BottomInputState extends State<BottomInput> {
+  TextEditingController inputController = TextEditingController();
+  String hintText = 'Add a comment';
+  bool isReply = false;
+  String parentId;
+
+  void resetInput() {
+    inputController.text = "";
+    hintText = 'Add a comment';
+    isReply = false;
+    parentId = null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    focusNode = FocusNode();
+    inputStreamController = StreamController();
+    inputStreamController.stream.listen((obj) {
+      setState(() {
+        parentId = obj['commentId'];
+        hintText = obj['hint'];
+        isReply = true;
+      });
+    });
+
+    KeyboardVisibilityNotification().addNewListener(
+      onChange: (bool visible) {
+        if (isReply && !visible) {
+          setState(() {
+            resetInput();
+          });
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    inputStreamController.close();
+    inputController.dispose();
+    super.dispose();
+  }
+
+  OutlineInputBorder borderOutline = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(10.0),
+    borderSide: BorderSide(
+      color: Colors.transparent,
+      width: 0.5,
+    ));
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      bottom: 0.0,
+      child: Container(
+        width: MediaQuery
+          .of(context)
+          .size
+          .width,
+        color: Theme
+          .of(context)
+          .backgroundColor,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: TextField(
+                  focusNode: focusNode,
+                  style: TextStyle(fontWeight: FontWeight.w300),
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+                    hintText: hintText,
+                    hintStyle: TextStyle(
+                      color: Theme
+                        .of(context)
+                        .hintColor, fontWeight: FontWeight.w300),
+                    focusedBorder: borderOutline,
+                    enabledBorder: borderOutline),
+                  controller: inputController,
+                ),
+              ),
+              GestureDetector(
+                onTap: () async {
+                  String text = inputController.text;
+
+                  if (isReply) {
+                    if (text != null || text
+                      .replaceAll(new RegExp(r"\s+"), "")
+                      .length > 0) {
+                      var comment = await createComment(text, parentId, context);
+                      bool addedToComment =
+                      await updateCommentReplies(parentId, comment['_id'], context);
+
+                      if (addedToComment) {
+                        Widget commentWidget = await createCommentWidget(comment, context);
+                        commentReplyWidgets[parentId].add(commentWidget);
+                        replyStreamController.add(commentWidget);
+                      }
+                    }
+                    focusNode.unfocus();
+                  } else {
+                    if (text != null || text
+                      .replaceAll(new RegExp(r"\s+"), "")
+                      .length > 0) {
+                      var comment = await createComment(text, pollId, context);
+                      bool addedToPoll = await updatePollComments(comment['_id'], context);
+
+                      if (addedToPoll) {
+                        Widget commentWidget = await createCommentWidget(comment, context);
+                        commentList.insert(0, comment);
+                        commentStreamController.add(commentWidget);
+                        inputController.text = "";
+                      }
+                    }
+                  }
+                },
+                child: Text(
+                  'COMMENT',
+                  style: TextStyle(
+                    fontSize: 15.0, color: Colors.blueAccent, fontWeight: FontWeight.w700),
+                ))
+            ],
+          ),
+        )),
+    );
   }
 }
 
 class PollPage extends StatefulWidget {
   final pollWidget;
   final pollId;
+  final formKey;
 
-  PollPage({Key key, @required this.pollWidget, this.pollId}) : super(key: key);
+  PollPage({Key key, @required this.pollWidget, this.pollId, this.formKey}) : super(key: key);
 
   @override
   _PollPageState createState() => _PollPageState();
 }
 
 class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin {
-  TextEditingController inputController = TextEditingController();
   AnimationController _controller;
   Animation<Offset> _animation;
-
-  Future postComment(String comment, String parentId) async {
-    const url = 'http://localhost:4000/comment';
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token'), userId = prefs.getString('userId');
-
-    var headers = {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: token
-    };
-
-    var body = jsonEncode({'content': comment, 'parent': parentId, 'createdBy': userId});
-
-    var response = await http.post(url, headers: headers, body: body);
-
-    if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body);
-
-      return jsonResponse;
-    } else {
-      showAlert(context, 'Something went wrong, please try again');
-      return null;
-    }
-  }
-
-//  void updateCommentReplies() async {
-//    const url = 'http://localhost:4000/comment';
-//
-//    SharedPreferences prefs = await SharedPreferences.getInstance();
-//    var token = prefs.getString('token');
-//
-//    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
-//
-//    var response = await http.get(url + '/' + commentId, headers: headers);
-//
-//    if (response.statusCode == 200) {
-//      var jsonResponse = jsonDecode(response.body),
-//          replies = jsonResponse['replies'],
-//          body = jsonEncode({replies: replies});
-//
-//      response = await http.put(url, headers: headers, body: body);
-//
-//      if (response.statusCode == 200) {
-//        // TODO: POST REPLY
-//      } else {
-//        showAlert(context, 'Something went wrong, please try again');
-//      }
-//    } else {
-//      showAlert(context, 'Something went wrong, please try again');
-//    }
-//  }
-
-  Future<bool> updatePollComments(commentId) async {
-    String url = 'http://localhost:4000/poll/' + widget.pollId;
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token');
-
-    var headers = {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: token
-    };
-
-    var response = await http.get(url, headers: headers);
-
-    if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body)[0], comments = jsonResponse['comments'];
-
-      comments.add(commentId);
-
-      var body = jsonEncode({'comments': comments});
-
-      response = await http.put(url, headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        showAlert(context, 'Something went wrong, please try again');
-        return false;
-      }
-    } else {
-      showAlert(context, 'Something went wrong, please try again');
-      return false;
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-
+    pollId = widget.pollId;
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
-    )..forward();
+    )
+      ..forward();
     _animation = Tween<Offset>(
       begin: const Offset(-1.0, 0.0),
       end: const Offset(0.0, 0.0),
@@ -325,27 +535,22 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
 
   @override
   void dispose() {
-    commentStreamController.close();
-    inputController.dispose();
+    commentList = null;
+    commentWidgets = null;
     _controller.dispose();
     super.dispose();
   }
 
   void back() {
+    focusNode.unfocus();
     _controller.reverse();
     commentStreamController.close();
+    inputStreamController.close();
     Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    OutlineInputBorder borderOutline = OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10.0),
-        borderSide: BorderSide(
-          color: Colors.transparent,
-          width: 0.5,
-        ));
-
     return Dismissible(
       key: UniqueKey(),
       direction: DismissDirection.startToEnd,
@@ -353,13 +558,20 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
         back();
       },
       child: Scaffold(
+        key: widget.formKey,
         backgroundColor: Colors.transparent,
-        body: SlideTransition(
-          position: _animation,
-          textDirection: TextDirection.rtl,
-          child: Container(
-              height: MediaQuery.of(context).size.height,
-              color: Theme.of(context).backgroundColor,
+        body: Stack(children: [
+          SlideTransition(
+            position: _animation,
+            textDirection: TextDirection.rtl,
+            child: Container(
+              height: MediaQuery
+                .of(context)
+                .size
+                .height,
+              color: Theme
+                .of(context)
+                .backgroundColor,
               child: ListView(
                 children: [
                   Padding(
@@ -369,63 +581,23 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GestureDetector(
-                            onTap: () {
-                              back();
-                            },
-                            child: Icon(Icons.arrow_back, size: 25)),
+                          onTap: () {
+                            back();
+                          },
+                          child: Icon(Icons.arrow_back, size: 25)),
                       ],
                     ),
                   ),
                   widget.pollWidget,
-                  CommentWidget(pollId: widget.pollId),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 60.0),
+                    child: CommentWidget(),
+                  ),
                 ],
               )),
-        ),
-        bottomNavigationBar: Container(
-            width: MediaQuery.of(context).size.width,
-            color: Theme.of(context).backgroundColor,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: TextField(
-                      style: TextStyle(fontWeight: FontWeight.w300),
-                      decoration: InputDecoration(
-                          contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-                          hintText: 'Add a comment',
-                          hintStyle: TextStyle(
-                              color: Theme.of(context).hintColor, fontWeight: FontWeight.w300),
-                          focusedBorder: borderOutline,
-                          enabledBorder: borderOutline),
-                      controller: inputController,
-                    ),
-                  ),
-                  GestureDetector(
-                      onTap: () async {
-                        String text = inputController.text;
-                        if (text != null || text.replaceAll(new RegExp(r"\s+"), "").length > 0) {
-                          var comment = await postComment(text, widget.pollId);
-                          bool addedToPoll = await updatePollComments(comment['_id']);
-
-                          if (addedToPoll) {
-                            Widget commentWidget = await createCommentWidget(comment, context);
-                            commentList.insert(0, comment);
-                            commentStreamController.add(commentWidget);
-                            inputController.text = "";
-                          }
-                        }
-                      },
-                      child: Text(
-                        'SUBMIT',
-                        style: TextStyle(
-                            fontSize: 15.0, color: Colors.blueAccent, fontWeight: FontWeight.w700),
-                      ))
-                ],
-              ),
-            )),
+          ),
+          BottomInput(),
+        ]),
       ),
     );
   }

@@ -132,11 +132,10 @@ class _HomePageState extends State<HomePage> {
   void viewPoll(Widget pollWidget, String pollId) async {
     if (!pollOpen) {
       pollOpen = true;
+      final _formKey = GlobalKey<FormState>();
       await showDialog(
           context: context,
-          builder: (BuildContext context) {
-            return PollPage(pollWidget: pollWidget, pollId: pollId);
-          },
+          builder: (context) => PollPage(pollWidget: pollWidget, pollId: pollId, formKey: _formKey),
           barrierColor: Color(0x01000000));
       pollOpen = false;
     }
