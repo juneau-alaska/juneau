@@ -168,7 +168,7 @@ Future getCreatedByUser(String createdById) async {
   }
 }
 
-Future<List> buildComments(comments, context) async {
+Future<List> buildComments(comments, context, {isReply = false}) async {
   List<Widget> widgets = [];
   for (var i = 0; i < comments.length; i++) {
     var comment = comments[i];
@@ -177,13 +177,13 @@ Future<List> buildComments(comments, context) async {
       commentReplyWidgets[comment['_id']] = [];
     }
 
-    Widget commentWidget = await createCommentWidget(comment, context);
+    Widget commentWidget = await createCommentWidget(comment, context, nested: isReply);
     widgets.add(commentWidget);
   }
   return widgets;
 }
 
-Future<Widget> createCommentWidget(comment, context) async {
+Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
   var createdBy = comment['createdBy'],
     creator = await getCreatedByUser(createdBy),
     replies = comment['replies'],
@@ -196,9 +196,11 @@ Future<Widget> createCommentWidget(comment, context) async {
   DateTime createdAt = DateTime.parse(comment['createdAt']);
   String time = timeago.format(createdAt, locale: 'en_short');
 
+  EdgeInsets padding = nested ? EdgeInsets.fromLTRB(15.0, 10.0, 0.0, 10.0) : EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0);
+
   return Container(
     child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+      padding: padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -273,26 +275,28 @@ Future<Widget> createCommentWidget(comment, context) async {
               ),
             ]),
           replies.length > 0 && !repliesOpened
-            ? Center(
-            child: GestureDetector(
-              onTap: () async {
-                List fetchedReplies = await fetchComments(id, context);
-                List fetchedReplyWidgets = await buildComments(fetchedReplies, context);
-                commentReplyWidgets[id] = replyWidgets + fetchedReplyWidgets;
-                commentRepliesOpened[id] = true;
-                replyStreamController.add(true);
-              },
-              child: Text(
-                numReplies == 1 ? '1 reply' : '$numReplies replies',
-                style: TextStyle(fontSize: 15.0, color: Theme
-                  .of(context)
-                  .hintColor),
-              ),
+            ? GestureDetector(
+            onTap: () async {
+              List fetchedReplies = await fetchComments(id, context);
+              List fetchedReplyWidgets = await buildComments(fetchedReplies, context, isReply: true);
+              commentReplyWidgets[id] = replyWidgets + fetchedReplyWidgets;
+              commentRepliesOpened[id] = true;
+              replyStreamController.add(true);
+            },
+            child: Text(
+              numReplies == 1 ? '1 reply' : '$numReplies replies',
+              style: TextStyle(fontSize: 15.0, color: Theme
+                .of(context)
+                .hintColor),
             ),
           ) : Container(),
-          replyWidgets.length > 0 ?
-          Container(
-            child: Column(children: replyWidgets),
+          replyWidgets.length > 0
+            ? Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: replyWidgets
+            ),
           ) : Container()
         ],
       ),
@@ -316,6 +320,7 @@ class _CommentsWidgetState extends State<CommentsWidget> {
     });
     super.initState();
     commentReplyWidgets = {};
+    commentRepliesOpened = {};
     commentStreamController = StreamController();
     commentStreamController.stream.listen((widget) {
       setState(() {
@@ -479,7 +484,7 @@ class _BottomInputState extends State<BottomInput> {
                       await updateCommentReplies(parentId, comment['_id'], context);
 
                       if (addedToComment) {
-                        Widget commentWidget = await createCommentWidget(comment, context);
+                        Widget commentWidget = await createCommentWidget(comment, context, nested: true);
                         commentReplyWidgets[parentId].add(commentWidget);
                         replyStreamController.add(true);
                       }
