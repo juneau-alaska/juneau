@@ -135,7 +135,7 @@ class _HomePageState extends State<HomePage> {
       final _formKey = GlobalKey<FormState>();
       await showDialog(
           context: context,
-          builder: (context) => PollPage(pollWidget: pollWidget, pollId: pollId, formKey: _formKey),
+          builder: (context) => PollPage(user: user, pollWidget: pollWidget, pollId: pollId, formKey: _formKey),
           barrierColor: Color(0x01000000));
       pollOpen = false;
     }
