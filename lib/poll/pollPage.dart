@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:keyboard_visibility/keyboard_visibility.dart';
+import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -180,8 +181,7 @@ Future<bool> updateUserLikedComments(String commentId, bool liked) async {
   var response = await http.get(url + userId, headers: headers), body;
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body),
-      likedComments = jsonResponse['likedComments'];
+    var jsonResponse = jsonDecode(response.body), likedComments = jsonResponse['likedComments'];
 
     if (liked && likedComments.contains(commentId)) {
       likedComments.remove(commentId);
@@ -232,8 +232,7 @@ Future<List> buildComments(comments, context, {isReply = false}) async {
   List<Widget> widgets = [];
 
   for (var i = 0; i < comments.length; i++) {
-    var comment = comments[i],
-      id = comment['_id'];
+    var comment = comments[i], id = comment['_id'];
 
     if (commentReplies[id] == null) {
       commentReplies[id] = [];
@@ -270,6 +269,124 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
       ? EdgeInsets.fromLTRB(50.0, 5.0, 15.0, 10.0)
       : EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0);
 
+  Widget commentContainer = Container(
+    color: Theme.of(context).backgroundColor,
+    child: Padding(
+      padding: padding,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                GestureDetector(
+                  child: Text(
+                    creator['username'],
+                    style: TextStyle(
+                      color: Theme.of(context).hintColor,
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.w300),
+                  ),
+                  onTap: () {
+                    print(creator['email']);
+                  }),
+                Padding(
+                  padding: const EdgeInsets.only(left: 3.0, right: 1.0),
+                  child: Text('•',
+                    style: TextStyle(
+                      color: Theme.of(context).hintColor,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.w700)),
+                ),
+                Text(
+                  time,
+                  style: TextStyle(
+                    color: Theme.of(context).hintColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w300,
+                    wordSpacing: -4.0,
+                  ),
+                ),
+              ]),
+              SizedBox(
+                height: 1.0,
+              ),
+              Text(comment['content'], style: TextStyle(fontSize: 16.0)),
+              replies.length > 0 && !repliesOpened
+                ? Padding(
+                padding: const EdgeInsets.only(top: 5.0),
+                child: GestureDetector(
+                  onTap: () async {
+                    List fetchedReplies = await fetchComments(id, context);
+                    commentReplies[id] = fetchedReplies;
+                    List fetchedReplyWidgets =
+                    await buildComments(fetchedReplies, context, isReply: true);
+                    commentReplyWidgets[id] = replyWidgets + fetchedReplyWidgets;
+                    commentRepliesOpened[id] = true;
+                    rebuildStreamController.add({'list': commentList});
+                  },
+                  child: Row(
+                    children: [
+                      Text(
+                        'View replies ($numReplies)',
+                        style: TextStyle(
+                          fontSize: 13.0, color: Theme.of(context).hintColor),
+                      ),
+                      Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 20.0,
+                        color: Theme.of(context).hintColor,
+                      )
+                    ],
+                  ),
+                ),
+              )
+                : Container(),
+            ],
+          ),
+          Column(
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  bool commentLiked = await likeComment(id, liked);
+                  if (commentLiked) {
+                    if (liked) {
+                      comment['likes'] = likes - 1;
+                      currentUser['likedComments'].remove(id);
+                    } else {
+                      comment['likes'] = likes + 1;
+                      currentUser['likedComments'].add(id);
+                    }
+
+                    List list;
+                    if (parentId == pollId) {
+                      list = commentList;
+                    } else {
+                      list = commentReplies[parentId];
+                    }
+                    rebuildStreamController.add({'list': list, 'parentId': parentId});
+                  }
+                },
+                child: Icon(
+                  liked ? Icons.favorite : Icons.favorite_border,
+                  size: 15.0,
+                  color: liked ? Colors.redAccent : Theme.of(context).hintColor,
+                ),
+              ),
+              SizedBox(height: 3.0),
+              Text('$likes',
+                style: TextStyle(
+                  fontSize: 15.0,
+                  color: Theme.of(context).hintColor,
+                ))
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+
   return GestureDetector(
     onTap: () {
       inputStreamController.add({'hint': 'Replying to ' + creator['username'], 'commentId': id});
@@ -277,129 +394,29 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
     },
     child: Column(
       children: [
-        Container(
-          color: Theme.of(context).backgroundColor,
-          child: Padding(
-            padding: padding,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      GestureDetector(
-                          child: Text(
-                            creator['username'],
-                            style: TextStyle(
-                                color: Theme.of(context).hintColor,
-                                fontSize: 15.0,
-                                fontWeight: FontWeight.w300),
-                          ),
-                          onTap: () {
-                            print(creator['email']);
-                          }),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 3.0, right: 1.0),
-                        child: Text('•',
-                            style: TextStyle(
-                                color: Theme.of(context).hintColor,
-                                fontSize: 13.0,
-                                fontWeight: FontWeight.w700)),
-                      ),
-                      Text(
-                        time,
-                        style: TextStyle(
-                          color: Theme.of(context).hintColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w300,
-                          wordSpacing: -4.0,
-                        ),
-                      ),
-                    ]),
-                    SizedBox(
-                      height: 1.0,
-                    ),
-                    Text(comment['content'], style: TextStyle(fontSize: 16.0)),
-                    replies.length > 0 && !repliesOpened
-                        ? Padding(
-                            padding: const EdgeInsets.only(top: 5.0),
-                            child: GestureDetector(
-                              onTap: () async {
-                                List fetchedReplies = await fetchComments(id, context);
-                                commentReplies[id] = fetchedReplies;
-                                List fetchedReplyWidgets =
-                                    await buildComments(fetchedReplies, context, isReply: true);
-                                commentReplyWidgets[id] = replyWidgets + fetchedReplyWidgets;
-                                commentRepliesOpened[id] = true;
-                                rebuildStreamController.add({ 'list': commentList });
-                              },
-                              child: Row(
-                                children: [
-                                  Text(
-                                    'View replies ($numReplies)',
-                                    style: TextStyle(
-                                        fontSize: 13.0, color: Theme.of(context).hintColor),
-                                  ),
-                                  Icon(
-                                    Icons.keyboard_arrow_down,
-                                    size: 20.0,
-                                    color: Theme.of(context).hintColor,
-                                  )
-                                ],
-                              ),
-                            ),
-                          )
-                        : Container(),
-                  ],
-                ),
-                Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () async {
-                        bool commentLiked = await likeComment(id, liked);
-                        if (commentLiked) {
-                          if (liked) {
-                            comment['likes'] = likes - 1;
-                            currentUser['likedComments'].remove(id);
-                          } else {
-                            comment['likes'] = likes + 1;
-                            currentUser['likedComments'].add(id);
-                          }
-
-                          List list;
-                          if (parentId == pollId) {
-                            list = commentList;
-                          } else {
-                            list = commentReplies[parentId];
-                          }
-                          rebuildStreamController.add({ 'list': list, 'parentId': parentId });
-                        }
-                      },
-                      child: Icon(
-                        liked ? Icons.favorite : Icons.favorite_border,
-                        size: 15.0,
-                        color: liked ? Colors.redAccent : Theme.of(context).hintColor,
-                      ),
-                    ),
-                    SizedBox(height: 3.0),
-                    Text('$likes',
-                        style: TextStyle(
-                          fontSize: 15.0,
-                          color: Theme.of(context).hintColor,
-                        ))
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
+        createdBy == currentUser['_id'] ? SwipeActionCell(
+            key: UniqueKey(),
+            performsFirstActionWithFullSwipe: true,
+            trailingActions: [
+              SwipeAction(
+                title: "delete",
+                nestedAction: SwipeNestedAction(title: "delete"),
+                onTap: (CompletionHandler handler) async {
+                  comment['content'] = 'deleted';
+                  rebuildStreamController.add({'list': commentList});
+                },
+                color: Colors.redAccent,
+              ),
+            ],
+            child: commentContainer,
+          ) : commentContainer,
         replyWidgets.length > 0
             ? Container(
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: replyWidgets),
+                    children: replyWidgets
+                ),
               )
             : Container()
       ],
@@ -587,7 +604,7 @@ class _BottomInputState extends State<BottomInput> {
                             Widget commentWidget =
                                 await createCommentWidget(comment, context, nested: true);
                             commentReplyWidgets[parentId].add(commentWidget);
-                            rebuildStreamController.add({ 'list': commentList });
+                            rebuildStreamController.add({'list': commentList});
                           }
                         }
                         focusNode.unfocus();
@@ -623,7 +640,8 @@ class PollPage extends StatefulWidget {
   final pollId;
   final formKey;
 
-  PollPage({Key key, @required this.user, this.pollWidget, this.pollId, this.formKey}) : super(key: key);
+  PollPage({Key key, @required this.user, this.pollWidget, this.pollId, this.formKey})
+      : super(key: key);
 
   @override
   _PollPageState createState() => _PollPageState();
