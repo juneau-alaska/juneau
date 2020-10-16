@@ -11,6 +11,7 @@ import 'dart:io';
 import 'dart:async';
 
 import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/controllers/richTextController.dart';
 
 var currentUser;
 List<Widget> commentWidgets;
@@ -269,6 +270,8 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
       ? EdgeInsets.fromLTRB(50.0, 5.0, 15.0, 10.0)
       : EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0);
 
+  double mediaWidth = MediaQuery.of(context).size.width;
+
   Widget commentContainer = Container(
     color: Theme.of(context).backgroundColor,
     child: Padding(
@@ -312,7 +315,19 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
               SizedBox(
                 height: 1.0,
               ),
-              Text(comment['content'], style: TextStyle(fontSize: 16.0)),
+              Container(
+                width: nested ? mediaWidth - 80 : mediaWidth - 45,
+                child: Wrap(
+                  alignment: WrapAlignment.start,
+                  children: [
+                    // TODO: Break text into @'s
+                    Text(
+                      comment['content'],
+                      style: TextStyle(fontSize: 16.0)
+                    ),
+                  ],
+                ),
+              ),
               replies.length > 0 && !repliesOpened
                 ? Padding(
                 padding: const EdgeInsets.only(top: 5.0),
@@ -389,7 +404,11 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
 
   return GestureDetector(
     onTap: () {
-      inputStreamController.add({'hint': 'Replying to ' + creator['username'], 'commentId': id});
+      if (nested) {
+        inputStreamController.add({ 'commentId': parentId, 'repliedToUser': creator['username'] });
+      } else {
+        inputStreamController.add({ 'commentId': id });
+      }
       focusNode.requestFocus();
     },
     child: Column(
@@ -511,27 +530,27 @@ class BottomInput extends StatefulWidget {
 }
 
 class _BottomInputState extends State<BottomInput> {
-  TextEditingController inputController = TextEditingController();
-  String hintText = 'Add a comment';
+  RichTextController inputController = RichTextController({
+    RegExp(r"\B@[a-zA-Z0-9]+\b"):TextStyle(color:Colors.indigoAccent,),
+  });
   bool isReply = false;
   String parentId;
+  String repliedToUser;
 
   void resetInput() {
     inputController.text = "";
-    hintText = 'Add a comment';
     isReply = false;
     parentId = null;
   }
 
   @override
   void initState() {
-    super.initState();
     focusNode = FocusNode();
     inputStreamController = StreamController();
     inputStreamController.stream.listen((obj) {
       setState(() {
         parentId = obj['commentId'];
-        hintText = obj['hint'];
+        repliedToUser = obj['repliedToUser'];
         isReply = true;
       });
     });
@@ -545,6 +564,8 @@ class _BottomInputState extends State<BottomInput> {
         }
       },
     );
+
+    super.initState();
   }
 
   @override
@@ -562,8 +583,12 @@ class _BottomInputState extends State<BottomInput> {
         width: 0.5,
       ));
 
+
   @override
   Widget build(BuildContext context) {
+    inputController.text = repliedToUser != null ? '@$repliedToUser ' : '';
+    inputController.selection = TextSelection.fromPosition(TextPosition(offset: inputController.text.length));
+
     return Positioned(
       bottom: 0.0,
       child: Container(
@@ -581,7 +606,7 @@ class _BottomInputState extends State<BottomInput> {
                     style: TextStyle(fontWeight: FontWeight.w300),
                     decoration: InputDecoration(
                         contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-                        hintText: hintText,
+                        hintText: 'Add a comment',
                         hintStyle: TextStyle(
                             color: Theme.of(context).hintColor, fontWeight: FontWeight.w300),
                         focusedBorder: borderOutline,
@@ -605,6 +630,7 @@ class _BottomInputState extends State<BottomInput> {
                                 await createCommentWidget(comment, context, nested: true);
                             commentReplyWidgets[parentId].add(commentWidget);
                             rebuildStreamController.add({'list': commentList});
+                            resetInput();
                           }
                         }
                         focusNode.unfocus();
@@ -617,7 +643,7 @@ class _BottomInputState extends State<BottomInput> {
                             Widget commentWidget = await createCommentWidget(comment, context);
                             commentList.insert(0, comment);
                             commentStreamController.add({'widget': commentWidget});
-                            inputController.text = "";
+                            resetInput();
                           }
                         }
                       }

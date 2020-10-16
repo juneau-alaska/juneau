@@ -188,7 +188,7 @@ class _PollWidgetState extends State<PollWidget> {
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
 
-      user = jsonResponse[0];
+      user = jsonResponse;
       followingCategories = user['followingCategories'];
 
       if (!followingCategories.contains(category) || unfollow) {
