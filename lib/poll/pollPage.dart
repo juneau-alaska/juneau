@@ -266,6 +266,40 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
   DateTime createdAt = DateTime.parse(comment['createdAt']);
   String time = timeago.format(createdAt, locale: 'en_short');
 
+  List<String> contentSplit = comment['content'].split(' ');
+  List<Widget> textChildren = [];
+
+  RegExp regExp = RegExp(r"\B@[a-zA-Z0-9]+\b");
+
+  for (var i=0; i<contentSplit.length; i++) {
+    String text = contentSplit[i];
+
+    if (regExp.hasMatch(text)) {
+      textChildren.add(
+        GestureDetector(
+          onTap: () {
+            print(text);
+          },
+          child: Text(
+            text + ' ',
+            style: TextStyle(
+              color: Colors.indigoAccent,
+              fontSize: 16.0,
+            )
+          ),
+        )
+      );
+    } else {
+      textChildren.add(
+        Text(
+          text + ' ',
+          style: TextStyle(fontSize: 16.0)
+        )
+      );
+    }
+
+  }
+
   EdgeInsets padding = nested
       ? EdgeInsets.fromLTRB(50.0, 5.0, 15.0, 10.0)
       : EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0);
@@ -319,13 +353,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                 width: nested ? mediaWidth - 80 : mediaWidth - 45,
                 child: Wrap(
                   alignment: WrapAlignment.start,
-                  children: [
-                    // TODO: Break text into @'s
-                    Text(
-                      comment['content'],
-                      style: TextStyle(fontSize: 16.0)
-                    ),
-                  ],
+                  children: textChildren,
                 ),
               ),
               replies.length > 0 && !repliesOpened
