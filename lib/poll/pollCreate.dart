@@ -165,7 +165,7 @@ class _PollCreateState extends State<PollCreate> {
 
   Widget buildGridView() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0.75),
+      padding: const EdgeInsets.symmetric(horizontal: 1.0),
       child: GridView.count(
         crossAxisCount: images.length > 4 ? 3 : 2,
         children: List.generate(images.length, (index) {

@@ -35,7 +35,10 @@ Future<List> _getOptions(poll) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
 
-  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
 
   List optionIds = poll['options'];
   List<Future> futures = [];
@@ -166,7 +169,10 @@ class _PollWidgetState extends State<PollWidget> {
 
     String url = 'http://localhost:4000/category/followers';
 
-    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
 
     var body = jsonEncode({'name': category, 'userId': userId, 'unfollow': unfollow});
     await http.put(url, headers: headers, body: body);
@@ -179,7 +185,10 @@ class _PollWidgetState extends State<PollWidget> {
 
     String url = 'http://localhost:4000/user/' + userId;
 
-    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token},
+    var headers = {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: token
+        },
         response,
         body;
 
@@ -243,7 +252,10 @@ class _PollWidgetState extends State<PollWidget> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
 
-    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
 
     var response = await http.put(url, headers: headers);
 
@@ -269,7 +281,10 @@ class _PollWidgetState extends State<PollWidget> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token'), userId = prefs.getString('userId');
 
-    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
 
     var response = await http.get(url + userId, headers: headers);
 
@@ -308,7 +323,10 @@ class _PollWidgetState extends State<PollWidget> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token'), userId = prefs.getString('userId');
 
-    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
 
     var response = await http.get(url + userId, headers: headers), body;
 
@@ -329,7 +347,10 @@ class _PollWidgetState extends State<PollWidget> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
-    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
 
     var body = jsonEncode({'optionsList': options});
     var response = await http.post(url, headers: headers, body: body);
@@ -348,7 +369,10 @@ class _PollWidgetState extends State<PollWidget> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
-    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
 
     var response = await http.delete(url, headers: headers);
 
@@ -371,7 +395,8 @@ class _PollWidgetState extends State<PollWidget> {
         );
 
         Widget continueButton = FlatButton(
-          child: Text("DELETE", style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w700, color: Colors.red)),
+          child: Text("DELETE",
+              style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w700, color: Colors.red)),
           onPressed: () {
             deletePoll();
             Navigator.pop(context);
@@ -380,7 +405,8 @@ class _PollWidgetState extends State<PollWidget> {
 
         AlertDialog alertDialogue = AlertDialog(
           backgroundColor: Theme.of(context).backgroundColor,
-          title: Text("Are you sure?", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700)),
+          title:
+              Text("Are you sure?", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700)),
           content: Text("Polls that are deleted cannot be retrieved.",
               style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w300)),
           actions: [
@@ -426,7 +452,9 @@ class _PollWidgetState extends State<PollWidget> {
                         child: Text(
                           pollCreator['username'],
                           style: TextStyle(
-                              color: Theme.of(context).hintColor, fontSize: 13.0, fontWeight: FontWeight.w300),
+                              color: Theme.of(context).hintColor,
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.w300),
                         ),
                         onTap: () {
                           print(pollCreator['email']);
@@ -435,7 +463,9 @@ class _PollWidgetState extends State<PollWidget> {
                       padding: const EdgeInsets.only(left: 3.0, right: 1.0),
                       child: Text('•',
                           style: TextStyle(
-                              color: Theme.of(context).hintColor, fontSize: 13.0, fontWeight: FontWeight.w700)),
+                              color: Theme.of(context).hintColor,
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.w700)),
                     ),
                     Text(
                       time,
@@ -514,13 +544,19 @@ class _PollWidgetState extends State<PollWidget> {
 
     if (options.length > 0) {
       var completedPolls = user['completedPolls'];
+      var selectedOptions = user['selectedOptions'];
 
       bool completed = completedPolls.indexOf(poll['_id']) >= 0;
+      String selectedOption;
       int totalVotes = 0;
       int highestVote = 0;
 
       if (completed) {
         for (var c in options) {
+          String _id = c['_id'];
+          if (selectedOptions.contains(_id)) {
+            selectedOption = _id;
+          }
           int votes = c['votes'];
           totalVotes += votes;
           if (votes > highestVote) {
@@ -550,7 +586,7 @@ class _PollWidgetState extends State<PollWidget> {
                 List imageBytesList = imageBytes.data;
 
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0.75),
+                  padding: const EdgeInsets.symmetric(horizontal: 1.0),
                   child: Container(
                     height: containerHeight,
                     child: GridView.count(
@@ -558,6 +594,7 @@ class _PollWidgetState extends State<PollWidget> {
                         crossAxisCount: lengthGreaterThanFour ? 3 : 2,
                         children: List.generate(optionsLength, (index) {
                           var option = options[index];
+                          bool selected = selectedOption == option['_id'];
                           int votes = option['votes'];
                           double percent = votes > 0 ? votes / totalVotes : 0;
                           String percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
@@ -583,7 +620,7 @@ class _PollWidgetState extends State<PollWidget> {
                                   completed
                                       ? Stack(children: [
                                           Opacity(
-                                            opacity: 0.3,
+                                            opacity: 0.25,
                                             child: Container(
                                               decoration: new BoxDecoration(
                                                 color: Theme.of(context).backgroundColor,
@@ -594,15 +631,39 @@ class _PollWidgetState extends State<PollWidget> {
                                           ),
                                           Center(
                                             child: Text(
-                                              percentStr,
+                                              '$percentStr',
                                               style: TextStyle(
-                                                  fontSize: 16.0,
+                                                  fontSize: lengthGreaterThanFour ? 40.0 : 60.0,
                                                   fontWeight: FontWeight.w700,
-                                                  color: highestVote == votes ? Colors.white : Colors.white70),
+                                                  color: selected
+                                                      ? highestVote == votes
+                                                          ? Colors.greenAccent
+                                                          : Colors.greenAccent
+                                                      : highestVote == votes
+                                                          ? Colors.yellowAccent
+                                                          : Colors.white),
                                             ),
                                           ),
                                         ])
                                       : Container(),
+                                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                                    selected
+                                        ? Padding(
+                                            padding: const EdgeInsets.only(top: 2.0),
+                                            child: Icon(Icons.emoji_emotions_outlined,
+                                                color: Colors.greenAccent,
+                                                size: lengthGreaterThanFour ? 20.0 : 24.0),
+                                          )
+                                        : Container(width: 1.0, height: 1.0),
+                                    highestVote == votes
+                                        ? Padding(
+                                            padding: const EdgeInsets.only(right: 2.0, top: 2.0),
+                                            child: Icon(Icons.emoji_events,
+                                                color: Colors.yellowAccent,
+                                                size: lengthGreaterThanFour ? 20.0 : 24.0),
+                                          )
+                                        : Container(width: 2.0, height: 1.0),
+                                  ])
                                 ],
                               ),
                             ),
@@ -621,7 +682,10 @@ class _PollWidgetState extends State<PollWidget> {
                           children: List.generate(optionsLength, (index) {
                             return Padding(
                               padding: const EdgeInsets.all(0.75),
-                              child: Container(width: size, height: size, color: Theme.of(context).highlightColor),
+                              child: Container(
+                                  width: size,
+                                  height: size,
+                                  color: Theme.of(context).highlightColor),
                             );
                           }))),
                 );
@@ -643,11 +707,17 @@ class _PollWidgetState extends State<PollWidget> {
                   children: [
                     Text(
                       '$totalVotes ',
-                      style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
+                      style: TextStyle(
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w300,
+                          color: Theme.of(context).hintColor),
                     ),
                     Text(
                       totalVotes == 1 ? 'vote' : 'votes',
-                      style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
+                      style: TextStyle(
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w300,
+                          color: Theme.of(context).hintColor),
                     ),
                   ],
                 ),
@@ -660,13 +730,17 @@ class _PollWidgetState extends State<PollWidget> {
                     children: [
                       Text(
                         '$commentCount ',
-                        style:
-                            TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
+                        style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w300,
+                            color: Theme.of(context).hintColor),
                       ),
                       Text(
                         poll['comments'].length == 1 ? 'comment' : 'comments',
-                        style:
-                            TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Theme.of(context).hintColor),
+                        style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w300,
+                            color: Theme.of(context).hintColor),
                       ),
                     ],
                   ),
