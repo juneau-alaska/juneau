@@ -633,37 +633,33 @@ class _PollWidgetState extends State<PollWidget> {
                                             child: Text(
                                               '$percentStr',
                                               style: TextStyle(
-                                                  fontSize: lengthGreaterThanFour ? 40.0 : 60.0,
+                                                  fontSize: lengthGreaterThanFour ? 20.0 : 30.0,
                                                   fontWeight: FontWeight.w700,
                                                   color: selected
-                                                      ? highestVote == votes
-                                                          ? Colors.greenAccent
-                                                          : Colors.greenAccent
-                                                      : highestVote == votes
-                                                          ? Colors.yellowAccent
+                                                          ? Colors.lightGreenAccent
                                                           : Colors.white),
                                             ),
                                           ),
                                         ])
                                       : Container(),
-                                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                                    selected
-                                        ? Padding(
-                                            padding: const EdgeInsets.only(top: 2.0),
-                                            child: Icon(Icons.emoji_emotions_outlined,
-                                                color: Colors.greenAccent,
-                                                size: lengthGreaterThanFour ? 20.0 : 24.0),
-                                          )
-                                        : Container(width: 1.0, height: 1.0),
-                                    highestVote == votes
-                                        ? Padding(
-                                            padding: const EdgeInsets.only(right: 2.0, top: 2.0),
-                                            child: Icon(Icons.emoji_events,
-                                                color: Colors.yellowAccent,
-                                                size: lengthGreaterThanFour ? 20.0 : 24.0),
-                                          )
-                                        : Container(width: 2.0, height: 1.0),
-                                  ])
+//                                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+//                                    selected
+//                                        ? Padding(
+//                                            padding: const EdgeInsets.only(top: 2.0),
+//                                            child: Icon(Icons.emoji_emotions_outlined,
+//                                                color: Colors.greenAccent,
+//                                                size: lengthGreaterThanFour ? 20.0 : 24.0),
+//                                          )
+//                                        : Container(width: 1.0, height: 1.0),
+//                                    highestVote == votes
+//                                        ? Padding(
+//                                            padding: const EdgeInsets.only(right: 2.0, top: 2.0),
+//                                            child: Icon(Icons.emoji_events,
+//                                                color: Colors.redAccent,
+//                                                size: lengthGreaterThanFour ? 20.0 : 24.0),
+//                                          )
+//                                        : Container(width: 2.0, height: 1.0),
+//                                  ])
                                 ],
                               ),
                             ),
