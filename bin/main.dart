@@ -18,8 +18,8 @@ class MyApp extends StatelessWidget {
         cardColor: const Color(0xff1D1D1D),
         hintColor: const Color(0xff595959),
         highlightColor: const Color(0xff252525),
-        accentColor: Colors.indigo,
-        buttonColor: Colors.white,
+        accentColor: Colors.indigoAccent,
+        buttonColor: Colors.indigo,
       ),
       initialRoute: '/splash',
       routes: {

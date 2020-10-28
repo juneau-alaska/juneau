@@ -297,7 +297,7 @@ class _PollCreateState extends State<PollCreate> {
                       child: Text(
                         "Create",
                         style: TextStyle(
-                          color: Colors.blue,
+                          color: Theme.of(context).accentColor,
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
                         ),
@@ -318,7 +318,7 @@ class _PollCreateState extends State<PollCreate> {
                   if (selectedCategory != null) {
                     if (selectedCategories[0] == "") {
                       selectedCategories[0] = selectedCategory;
-                      categoryContainerHeight = 30.0;
+                      categoryContainerHeight = 26.0;
                       categoryContainerPadding = const EdgeInsets.fromLTRB(10.0, 9.0, 10.0, 10.0);
                     } else if (!selectedCategories.contains(selectedCategory)) {
                       selectedCategories.add(selectedCategory);
@@ -358,7 +358,7 @@ class _PollCreateState extends State<PollCreate> {
                         padding: const EdgeInsets.symmetric(horizontal: 2.5),
                         child: Container(
                           decoration: new BoxDecoration(
-                              color: Theme.of(context).highlightColor, borderRadius: new BorderRadius.all(const Radius.circular(14.0))),
+                              color: Theme.of(context).highlightColor, borderRadius: new BorderRadius.all(const Radius.circular(18.0))),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 10.0),
                             child: Center(

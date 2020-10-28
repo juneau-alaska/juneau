@@ -431,7 +431,7 @@ class _PollWidgetState extends State<PollWidget> {
     String time = timeago.format(createdAt, locale: 'en_short');
     List<Widget> children = [
       Padding(
-        padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 0.0),
+        padding: const EdgeInsets.fromLTRB(15.0, 20.0, 15.0, 3.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,21 +439,14 @@ class _PollWidgetState extends State<PollWidget> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 5.0),
-                  child: Text(
-                    poll['prompt'],
-                    style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700),
-                  ),
-                ),
                 Row(
                   children: <Widget>[
                     GestureDetector(
                         child: Text(
                           pollCreator['username'],
                           style: TextStyle(
-                              color: Theme.of(context).hintColor,
-                              fontSize: 13.0,
+                              color: Theme.of(context).accentColor,
+                              fontSize: 14.0,
                               fontWeight: FontWeight.w300),
                         ),
                         onTap: () {
@@ -464,14 +457,14 @@ class _PollWidgetState extends State<PollWidget> {
                       child: Text('•',
                           style: TextStyle(
                               color: Theme.of(context).hintColor,
-                              fontSize: 13.0,
+                              fontSize: 14.0,
                               fontWeight: FontWeight.w700)),
                     ),
                     Text(
                       time,
                       style: TextStyle(
                         color: Theme.of(context).hintColor,
-                        fontSize: 13,
+                        fontSize: 14.0,
                         fontWeight: FontWeight.w300,
                         wordSpacing: -4.0,
                       ),
@@ -501,9 +494,16 @@ class _PollWidgetState extends State<PollWidget> {
         ),
       ),
       Padding(
-        padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+        child: Text(
+          poll['prompt'],
+          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 15.0),
         child: SizedBox(
-          height: 30.0,
+          height: 26.0,
           child: new ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: pollCategories.length,
@@ -513,9 +513,9 @@ class _PollWidgetState extends State<PollWidget> {
                 child: Container(
                   decoration: new BoxDecoration(
                       color: followingCategories.contains(pollCategories[index])
-                          ? Theme.of(context).accentColor
+                          ? Theme.of(context).buttonColor
                           : Theme.of(context).highlightColor,
-                      borderRadius: new BorderRadius.all(const Radius.circular(14.0))),
+                      borderRadius: new BorderRadius.all(const Radius.circular(18.0))),
                   child: GestureDetector(
                     onTap: () {
                       if (warning) {
@@ -620,7 +620,7 @@ class _PollWidgetState extends State<PollWidget> {
                                   completed
                                       ? Stack(children: [
                                           Opacity(
-                                            opacity: 0.25,
+                                            opacity: 0.5,
                                             child: Container(
                                               decoration: new BoxDecoration(
                                                 color: Theme.of(context).backgroundColor,
@@ -636,30 +636,12 @@ class _PollWidgetState extends State<PollWidget> {
                                                   fontSize: lengthGreaterThanFour ? 20.0 : 30.0,
                                                   fontWeight: FontWeight.w700,
                                                   color: selected
-                                                          ? Colors.lightGreenAccent
+                                                          ? Theme.of(context).accentColor
                                                           : Colors.white),
                                             ),
                                           ),
                                         ])
                                       : Container(),
-//                                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-//                                    selected
-//                                        ? Padding(
-//                                            padding: const EdgeInsets.only(top: 2.0),
-//                                            child: Icon(Icons.emoji_emotions_outlined,
-//                                                color: Colors.greenAccent,
-//                                                size: lengthGreaterThanFour ? 20.0 : 24.0),
-//                                          )
-//                                        : Container(width: 1.0, height: 1.0),
-//                                    highestVote == votes
-//                                        ? Padding(
-//                                            padding: const EdgeInsets.only(right: 2.0, top: 2.0),
-//                                            child: Icon(Icons.emoji_events,
-//                                                color: Colors.redAccent,
-//                                                size: lengthGreaterThanFour ? 20.0 : 24.0),
-//                                          )
-//                                        : Container(width: 2.0, height: 1.0),
-//                                  ])
                                 ],
                               ),
                             ),
@@ -693,7 +675,7 @@ class _PollWidgetState extends State<PollWidget> {
       int commentCount = poll['comments'] != null ? poll['comments'].length : 0;
 
       children.add(Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 20.0),
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -741,33 +723,6 @@ class _PollWidgetState extends State<PollWidget> {
                     ],
                   ),
                 ),
-//          Row(
-//            children: [
-//              GestureDetector(
-//                onTap: () {
-//                  // TODO: set liked to if actually liked
-//                  setState(() {
-//                    liked = !liked;
-//                  });
-//                },
-//                child:
-//                Icon(liked ? Icons.favorite : Icons.favorite_border, color: liked ? Colors.redAccent : Theme
-//                  .of(context)
-//                  .hintColor, size: 23),
-//              ),
-//              GestureDetector(
-//                onTap: () {
-//                  // TODO: set saved to if actually saved
-//                  setState(() {
-//                    saved = !saved;
-//                  });
-//                },
-//                child: Icon(saved ? Icons.bookmark : Icons.bookmark_border, color: saved ? Colors.white : Theme
-//                  .of(context)
-//                  .hintColor, size: 23),
-//              ),
-//            ],
-//          )
               ])));
     }
 

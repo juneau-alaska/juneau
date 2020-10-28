@@ -271,38 +271,28 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
 
   RegExp regExp = RegExp(r"\B@[a-zA-Z0-9]+\b");
 
-  for (var i=0; i<contentSplit.length; i++) {
+  for (var i = 0; i < contentSplit.length; i++) {
     String text = contentSplit[i];
 
     if (regExp.hasMatch(text)) {
-      textChildren.add(
-        GestureDetector(
-          onTap: () {
-            print(text);
-          },
-          child: Text(
-            text + ' ',
+      textChildren.add(GestureDetector(
+        onTap: () {
+          print(text);
+        },
+        child: Text(text + ' ',
             style: TextStyle(
-              color: Colors.indigoAccent,
+              color: Theme.of(context).accentColor,
               fontSize: 16.0,
-            )
-          ),
-        )
-      );
+            )),
+      ));
     } else {
-      textChildren.add(
-        Text(
-          text + ' ',
-          style: TextStyle(fontSize: 16.0)
-        )
-      );
+      textChildren.add(Text(text + ' ', style: TextStyle(fontSize: 16.0)));
     }
-
   }
 
   EdgeInsets padding = nested
-      ? EdgeInsets.fromLTRB(50.0, 5.0, 15.0, 10.0)
-      : EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0);
+      ? EdgeInsets.fromLTRB(75.0, 10.0, 15.0, 10.0)
+      : EdgeInsets.fromLTRB(15.0, 20.0, 15.0, 5.0);
 
   double mediaWidth = MediaQuery.of(context).size.width;
 
@@ -318,23 +308,23 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
             children: [
               Row(children: [
                 GestureDetector(
-                  child: Text(
-                    creator['username'],
-                    style: TextStyle(
-                      color: Theme.of(context).hintColor,
-                      fontSize: 15.0,
-                      fontWeight: FontWeight.w300),
-                  ),
-                  onTap: () {
-                    print(creator['email']);
-                  }),
+                    child: Text(
+                      creator['username'],
+                      style: TextStyle(
+                          color: Theme.of(context).hintColor,
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w300),
+                    ),
+                    onTap: () {
+                      print(creator['email']);
+                    }),
                 Padding(
                   padding: const EdgeInsets.only(left: 3.0, right: 1.0),
                   child: Text('•',
-                    style: TextStyle(
-                      color: Theme.of(context).hintColor,
-                      fontSize: 13.0,
-                      fontWeight: FontWeight.w700)),
+                      style: TextStyle(
+                          color: Theme.of(context).hintColor,
+                          fontSize: 13.0,
+                          fontWeight: FontWeight.w700)),
                 ),
                 Text(
                   time,
@@ -347,45 +337,15 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                 ),
               ]),
               SizedBox(
-                height: 1.0,
+                height: 5.0,
               ),
               Container(
-                width: nested ? mediaWidth - 80 : mediaWidth - 45,
+                width: nested ? mediaWidth - 105 : mediaWidth - 45,
                 child: Wrap(
                   alignment: WrapAlignment.start,
                   children: textChildren,
                 ),
               ),
-              replies.length > 0 && !repliesOpened
-                ? Padding(
-                padding: const EdgeInsets.only(top: 5.0),
-                child: GestureDetector(
-                  onTap: () async {
-                    List fetchedReplies = await fetchComments(id, context);
-                    commentReplies[id] = fetchedReplies;
-                    List fetchedReplyWidgets =
-                    await buildComments(fetchedReplies, context, isReply: true);
-                    commentReplyWidgets[id] = replyWidgets + fetchedReplyWidgets;
-                    commentRepliesOpened[id] = true;
-                    rebuildStreamController.add({'list': commentList});
-                  },
-                  child: Row(
-                    children: [
-                      Text(
-                        'View replies ($numReplies)',
-                        style: TextStyle(
-                          fontSize: 13.0, color: Theme.of(context).hintColor),
-                      ),
-                      Icon(
-                        Icons.keyboard_arrow_down,
-                        size: 20.0,
-                        color: Theme.of(context).hintColor,
-                      )
-                    ],
-                  ),
-                ),
-              )
-                : Container(),
             ],
           ),
           Column(
@@ -417,12 +377,12 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                   color: liked ? Colors.redAccent : Theme.of(context).hintColor,
                 ),
               ),
-              SizedBox(height: 3.0),
-              Text('$likes',
-                style: TextStyle(
-                  fontSize: 15.0,
-                  color: Theme.of(context).hintColor,
-                ))
+              SizedBox(height: 2.5),
+              Text(likes == 0 ? '' : '$likes',
+                  style: TextStyle(
+                    fontSize: 13.0,
+                    color: Theme.of(context).hintColor,
+                  ))
             ],
           ),
         ],
@@ -433,39 +393,98 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
   return GestureDetector(
     onTap: () {
       if (nested) {
-        inputStreamController.add({ 'commentId': parentId, 'repliedToUser': creator['username'] });
+        inputStreamController.add({'commentId': parentId, 'repliedToUser': creator['username']});
       } else {
-        inputStreamController.add({ 'commentId': id });
+        inputStreamController.add({'commentId': id});
       }
       focusNode.requestFocus();
     },
     child: Column(
       children: [
-        createdBy == currentUser['_id'] ? SwipeActionCell(
-            key: UniqueKey(),
-            performsFirstActionWithFullSwipe: true,
-            trailingActions: [
-              SwipeAction(
-                title: "delete",
-                nestedAction: SwipeNestedAction(title: "delete"),
-                onTap: (CompletionHandler handler) async {
-                  comment['content'] = 'deleted';
-                  rebuildStreamController.add({'list': commentList});
-                },
-                color: Colors.redAccent,
-              ),
-            ],
-            child: commentContainer,
-          ) : commentContainer,
-        replyWidgets.length > 0
+        createdBy == currentUser['_id']
+            ? SwipeActionCell(
+                key: UniqueKey(),
+                performsFirstActionWithFullSwipe: true,
+                trailingActions: [
+                  SwipeAction(
+                    title: "delete",
+                    nestedAction: SwipeNestedAction(title: "delete"),
+                    onTap: (CompletionHandler handler) async {
+                      comment['content'] = 'deleted';
+                      rebuildStreamController.add({'list': commentList});
+                    },
+                    color: Colors.redAccent,
+                  ),
+                ],
+                child: commentContainer,
+              )
+            : commentContainer,
+        replyWidgets.length > 0 && repliesOpened
             ? Container(
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: replyWidgets
-                ),
+                    children: replyWidgets),
               )
-            : Container()
+            : Container(),
+        !nested
+            ? replies.length > 0
+                ? !repliesOpened
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 5.0),
+                        child: GestureDetector(
+                          onTap: () async {
+                            if (commentReplies[id].length == 0) {
+                              List fetchedReplies = await fetchComments(id, context);
+                              commentReplies[id] = fetchedReplies;
+                              List fetchedReplyWidgets =
+                                  await buildComments(fetchedReplies, context, isReply: true);
+                              commentReplyWidgets[id] = replyWidgets + fetchedReplyWidgets;
+                            }
+                            commentRepliesOpened[id] = true;
+                            rebuildStreamController.add({'list': commentList});
+                          },
+                          child: Row(
+                            children: [
+                              Text(
+                                'View replies ($numReplies)',
+                                style:
+                                    TextStyle(fontSize: 13.0, color: Theme.of(context).hintColor),
+                              ),
+                              Icon(
+                                Icons.keyboard_arrow_down,
+                                size: 20.0,
+                                color: Theme.of(context).hintColor,
+                              )
+                            ],
+                          ),
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.fromLTRB(75.0, 0.0, 15.0, 5.0),
+                        child: GestureDetector(
+                          onTap: () async {
+                            commentRepliesOpened[id] = null;
+                            rebuildStreamController.add({'list': commentList});
+                          },
+                          child: Row(
+                            children: [
+                              Text(
+                                'Hide replies',
+                                style:
+                                    TextStyle(fontSize: 13.0, color: Theme.of(context).hintColor),
+                              ),
+                              Icon(
+                                Icons.keyboard_arrow_up,
+                                size: 20.0,
+                                color: Theme.of(context).hintColor,
+                              )
+                            ],
+                          ),
+                        ),
+                      )
+                : Container()
+            : Container(),
       ],
     ),
   );
@@ -559,7 +578,9 @@ class BottomInput extends StatefulWidget {
 
 class _BottomInputState extends State<BottomInput> {
   RichTextController inputController = RichTextController({
-    RegExp(r"\B@[a-zA-Z0-9]+\b"):TextStyle(color:Colors.indigoAccent,),
+    RegExp(r"\B@[a-zA-Z0-9]+\b"): TextStyle(
+      color: Colors.indigoAccent,
+    ),
   });
   bool isReply = false;
   String parentId;
@@ -611,11 +632,11 @@ class _BottomInputState extends State<BottomInput> {
         width: 0.5,
       ));
 
-
   @override
   Widget build(BuildContext context) {
     inputController.text = repliedToUser != null ? '@$repliedToUser ' : '';
-    inputController.selection = TextSelection.fromPosition(TextPosition(offset: inputController.text.length));
+    inputController.selection =
+        TextSelection.fromPosition(TextPosition(offset: inputController.text.length));
 
     return Positioned(
       bottom: 0.0,
@@ -679,7 +700,7 @@ class _BottomInputState extends State<BottomInput> {
                     child: Text(
                       'COMMENT',
                       style: TextStyle(
-                          fontSize: 15.0, color: Colors.blueAccent, fontWeight: FontWeight.w700),
+                          fontSize: 15.0, color: Theme.of(context).accentColor, fontWeight: FontWeight.w700),
                     ))
               ],
             ),
@@ -761,7 +782,7 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
                 child: ListView(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
