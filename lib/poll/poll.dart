@@ -620,7 +620,7 @@ class _PollWidgetState extends State<PollWidget> {
                                   completed
                                       ? Stack(children: [
                                           Opacity(
-                                            opacity: 0.5,
+                                            opacity: 0.25,
                                             child: Container(
                                               decoration: new BoxDecoration(
                                                 color: Theme.of(context).backgroundColor,
@@ -633,10 +633,12 @@ class _PollWidgetState extends State<PollWidget> {
                                             child: Text(
                                               '$percentStr',
                                               style: TextStyle(
-                                                  fontSize: lengthGreaterThanFour ? 20.0 : 30.0,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: selected
-                                                          ? Theme.of(context).accentColor
+                                                  fontSize: lengthGreaterThanFour ? 18.0 : 24.0,
+                                                  fontWeight: selected
+                                                          ? FontWeight.w600
+                                                          : FontWeight.w200,
+                                                color: selected
+                                                          ? Colors.white
                                                           : Colors.white),
                                             ),
                                           ),
