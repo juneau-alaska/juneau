@@ -19,6 +19,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0.0,
       centerTitle: true,
       backgroundColor: Theme.of(context).backgroundColor,
+      brightness: Brightness.light,
     );
   }
 

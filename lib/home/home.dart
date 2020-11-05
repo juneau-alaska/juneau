@@ -191,8 +191,110 @@ class _HomePageState extends State<HomePage> {
       key: UniqueKey(),
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appBar(),
-      body: PageView(
-        children: pages,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Container(
+              height: 38.0,
+              width: MediaQuery.of(context).size.width - 30,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                    child: FlatButton(
+                      onPressed: () {},
+                      color: Theme.of(context).accentColor,
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Text(
+                          'All',
+                          style: TextStyle(
+                            color: Theme.of(context).backgroundColor,
+                          ),
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          color: Theme.of(context).accentColor, width: 1, style: BorderStyle.solid),
+                        borderRadius: BorderRadius.circular(50)),
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                    child: FlatButton(
+                      onPressed: () {},
+                      color: Theme.of(context).backgroundColor,
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Text(
+                          'Design',
+                          style: TextStyle(
+                            color: Theme.of(context).buttonColor,
+                          ),
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
+                        borderRadius: BorderRadius.circular(50)),
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                    child: FlatButton(
+                      onPressed: () {},
+                      color: Theme.of(context).backgroundColor,
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Text(
+                          'Photography',
+                          style: TextStyle(
+                            color: Theme.of(context).buttonColor,
+                          ),
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
+                        borderRadius: BorderRadius.circular(50)),
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                    child: FlatButton(
+                      onPressed: () {},
+                      color: Theme.of(context).backgroundColor,
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Text(
+                          'Fashion',
+                          style: TextStyle(
+                            color: Theme.of(context).buttonColor,
+                          ),
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
+                        borderRadius: BorderRadius.circular(50)),
+                    ),
+                  ),
+
+                ]
+              ),
+            ),
+          ),
+          Flexible(
+            child: PageView(
+              children: pages,
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: navBar(),
     );

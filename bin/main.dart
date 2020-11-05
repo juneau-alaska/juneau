@@ -21,10 +21,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.light,
         backgroundColor: const Color(0xFFFEFEFE),
-        // cardColor: const Color(0xff1D1D1D),
         hintColor: grey,
         highlightColor: grey,
-        accentColor: const Color(0xFF0034FF),
+        accentColor: const Color(0xFF125641),  // GREEN 125641 BLUE 02419E
         buttonColor: black,
         textTheme: TextTheme(
           headline1: TextStyle(color: black),

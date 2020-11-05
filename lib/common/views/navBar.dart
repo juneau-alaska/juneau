@@ -27,6 +27,8 @@ class _NavBarState extends State<NavBar> {
       child: BottomNavigationBar(
         elevation: 0.0,
         backgroundColor: Theme.of(context).backgroundColor,
+        unselectedItemColor: Theme.of(context).buttonColor,
+        selectedItemColor: Theme.of(context).accentColor,
         showSelectedLabels: false,
         showUnselectedLabels: false,
         currentIndex: _selectedIndex,
@@ -54,23 +56,23 @@ class _NavBarState extends State<NavBar> {
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.home,
-              color: Theme.of(context).hintColor,
+              size: 28.0
             ),
-            title: new Text(''),
+            title: Text(''),
           ),
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.add,
-              color: Theme.of(context).hintColor,
+              size: 28.0
             ),
-            title: new Text(''),
+            title: Text(''),
           ),
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.account_circle,
-              color: Theme.of(context).hintColor,
+              size: 28.0
             ),
-            title: new Text(''),
+            title: Text(''),
           ),
         ],
       ),
