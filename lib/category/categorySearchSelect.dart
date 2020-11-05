@@ -129,7 +129,7 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
     super.initState();
     searchBar = new InputComponent(
       hintText: "Search",
-      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+      // padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
       contentPadding: EdgeInsets.fromLTRB(35.0, 12.0, 12.0, 12.0),
     );
     searchBarController = searchBar.controller;

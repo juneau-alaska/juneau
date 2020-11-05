@@ -146,7 +146,7 @@ class _PollCreateState extends State<PollCreate> {
   InputComponent questionInput = new InputComponent(
     hintText: 'Provide a question...',
     borderColor: Colors.transparent,
-    padding: EdgeInsets.symmetric(horizontal: 15.0),
+    // padding: EdgeInsets.symmetric(horizontal: 15.0),
     contentPadding: EdgeInsets.symmetric(vertical: 10.0),
     fontSize: 16.0,
     autoFocus: true,

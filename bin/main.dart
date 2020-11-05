@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:juneau/auth/loginSelect.dart';
 import 'package:juneau/auth/login.dart';
-import 'package:juneau/auth/signup.dart';
+import 'package:juneau/auth/signUpSelect.dart';
+import 'package:juneau/auth/signUp.dart';
 import 'package:juneau/home/home.dart';
 
 void main() => runApp(new MyApp());
@@ -11,22 +13,33 @@ void main() => runApp(new MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    Color black = const Color(0xFF020202);
+    Color grey = const Color(0xFF484848);
+
     return MaterialApp(
       theme: ThemeData(
-        brightness: Brightness.dark,
-        backgroundColor: const Color(0xff121212),
-        cardColor: const Color(0xff1D1D1D),
-        hintColor: const Color(0xff595959),
-        highlightColor: const Color(0xff252525),
-        accentColor: Colors.indigoAccent,
-        buttonColor: Colors.indigo,
+        brightness: Brightness.light,
+        backgroundColor: const Color(0xFFFEFEFE),
+        // cardColor: const Color(0xff1D1D1D),
+        hintColor: grey,
+        highlightColor: grey,
+        accentColor: const Color(0xFF0034FF),
+        buttonColor: black,
+        textTheme: TextTheme(
+          headline1: TextStyle(color: black),
+          headline6: TextStyle(color: black),
+          bodyText2: TextStyle(color: black),
+        ),
       ),
       initialRoute: '/splash',
       routes: {
         '/splash': (BuildContext context) => SplashScreen(),
         '/home': (BuildContext context) => HomePage(),
+        '/loginSelect': (BuildContext context) => LoginSelectPage(),
         '/login': (BuildContext context) => LoginPage(),
-        '/signup': (BuildContext context) => SignUpPage(),
+        '/signUpSelect': (BuildContext context) => SignUpSelectPage(),
+        '/signUp': (BuildContext context) => SignUpPage(),
       },
     );
   }
@@ -75,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (status) {
       Navigator.pushNamed(context, '/home');
     } else {
-      Navigator.pushNamed(context, '/login');
+      Navigator.pushNamed(context, '/signUpSelect');
     }
   }
 }

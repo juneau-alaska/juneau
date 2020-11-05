@@ -54,12 +54,12 @@ class _AlertComponentState extends State<AlertComponent> with SingleTickerProvid
         child: SlideTransition(
           position: position,
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(10.0),
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: 40,
               decoration: new BoxDecoration(
-                borderRadius: new BorderRadius.circular(8.0),
+                borderRadius: new BorderRadius.circular(10.0),
                 color: widget.color,
               ),
               child: Center(

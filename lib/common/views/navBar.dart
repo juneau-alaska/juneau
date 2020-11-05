@@ -6,7 +6,7 @@ import 'package:juneau/poll/pollCreate.dart';
 void logout(context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs?.clear();
-  Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+  Navigator.of(context).pushNamedAndRemoveUntil('/loginSelect', (Route<dynamic> route) => false);
 }
 
 Widget navBar() {
