@@ -28,7 +28,7 @@ class _NavBarState extends State<NavBar> {
         elevation: 0.0,
         backgroundColor: Theme.of(context).backgroundColor,
         unselectedItemColor: Theme.of(context).buttonColor,
-        selectedItemColor: Theme.of(context).accentColor,
+        selectedItemColor: Theme.of(context).highlightColor,
         showSelectedLabels: false,
         showUnselectedLabels: false,
         currentIndex: _selectedIndex,

@@ -49,7 +49,7 @@ Future<void> uploadFile(String url, Asset asset) async {
   }
 }
 
-Future<bool> createOptions(prompt, options, categories, context) async {
+Future<bool> createOptions(prompt, options, category, context) async {
   const url = 'http://localhost:4000/option';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -81,7 +81,7 @@ Future<bool> createOptions(prompt, options, categories, context) async {
   bool success = false;
 
   await Future.wait(futures).then((results) async {
-    success = await createPoll(prompt, results, categories, context);
+    success = await createPoll(prompt, results, category, context);
   }).catchError((err) {
     showAlert(context, 'Something went wrong, please try again');
     success = false;
@@ -90,7 +90,7 @@ Future<bool> createOptions(prompt, options, categories, context) async {
   return success;
 }
 
-Future<bool> createPoll(prompt, optionIds, categories, context) async {
+Future<bool> createPoll(prompt, optionIds, category, context) async {
   const url = 'http://localhost:4000/poll';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -98,7 +98,7 @@ Future<bool> createPoll(prompt, optionIds, categories, context) async {
 
   var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
 
-  var body = jsonEncode({'prompt': prompt, 'options': optionIds, 'categories': categories, 'createdBy': userId});
+  var body = jsonEncode({'prompt': prompt, 'options': optionIds, 'category': category, 'createdBy': userId});
 
   var response = await http.post(url, headers: headers, body: body);
 
@@ -144,9 +144,8 @@ class PollCreate extends StatefulWidget {
 
 class _PollCreateState extends State<PollCreate> {
   InputComponent questionInput = new InputComponent(
-    hintText: 'Provide a question...',
+    hintText: 'Provide a title',
     borderColor: Colors.transparent,
-    // padding: EdgeInsets.symmetric(horizontal: 15.0),
     contentPadding: EdgeInsets.symmetric(vertical: 10.0),
     fontSize: 16.0,
     autoFocus: true,
@@ -154,7 +153,7 @@ class _PollCreateState extends State<PollCreate> {
 
   List<Asset> images = List<Asset>();
   bool isLoading = false;
-  List<String> selectedCategories = [""];
+  String selectedCategory;
   double categoryContainerHeight = 0.0;
   EdgeInsets categoryContainerPadding = EdgeInsets.only(bottom: 10.0);
 
@@ -171,7 +170,7 @@ class _PollCreateState extends State<PollCreate> {
         children: List.generate(images.length, (index) {
           Asset asset = images[index];
           return Padding(
-            padding: const EdgeInsets.all(0.75),
+            padding: const EdgeInsets.all(1.0),
             child: AssetThumb(
               asset: asset,
               width: images.length > 4 ? 300 : 600,
@@ -194,7 +193,7 @@ class _PollCreateState extends State<PollCreate> {
         cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
         materialOptions: MaterialOptions(
           actionBarColor: "#58E0C0",
-          actionBarTitle: "Juneau",
+          actionBarTitle: "",
           allViewTitle: "All Photos",
           useDetailsView: false,
           selectCircleStrokeColor: "#58E0C0",
@@ -234,7 +233,7 @@ class _PollCreateState extends State<PollCreate> {
                       child: Text(
                         "Cancel",
                         style: TextStyle(
-                          fontWeight: FontWeight.w300,
+                          fontWeight: FontWeight.w400,
                           fontSize: 16,
                         ),
                       ),
@@ -242,7 +241,7 @@ class _PollCreateState extends State<PollCreate> {
                     Text(
                       "Image Poll",
                       style: TextStyle(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
@@ -287,7 +286,7 @@ class _PollCreateState extends State<PollCreate> {
                         }
 
                         if (options.length >= 2) {
-                          isLoading = await createOptions(prompt, options, selectedCategories, context);
+                          isLoading = await createOptions(prompt, options, selectedCategory, context);
                         } else {
                           isLoading = false;
                           showAlert(context, 'Something went wrong, please try again');
@@ -298,7 +297,7 @@ class _PollCreateState extends State<PollCreate> {
                         "Create",
                         style: TextStyle(
                           color: Theme.of(context).accentColor,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
                       ),
@@ -306,24 +305,22 @@ class _PollCreateState extends State<PollCreate> {
                   ],
                 ),
               ),
-              questionInput,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                child: questionInput,
+              ),
               Divider(
                 thickness: 1.0,
               ),
               GestureDetector(
                 onTap: () async {
-                  String selectedCategory = await showModalBottomSheet(
+                  String selected = await showModalBottomSheet(
                       isScrollControlled: true, context: context, builder: (BuildContext context) => CategorySearchSelect());
 
-                  if (selectedCategory != null) {
-                    if (selectedCategories[0] == "") {
-                      selectedCategories[0] = selectedCategory;
-                      categoryContainerHeight = 26.0;
-                      categoryContainerPadding = const EdgeInsets.fromLTRB(10.0, 9.0, 10.0, 10.0);
-                    } else if (!selectedCategories.contains(selectedCategory)) {
-                      selectedCategories.add(selectedCategory);
-                    }
-                    setState(() {});
+                  if (selected != null) {
+                    setState(() {
+                      selectedCategory = selected;
+                    });
                   }
                 },
                 behavior: HitTestBehavior.opaque,
@@ -335,8 +332,8 @@ class _PollCreateState extends State<PollCreate> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Categories",
-                            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w300),
+                            "Select a Category",
+                            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
                           ),
                           Icon(
                             Icons.arrow_forward_ios,
@@ -348,57 +345,9 @@ class _PollCreateState extends State<PollCreate> {
               ),
               Padding(
                 padding: categoryContainerPadding,
-                child: SizedBox(
-                  height: categoryContainerHeight,
-                  child: new ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: selectedCategories.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2.5),
-                        child: Container(
-                          decoration: new BoxDecoration(
-                              color: Theme.of(context).highlightColor, borderRadius: new BorderRadius.all(const Radius.circular(18.0))),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Center(
-                              child: Row(
-                                children: [
-                                  Text(
-                                    selectedCategories[index],
-                                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
-                                  ),
-                                  SizedBox(width: 4.0),
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        selectedCategories.removeAt(index);
-                                        if (selectedCategories.length == 0) {
-                                          selectedCategories.add("");
-                                          categoryContainerHeight = 0.0;
-                                          categoryContainerPadding = EdgeInsets.only(bottom: 10.0);
-                                        }
-                                      });
-                                    },
-                                    child: selectedCategories[index] == ""
-                                        ? Container()
-                                        : Container(
-                                            height: 10.0,
-                                            child: Icon(
-                                              Icons.clear,
-                                              size: 12.0,
-                                            ),
-                                          ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                child: selectedCategory != null
+                  ? Text(selectedCategory)
+                  : Container(),
               ),
               Divider(
                 thickness: 1.0,
@@ -409,8 +358,8 @@ class _PollCreateState extends State<PollCreate> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                      "Add Selections",
-                      style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w300),
+                      "Add Images",
+                      style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
                     ),
                     Container(
                       child: GestureDetector(
@@ -424,7 +373,7 @@ class _PollCreateState extends State<PollCreate> {
                             SizedBox(width: 5.0),
                             Text(
                               "SELECT IMAGES",
-                              style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.w300),
+                              style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),

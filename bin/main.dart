@@ -15,15 +15,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
 
     Color black = const Color(0xFF020202);
-    Color grey = const Color(0xFF484848);
 
     return MaterialApp(
       theme: ThemeData(
         brightness: Brightness.light,
         backgroundColor: const Color(0xFFFEFEFE),
-        hintColor: grey,
-        highlightColor: grey,
-        accentColor: const Color(0xFF125641),  // GREEN 125641 BLUE 02419E
+        hintColor: const Color(0xFFb5b5b5),
+        highlightColor: const Color(0xFFf75463),
+        accentColor: const Color(0xFF02419E),  // GREEN 125641 BLUE 02419E
         buttonColor: black,
         textTheme: TextTheme(
           headline1: TextStyle(color: black),

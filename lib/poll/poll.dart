@@ -75,6 +75,7 @@ Future<List> _getOptions(poll) async {
 class PollWidget extends StatefulWidget {
   final poll;
   final user;
+  final currentCategory;
   final dismissPoll;
   final viewPoll;
   final index;
@@ -85,6 +86,7 @@ class PollWidget extends StatefulWidget {
       {Key key,
       @required this.poll,
       this.user,
+      this.currentCategory,
       this.dismissPoll,
       this.viewPoll,
       this.index,
@@ -427,11 +429,11 @@ class _PollWidgetState extends State<PollWidget> {
 
   Widget buildPoll() {
     DateTime createdAt = DateTime.parse(poll['createdAt']);
-    List pollCategories = poll['categories'];
+    String pollCategory = poll['category'];
     String time = timeago.format(createdAt, locale: 'en_short');
     List<Widget> children = [
       Padding(
-        padding: const EdgeInsets.fromLTRB(15.0, 20.0, 15.0, 3.0),
+        padding: const EdgeInsets.fromLTRB(15.0, 20.0, 15.0, 5.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -463,7 +465,7 @@ class _PollWidgetState extends State<PollWidget> {
                     Text(
                       time,
                       style: TextStyle(
-                        color: Theme.of(context).hintColor,
+                        color: Theme.of(context).highlightColor,
                         fontSize: 14.0,
                         fontWeight: FontWeight.w300,
                         wordSpacing: -4.0,
@@ -501,44 +503,41 @@ class _PollWidgetState extends State<PollWidget> {
         ),
       ),
       Padding(
-        padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 15.0),
-        child: SizedBox(
+        padding: widget.currentCategory == null ? const EdgeInsets.fromLTRB(10.0, 15.0, 10.0, 15.0) : const EdgeInsets.only(top: 15.0),
+        child: widget.currentCategory == null
+          ? SizedBox(
           height: 26.0,
-          child: new ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: pollCategories.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2.5),
-                child: Container(
-                  decoration: new BoxDecoration(
-                      color: followingCategories.contains(pollCategories[index])
-                          ? Theme.of(context).buttonColor
-                          : Theme.of(context).highlightColor,
-                      borderRadius: new BorderRadius.all(const Radius.circular(18.0))),
-                  child: GestureDetector(
-                    onTap: () {
-                      if (warning) {
-                        showAlert(context, "You're going that too fast. Take a break.");
-                      }
-                      HapticFeedback.mediumImpact();
-                      streamController.add(pollCategories[index]);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Center(
-                        child: Text(
-                          pollCategories[index],
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                      ),
+          child: Container(
+            decoration: new BoxDecoration(
+              color: followingCategories.contains(pollCategory)
+                ? Theme.of(context).accentColor
+                : Theme.of(context).hintColor,
+              borderRadius: new BorderRadius.all(const Radius.circular(18.0))),
+            child: GestureDetector(
+              onTap: () {
+                if (warning) {
+                  showAlert(context, "You're going that too fast. Take a break.");
+                }
+                HapticFeedback.mediumImpact();
+                streamController.add(pollCategory);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Center(
+                  child: Text(
+                    pollCategory,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w300,
+                      color: Theme.of(context).backgroundColor,
                     ),
                   ),
                 ),
-              );
-            },
+              ),
+            ),
           ),
-        ),
+        )
+        : Container(),
       ),
     ];
 
@@ -602,7 +601,7 @@ class _PollWidgetState extends State<PollWidget> {
                           Image image = Image.memory(imageBytesList[index]);
 
                           return Padding(
-                            padding: const EdgeInsets.all(0.75),
+                            padding: const EdgeInsets.all(1.0),
                             child: GestureDetector(
                               onDoubleTap: () {
                                 if (!completed) {
@@ -653,7 +652,7 @@ class _PollWidgetState extends State<PollWidget> {
                 );
               } else {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0.75),
+                  padding: const EdgeInsets.symmetric(horizontal: 1.0),
                   child: new Container(
                       height: containerHeight,
                       child: GridView.count(
@@ -661,11 +660,14 @@ class _PollWidgetState extends State<PollWidget> {
                           crossAxisCount: lengthGreaterThanFour ? 3 : 2,
                           children: List.generate(optionsLength, (index) {
                             return Padding(
-                              padding: const EdgeInsets.all(0.75),
+                              padding: const EdgeInsets.all(1.0),
                               child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).hintColor,
+                                  ),
                                   width: size,
                                   height: size,
-                                  color: Theme.of(context).highlightColor),
+                                ),
                             );
                           }))),
                 );

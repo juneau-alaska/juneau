@@ -16,7 +16,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
+var user;
 String prevId;
+String currentCategory;
+StreamController categoryStreamController;
 
 Future<List> getPolls(context) async {
   const url = 'http://localhost:4000/polls';
@@ -24,9 +27,12 @@ Future<List> getPolls(context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
 
-  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
 
-  var body = jsonEncode({'prevId': prevId});
+  var body = jsonEncode({'prevId': prevId, 'category': currentCategory});
 
   var response = await http.post(url, headers: headers, body: body);
 
@@ -44,18 +50,112 @@ Future<List> getPolls(context) async {
   }
 }
 
+class CategoryTabs extends StatefulWidget {
+  @override
+  _CategoryTabsState createState() => _CategoryTabsState();
+}
+
+class _CategoryTabsState extends State<CategoryTabs> {
+  List followingCategories = user['followingCategories'];
+  List<Widget> categoryTabs;
+
+  @override
+  Widget build(BuildContext context) {
+    categoryTabs = [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2.5),
+        child: FlatButton(
+          onPressed: () {
+            categoryStreamController.add(null);
+          },
+          color: currentCategory == null
+              ? Theme.of(context).accentColor
+              : Theme.of(context).backgroundColor,
+          child: Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Text(
+              'All',
+              style: TextStyle(
+                color: currentCategory == null
+                    ? Theme.of(context).backgroundColor
+                    : Theme.of(context).buttonColor,
+              ),
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+              side: BorderSide(
+                  color: currentCategory == null
+                      ? Theme.of(context).accentColor
+                      : Theme.of(context).hintColor,
+                  width: 1,
+                  style: BorderStyle.solid),
+              borderRadius: BorderRadius.circular(50)),
+        ),
+      ),
+    ];
+
+    for (var i = 0; i < followingCategories.length; i++) {
+      String category = followingCategories[i];
+      categoryTabs.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+          child: FlatButton(
+            onPressed: () {
+              categoryStreamController.add(category);
+            },
+            color: currentCategory == category
+                ? Theme.of(context).accentColor
+                : Theme.of(context).backgroundColor,
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Text(
+                category,
+                style: TextStyle(
+                  color: currentCategory == category
+                      ? Theme.of(context).backgroundColor
+                      : Theme.of(context).buttonColor,
+                ),
+              ),
+            ),
+            shape: RoundedRectangleBorder(
+                side: BorderSide(
+                    color: currentCategory == category
+                        ? Theme.of(context).accentColor
+                        : Theme.of(context).hintColor,
+                    width: 1,
+                    style: BorderStyle.solid),
+                borderRadius: BorderRadius.circular(50)),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2.5),
+      child: Container(
+        height: 38.0,
+        width: MediaQuery.of(context).size.width - 20,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: categoryTabs,
+        ),
+      ),
+    );
+  }
+}
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  var user;
   List polls;
   List<Widget> pages;
   List<Widget> pollsList;
   SmartRefresher listViewBuilder;
   bool preventReload = false;
+  CategoryTabs categoryTabs;
 
   _fetchData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -69,6 +169,7 @@ class _HomePageState extends State<HomePage> {
 
       if (userResult != null) {
         user = userResult;
+        categoryTabs = new CategoryTabs();
       }
       if (pollsResult != null) {
         polls = pollsResult;
@@ -87,6 +188,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    categoryStreamController = StreamController();
+    categoryStreamController.stream.listen((category) async {
+      prevId = null;
+      currentCategory = category;
+      await _fetchData();
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _fetchData();
     });
@@ -118,6 +226,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     parentController.close();
     refreshController.dispose();
+    commentStreamController.close();
     super.dispose();
   }
 
@@ -135,7 +244,8 @@ class _HomePageState extends State<HomePage> {
       final _formKey = GlobalKey<FormState>();
       await showDialog(
           context: context,
-          builder: (context) => PollPage(user: user, pollWidget: pollWidget, pollId: pollId, formKey: _formKey),
+          builder: (context) =>
+              PollPage(user: user, pollWidget: pollWidget, pollId: pollId, formKey: _formKey),
           barrierColor: Color(0x01000000));
       pollOpen = false;
     }
@@ -148,6 +258,7 @@ class _HomePageState extends State<HomePage> {
       pollsList.add(new PollWidget(
           poll: poll,
           user: user,
+          currentCategory: currentCategory,
           dismissPoll: dismissPoll,
           viewPoll: viewPoll,
           index: i,
@@ -193,102 +304,7 @@ class _HomePageState extends State<HomePage> {
       appBar: appBar(),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Container(
-              height: 38.0,
-              width: MediaQuery.of(context).size.width - 30,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                    child: FlatButton(
-                      onPressed: () {},
-                      color: Theme.of(context).accentColor,
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Text(
-                          'All',
-                          style: TextStyle(
-                            color: Theme.of(context).backgroundColor,
-                          ),
-                        ),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                          color: Theme.of(context).accentColor, width: 1, style: BorderStyle.solid),
-                        borderRadius: BorderRadius.circular(50)),
-                    ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                    child: FlatButton(
-                      onPressed: () {},
-                      color: Theme.of(context).backgroundColor,
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Text(
-                          'Design',
-                          style: TextStyle(
-                            color: Theme.of(context).buttonColor,
-                          ),
-                        ),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                          color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
-                        borderRadius: BorderRadius.circular(50)),
-                    ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                    child: FlatButton(
-                      onPressed: () {},
-                      color: Theme.of(context).backgroundColor,
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Text(
-                          'Photography',
-                          style: TextStyle(
-                            color: Theme.of(context).buttonColor,
-                          ),
-                        ),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                          color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
-                        borderRadius: BorderRadius.circular(50)),
-                    ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                    child: FlatButton(
-                      onPressed: () {},
-                      color: Theme.of(context).backgroundColor,
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Text(
-                          'Fashion',
-                          style: TextStyle(
-                            color: Theme.of(context).buttonColor,
-                          ),
-                        ),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                          color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
-                        borderRadius: BorderRadius.circular(50)),
-                    ),
-                  ),
-
-                ]
-              ),
-            ),
-          ),
+          categoryTabs,
           Flexible(
             child: PageView(
               children: pages,
