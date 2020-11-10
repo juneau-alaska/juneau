@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.light,
         backgroundColor: const Color(0xFFFEFEFE),
-        hintColor: const Color(0xFFb5b5b5),
+        hintColor: const Color(0xFF9c9e9f),
         highlightColor: const Color(0xFFf75463),
         accentColor: const Color(0xFF02419E),  // GREEN 125641 BLUE 02419E
         buttonColor: black,
@@ -67,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
           height: 300.0,
           decoration: BoxDecoration(
             image: DecorationImage(
-                image: AssetImage("images/cubesmelt.gif"), fit: BoxFit.contain),
+                image: AssetImage("images/cubesmelt.gif"), fit: BoxFit.fitWidth),
           ),
         ),
       ),

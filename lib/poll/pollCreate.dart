@@ -164,13 +164,13 @@ class _PollCreateState extends State<PollCreate> {
 
   Widget buildGridView() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 1.0),
+      padding: const EdgeInsets.symmetric(horizontal: 0.0),
       child: GridView.count(
         crossAxisCount: images.length > 4 ? 3 : 2,
         children: List.generate(images.length, (index) {
           Asset asset = images[index];
           return Padding(
-            padding: const EdgeInsets.all(1.0),
+            padding: const EdgeInsets.all(0.0),
             child: AssetThumb(
               asset: asset,
               width: images.length > 4 ? 300 : 600,

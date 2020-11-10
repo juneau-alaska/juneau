@@ -448,27 +448,23 @@ class _PollWidgetState extends State<PollWidget> {
                           pollCreator['username'],
                           style: TextStyle(
                               color: Theme.of(context).accentColor,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w300),
+                          ),
                         ),
                         onTap: () {
                           print(pollCreator['email']);
                         }),
                     Padding(
-                      padding: const EdgeInsets.only(left: 3.0, right: 1.0),
+                      padding: const EdgeInsets.only(left: 2.0, right: 1.0),
                       child: Text('•',
                           style: TextStyle(
-                              color: Theme.of(context).hintColor,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w700)),
+                              // color: Theme.of(context).hintColor,
+                          )),
                     ),
                     Text(
                       time,
                       style: TextStyle(
                         color: Theme.of(context).highlightColor,
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w300,
-                        wordSpacing: -4.0,
+                        wordSpacing: -3.5,
                       ),
                     ),
                   ],
@@ -488,7 +484,7 @@ class _PollWidgetState extends State<PollWidget> {
                     child: Icon(
                       Icons.more_horiz,
                       size: 20.0,
-                      color: Theme.of(context).hintColor,
+                      // color: Theme.of(context).hintColor,
                     ),
                   )
                 : Container(),
@@ -499,42 +495,46 @@ class _PollWidgetState extends State<PollWidget> {
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: Text(
           poll['prompt'],
-          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700),
+          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
         ),
       ),
       Padding(
-        padding: widget.currentCategory == null ? const EdgeInsets.fromLTRB(10.0, 15.0, 10.0, 15.0) : const EdgeInsets.only(top: 15.0),
+        padding: widget.currentCategory == null ? const EdgeInsets.fromLTRB(12.0, 15.0, 12.0, 15.0) : const EdgeInsets.only(top: 15.0),
         child: widget.currentCategory == null
           ? SizedBox(
-          height: 26.0,
-          child: Container(
-            decoration: new BoxDecoration(
-              color: followingCategories.contains(pollCategory)
-                ? Theme.of(context).accentColor
-                : Theme.of(context).hintColor,
-              borderRadius: new BorderRadius.all(const Radius.circular(18.0))),
-            child: GestureDetector(
-              onTap: () {
-                if (warning) {
-                  showAlert(context, "You're going that too fast. Take a break.");
-                }
-                HapticFeedback.mediumImpact();
-                streamController.add(pollCategory);
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Center(
-                  child: Text(
-                    pollCategory,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w300,
-                      color: Theme.of(context).backgroundColor,
+          height: 28.0,
+          child: Row(
+            children: [
+              Container(
+                decoration: new BoxDecoration(
+                  color: followingCategories.contains(pollCategory)
+                    ? Theme.of(context).accentColor
+                    : Theme.of(context).hintColor,
+                  borderRadius: new BorderRadius.all(const Radius.circular(18.0))),
+                child: GestureDetector(
+                  onTap: () {
+                    if (warning) {
+                      showAlert(context, "You're going that too fast. Take a break.");
+                    }
+                    HapticFeedback.mediumImpact();
+                    streamController.add(pollCategory);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Center(
+                      child: Text(
+                        pollCategory,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w300,
+                          color: Theme.of(context).backgroundColor,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
         )
         : Container(),
@@ -585,7 +585,7 @@ class _PollWidgetState extends State<PollWidget> {
                 List imageBytesList = imageBytes.data;
 
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 0.0),
                   child: Container(
                     height: containerHeight,
                     child: GridView.count(
@@ -601,7 +601,7 @@ class _PollWidgetState extends State<PollWidget> {
                           Image image = Image.memory(imageBytesList[index]);
 
                           return Padding(
-                            padding: const EdgeInsets.all(1.0),
+                            padding: const EdgeInsets.all(0.0),
                             child: GestureDetector(
                               onDoubleTap: () {
                                 if (!completed) {
@@ -652,7 +652,7 @@ class _PollWidgetState extends State<PollWidget> {
                 );
               } else {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 0.0),
                   child: new Container(
                       height: containerHeight,
                       child: GridView.count(
@@ -660,7 +660,7 @@ class _PollWidgetState extends State<PollWidget> {
                           crossAxisCount: lengthGreaterThanFour ? 3 : 2,
                           children: List.generate(optionsLength, (index) {
                             return Padding(
-                              padding: const EdgeInsets.all(1.0),
+                              padding: const EdgeInsets.all(0.0),
                               child: Container(
                                   decoration: BoxDecoration(
                                     color: Theme.of(context).hintColor,
@@ -679,27 +679,26 @@ class _PollWidgetState extends State<PollWidget> {
       int commentCount = poll['comments'] != null ? poll['comments'].length : 0;
 
       children.add(Padding(
-          padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 20.0),
+          padding: const EdgeInsets.all(15.0),
           child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
                       '$totalVotes ',
                       style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w300,
-                          color: Theme.of(context).hintColor),
+                        fontSize: 13.0,
+                          // color: Theme.of(context).hintColor
+                      ),
                     ),
                     Text(
                       totalVotes == 1 ? 'vote' : 'votes',
                       style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w300,
-                          color: Theme.of(context).hintColor),
+                          // color: Theme.of(context).hintColor
+                      ),
                     ),
                   ],
                 ),
@@ -708,21 +707,20 @@ class _PollWidgetState extends State<PollWidget> {
                     widget.viewPoll(widget, poll['_id']);
                   },
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
                         '$commentCount ',
                         style: TextStyle(
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.w300,
-                            color: Theme.of(context).hintColor),
+                          fontSize: 13.0,
+                            // color: Theme.of(context).hintColor
+                        ),
                       ),
                       Text(
                         poll['comments'].length == 1 ? 'comment' : 'comments',
                         style: TextStyle(
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.w300,
-                            color: Theme.of(context).hintColor),
+                            // color: Theme.of(context).hintColor
+                        ),
                       ),
                     ],
                   ),

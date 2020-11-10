@@ -226,7 +226,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     parentController.close();
     refreshController.dispose();
-    commentStreamController.close();
+    categoryStreamController.close();
     super.dispose();
   }
 
@@ -304,7 +304,10 @@ class _HomePageState extends State<HomePage> {
       appBar: appBar(),
       body: Column(
         children: [
-          categoryTabs,
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15.0),
+            child: categoryTabs,
+          ),
           Flexible(
             child: PageView(
               children: pages,
