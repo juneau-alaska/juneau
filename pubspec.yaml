@@ -9,6 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^0.1.2
+  dots_indicator: ^1.2.0
   edge_alert: ^0.0.1
   email_validator: ^1.0.0
   flutter_absolute_path: ^1.0.6

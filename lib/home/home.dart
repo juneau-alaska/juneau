@@ -151,7 +151,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List polls;
-  List<Widget> pages;
   List<Widget> pollsList;
   SmartRefresher listViewBuilder;
   bool preventReload = false;
@@ -283,8 +282,6 @@ class _HomePageState extends State<HomePage> {
             return pollsList[index];
           },
         ));
-
-    pages = [KeepAlivePage(child: listViewBuilder)];
   }
 
   @override
@@ -309,9 +306,9 @@ class _HomePageState extends State<HomePage> {
             child: categoryTabs,
           ),
           Flexible(
-            child: PageView(
-              children: pages,
-            ),
+            child: KeepAlivePage(
+              child: listViewBuilder
+            )
           ),
         ],
       ),
