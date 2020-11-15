@@ -131,7 +131,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2.5),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         height: 38.0,
         width: MediaQuery.of(context).size.width - 20,

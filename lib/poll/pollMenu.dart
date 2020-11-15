@@ -38,7 +38,7 @@ class _PollMenuState extends State<PollMenu> {
                     SizedBox(
                       width: 13.0,
                     ),
-                    Text('Delete', style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300))
+                    Text('Delete')
                   ])),
               ),
             ),
@@ -56,7 +56,7 @@ class _PollMenuState extends State<PollMenu> {
                   child: Center(
                     child: Text(
                       'Cancel',
-                      style: TextStyle(color: Theme.of(context).hintColor, fontSize: 13.0, fontWeight: FontWeight.w300),
+                      style: TextStyle(color: Theme.of(context).backgroundColor),
                     ),
                   ),
                 ),

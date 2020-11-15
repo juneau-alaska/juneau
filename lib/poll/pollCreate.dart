@@ -39,7 +39,7 @@ Future generatePreAssignedUrl(String fileType) async {
 
 Future<void> uploadFile(String url, Asset asset) async {
   try {
-    ByteData byteData = await asset.getByteData(quality: 80);
+    ByteData byteData = await asset.getByteData();
     var response = await http.put(url, body: byteData.buffer.asUint8List());
     if (response.statusCode == 200) {
       print('Successfully uploaded photo');
