@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:timeago/timeago.dart' as timeago;
-import 'package:rxdart/rxdart.dart';
-import 'package:dots_indicator/dots_indicator.dart';
-
-import 'dart:ui';
-
 import 'package:http/http.dart' as http;
+import 'dart:ui';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
 import 'package:juneau/poll/pollMenu.dart';
 import 'package:juneau/common/components/alertComponent.dart';
-
 import 'package:juneau/common/methods/userMethods.dart';
+
+import 'package:dots_indicator/dots_indicator.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import 'package:rxdart/rxdart.dart';
 
 List options;
 List imageBytes = [];
@@ -25,7 +23,6 @@ Future<List> getImages(List options) async {
   if (imageBytes != null && imageBytes.length == 0) {
     for (var option in options) {
       String url = option['content'];
-      print(url);
       var response = await http.get(url);
       if (response.statusCode == 200) {
         imageBytes.add(response.bodyBytes);
@@ -135,55 +132,128 @@ class _PositionalDotsState extends State<PositionalDots> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Opacity(
-          opacity: 0.8,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Icon(Icons.bar_chart, color: Colors.white, size: 18.0),
-              SizedBox(width: 5.0),
-              Text('$votePercent%',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  )),
-            ],
+    return Opacity(
+      opacity: 0.8,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 100.0,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Icon(Icons.bar_chart, color: Colors.white, size: 18.0),
+                SizedBox(width: 5.0),
+                Text('$votePercent%',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    )),
+              ],
+            ),
+          ),
+          DotsIndicator(
+            dotsCount: widget.numImages,
+            position: currentPosition,
+            decorator: DotsDecorator(
+              size: Size.square(6.0),
+              color: Colors.white,
+              activeColor: Theme.of(context).highlightColor,
+              activeSize: Size.square(6.0),
+              spacing: const EdgeInsets.symmetric(horizontal: 2.5),
+            ),
+          ),
+          Container(
+            width: 100.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 1.0),
+                  child: Icon(Icons.favorite,
+                      color: selected ? Theme.of(context).accentColor : Colors.white, size: 15.0),
+                ),
+                SizedBox(width: 5.0),
+                Text('$votes',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    )),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class PhotoHero extends StatelessWidget {
+  const PhotoHero({Key key, this.tag, this.photo, this.onLongPress, this.onPanUpdate, this.width})
+      : super(key: key);
+
+  final String tag;
+  final photo;
+  final onLongPress;
+  final onPanUpdate;
+  final double width;
+
+  Widget build(BuildContext context) {
+    return Hero(
+      tag: tag,
+      child: GestureDetector(
+        onLongPress: onLongPress,
+        onPanUpdate: onPanUpdate,
+        child: ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          child: Image.memory(
+            photo,
+            fit: BoxFit.cover,
+            width: width,
           ),
         ),
-        DotsIndicator(
-          dotsCount: widget.numImages,
-          position: currentPosition,
-          decorator: DotsDecorator(
-            size: Size.square(6.0),
-            activeColor: Theme.of(context).highlightColor,
-            activeSize: Size.square(6.0),
-            spacing: const EdgeInsets.symmetric(horizontal: 2.5),
-          ),
-        ),
-        Opacity(
-          opacity: 0.8,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 1.5),
-                child: Icon(Icons.favorite,
-                    color: selected ? Theme.of(context).accentColor : Colors.white, size: 15.0),
-              ),
-              SizedBox(width: 5.0),
-              Text('$votes',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  )),
-            ],
-          ),
-        ),
-      ],
+      ),
+    );
+  }
+}
+
+class TransparentRoute extends PageRoute<void> {
+  TransparentRoute({
+    @required this.builder,
+    RouteSettings settings,
+  })  : assert(builder != null),
+        super(settings: settings, fullscreenDialog: false);
+
+  final WidgetBuilder builder;
+
+  @override
+  bool get opaque => false;
+
+  @override
+  Color get barrierColor => null;
+
+  @override
+  String get barrierLabel => null;
+
+  @override
+  bool get maintainState => true;
+
+  @override
+  Duration get transitionDuration => Duration(milliseconds: 350);
+
+  @override
+  Widget buildPage(
+      BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+    final result = builder(context);
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0, end: 1).animate(animation),
+      child: Semantics(
+        scopesRoute: true,
+        explicitChildNodes: true,
+        child: result,
+      ),
     );
   }
 }
@@ -192,8 +262,17 @@ class ImageCarousel extends StatefulWidget {
   final options;
   final selectedOption;
   final vote;
+  final isCreator;
+  final completed;
 
-  ImageCarousel({Key key, @required this.options, this.selectedOption, this.vote}) : super(key: key);
+  ImageCarousel(
+      {Key key,
+      @required this.options,
+      this.selectedOption,
+      this.vote,
+      this.isCreator,
+      this.completed})
+      : super(key: key);
 
   @override
   _ImageCarouselState createState() => _ImageCarouselState();
@@ -234,47 +313,45 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
                 imageWidgets.add(
                   GestureDetector(
-                    onLongPressStart: (_) async {
-                      await showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
+                    onDoubleTap: () {
+                      if (!widget.completed && !widget.isCreator) {
+                        HapticFeedback.mediumImpact();
+                        widget.vote(options[i]);
+                      }
+                    },
+                    child: PhotoHero(
+                      tag: options[i]['_id'],
+                      photo: image,
+                      width: screenWidth,
+                      onPanUpdate: (details) {},
+                      onLongPress: () async {
+                        HapticFeedback.heavyImpact();
+                        Navigator.of(context)
+                            .push(TransparentRoute(builder: (BuildContext context) {
                           return BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                            child: Dialog(
-                              backgroundColor: Colors.transparent,
-                              insetPadding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    height: 80.0,
-                                  ),
-                                  ClipRRect(
-                                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                                      child: Image.memory(image)),
-                                ],
-                              ),
+                            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                PhotoHero(
+                                  tag: options[i]['_id'],
+                                  photo: image,
+                                  width: screenWidth + 25,
+                                  onPanUpdate: (details) {
+                                    if (details.delta.dy > 0) {
+                                      Navigator.of(context).pop();
+                                    }
+                                  },
+                                  onLongPress: () {},
+                                ),
+                                SizedBox(
+                                  height: 50.0,
+                                ),
+                              ],
                             ),
                           );
-                        },
-                      );
-                    },
-                    child: GestureDetector(
-                      onDoubleTap: () {
-                        if (widget.selectedOption == null) {
-                          widget.vote(options[i]);
-                        }
+                        }));
                       },
-                      child: Container(
-                        width: screenWidth,
-                        height: screenHeight,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: MemoryImage(image),
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 );
@@ -301,8 +378,8 @@ class _ImageCarouselState extends State<ImageCarousel> {
                     return LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Colors.black87],
-                    ).createShader(Rect.fromLTRB(0, 0, screenWidth, screenHeight + 80));
+                      colors: [Colors.transparent, Colors.black12, Colors.black45, Colors.black87],
+                    ).createShader(Rect.fromLTRB(0, 0, screenWidth, screenHeight + 75));
                   },
                   blendMode: BlendMode.darken,
                   child: Container(
@@ -606,9 +683,7 @@ class _PollWidgetState extends State<PollWidget> {
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body), createdPolls = jsonResponse['createdPolls'];
 
-      print(createdPolls.length);
       createdPolls.remove(pollId);
-      print(createdPolls.length);
       body = jsonEncode({'createdPolls': createdPolls});
 
       response = await http.put(url + userId, headers: headers, body: body);
@@ -711,6 +786,7 @@ class _PollWidgetState extends State<PollWidget> {
     var completedPolls = user['completedPolls'];
     var selectedOptions = user['selectedOptions'];
 
+    bool isCreator = user['_id'] == pollCreator['_id'];
     bool completed = completedPolls.indexOf(poll['_id']) >= 0;
     String selectedOption;
     int totalVotes = 0;
@@ -730,8 +806,12 @@ class _PollWidgetState extends State<PollWidget> {
       }
     }
 
-    ImageCarousel imageCarousel =
-        new ImageCarousel(options: options, selectedOption: selectedOption, vote: vote);
+    ImageCarousel imageCarousel = new ImageCarousel(
+        options: options,
+        selectedOption: selectedOption,
+        vote: vote,
+        isCreator: isCreator,
+        completed: completed);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
@@ -858,7 +938,6 @@ class _PollWidgetState extends State<PollWidget> {
                           : Container(),
                     ],
                   ),
-                  SizedBox(height: 2.0),
                   Text(
                     poll['prompt'],
                     style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
