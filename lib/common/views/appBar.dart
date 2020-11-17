@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 Widget appBar() {
-  return _AppBar(height: 30.0);
+  return _AppBar(height: 0.0);
 }
 
 class _AppBar extends StatelessWidget implements PreferredSizeWidget {

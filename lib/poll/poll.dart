@@ -289,7 +289,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
   @override
   Widget build(BuildContext context) {
     List options = widget.options;
-    double screenWidth = MediaQuery.of(context).size.width - 40;
+    double screenWidth = MediaQuery.of(context).size.width - 30;
     double screenHeight = screenWidth - (screenWidth * 0.2);
     List imageBytesList = [];
 
@@ -817,7 +817,7 @@ class _PollWidgetState extends State<PollWidget> {
         completed: completed);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15.0),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10)),

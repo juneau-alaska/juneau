@@ -63,7 +63,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
   Widget build(BuildContext context) {
     categoryTabs = [
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2.5),
+        padding: const EdgeInsets.only(right: 3.0),
         child: FlatButton(
           onPressed: () {
             categoryStreamController.add(null);
@@ -71,15 +71,12 @@ class _CategoryTabsState extends State<CategoryTabs> {
           color: currentCategory == null
               ? Theme.of(context).accentColor
               : Theme.of(context).backgroundColor,
-          child: Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Text(
-              'All',
-              style: TextStyle(
-                color: currentCategory == null
-                    ? Theme.of(context).backgroundColor
-                    : Theme.of(context).buttonColor,
-              ),
+          child: Text(
+            'All',
+            style: TextStyle(
+              color: currentCategory == null
+                  ? Theme.of(context).backgroundColor
+                  : Theme.of(context).buttonColor,
             ),
           ),
           shape: RoundedRectangleBorder(
@@ -98,7 +95,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
       String category = followingCategories[i];
       categoryTabs.add(
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+          padding: const EdgeInsets.symmetric(horizontal: 3.0),
           child: FlatButton(
             onPressed: () {
               categoryStreamController.add(category);
@@ -106,15 +103,12 @@ class _CategoryTabsState extends State<CategoryTabs> {
             color: currentCategory == category
                 ? Theme.of(context).accentColor
                 : Theme.of(context).backgroundColor,
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Text(
-                category,
-                style: TextStyle(
-                  color: currentCategory == category
-                      ? Theme.of(context).backgroundColor
-                      : Theme.of(context).buttonColor,
-                ),
+            child: Text(
+              category,
+              style: TextStyle(
+                color: currentCategory == category
+                    ? Theme.of(context).backgroundColor
+                    : Theme.of(context).buttonColor,
               ),
             ),
             shape: RoundedRectangleBorder(
@@ -131,7 +125,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: Container(
         height: 38.0,
         width: MediaQuery.of(context).size.width - 20,
@@ -302,7 +296,7 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 15.0),
+            padding: const EdgeInsets.only(bottom: 10.0),
             child: categoryTabs,
           ),
           Flexible(
