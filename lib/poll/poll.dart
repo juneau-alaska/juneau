@@ -16,10 +16,7 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:rxdart/rxdart.dart';
 
-List options;
-List imageBytes = [];
-
-Future<List> getImages(List options) async {
+Future<List> getImages(List options, imageBytes) async {
   if (imageBytes != null && imageBytes.length == 0) {
     for (var option in options) {
       String url = option['content'];
@@ -99,9 +96,11 @@ class _PositionalDotsState extends State<PositionalDots> {
   int votes;
   String votePercent;
   bool selected = false;
+  List options;
 
   @override
   void initState() {
+    options = widget.options;
     votes = options[0]['votes'];
     if (votes == 0) {
       votePercent = '0';
@@ -289,14 +288,17 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    var options = widget.options;
+    List options = widget.options;
     double screenWidth = MediaQuery.of(context).size.width - 40;
     double screenHeight = screenWidth - (screenWidth * 0.2);
+    List imageBytesList = [];
 
     return FutureBuilder<List>(
-        future: getImages(options),
+        future: getImages(options, imageBytesList),
         builder: (context, AsyncSnapshot<List> imageBytes) {
           if (imageBytes.hasData) {
+            imageBytesList = imageBytesList + imageBytes.data;
+
             List<Widget> imageWidgets = [];
 
             int totalVotes = 0;
@@ -451,6 +453,7 @@ class PollWidget extends StatefulWidget {
 class _PollWidgetState extends State<PollWidget> {
   var user, poll, pollCreator;
 
+  List options;
   List followingCategories;
 
   final streamController = StreamController();
