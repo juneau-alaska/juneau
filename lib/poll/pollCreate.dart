@@ -147,7 +147,6 @@ class _PollCreateState extends State<PollCreate> {
     hintText: 'Provide a title',
     borderColor: Colors.transparent,
     contentPadding: EdgeInsets.symmetric(vertical: 10.0),
-    fontSize: 16.0,
     autoFocus: true,
   );
 
@@ -241,7 +240,7 @@ class _PollCreateState extends State<PollCreate> {
                     Text(
                       "Image Poll",
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
                     ),
@@ -297,7 +296,8 @@ class _PollCreateState extends State<PollCreate> {
                         "Create",
                         style: TextStyle(
                           color: Theme.of(context).accentColor,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600
+                          ,
                           fontSize: 16,
                         ),
                       ),
@@ -333,7 +333,7 @@ class _PollCreateState extends State<PollCreate> {
                         children: [
                           Text(
                             "Select a Category",
-                            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600),
                           ),
                           Icon(
                             Icons.arrow_forward_ios,
@@ -346,7 +346,10 @@ class _PollCreateState extends State<PollCreate> {
               Padding(
                 padding: categoryContainerPadding,
                 child: selectedCategory != null
-                  ? Text(selectedCategory)
+                  ? Padding(
+                    padding: const EdgeInsets.fromLTRB(15.0, 5.0, 15.0, 0.0),
+                    child: Text(selectedCategory),
+                  )
                   : Container(),
               ),
               Divider(
@@ -359,7 +362,7 @@ class _PollCreateState extends State<PollCreate> {
                   children: <Widget>[
                     Text(
                       "Add Images",
-                      style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600),
                     ),
                     Container(
                       child: GestureDetector(
@@ -373,7 +376,7 @@ class _PollCreateState extends State<PollCreate> {
                             SizedBox(width: 5.0),
                             Text(
                               "SELECT IMAGES",
-                              style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),

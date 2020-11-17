@@ -241,7 +241,7 @@ class TransparentRoute extends PageRoute<void> {
   bool get maintainState => true;
 
   @override
-  Duration get transitionDuration => Duration(milliseconds: 350);
+  Duration get transitionDuration => Duration(milliseconds: 300);
 
   @override
   Widget buildPage(
@@ -329,7 +329,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                         Navigator.of(context)
                             .push(TransparentRoute(builder: (BuildContext context) {
                           return BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
