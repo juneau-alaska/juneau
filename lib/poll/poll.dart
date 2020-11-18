@@ -11,6 +11,7 @@ import 'dart:async';
 import 'package:juneau/poll/pollMenu.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/methods/userMethods.dart';
+import 'package:juneau/common/methods/numMethods.dart';
 
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -175,11 +176,13 @@ class _PositionalDotsState extends State<PositionalDots> {
                       color: selected ? Theme.of(context).accentColor : Colors.white, size: 15.0),
                 ),
                 SizedBox(width: 5.0),
-                Text('$votes',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    )),
+                Text(
+                  numberMethods.shortenNum(votes),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
           ),

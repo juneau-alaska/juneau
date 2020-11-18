@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
@@ -10,6 +9,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
+import 'package:juneau/common/methods/numMethods.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/controllers/richTextController.dart';
 
@@ -339,7 +339,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                 height: 5.0,
               ),
               Container(
-                width: nested ? mediaWidth - 80 : mediaWidth - 45,
+                width: nested ? mediaWidth - 110 : mediaWidth - 75,
                 child: Wrap(
                   alignment: WrapAlignment.start,
                   children: textChildren,
@@ -377,7 +377,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                 ),
               ),
               SizedBox(height: 2.5),
-              Text(likes == 0 ? '' : '$likes',
+              Text(likes == 0 ? '' : numberMethods.shortenNum(likes),
                   style: TextStyle(
                     fontSize: 12.0,
                     color: Theme.of(context).hintColor,
