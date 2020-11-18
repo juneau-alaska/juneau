@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
         backgroundColor: const Color(0xFFFEFEFE),
         hintColor: const Color(0xFF9c9e9f),
-        highlightColor: const Color(0xFFf75463),
+        highlightColor: Colors.indigo, // const Color(0xFFf75463),
         accentColor: const Color(0xFFf75463),
         buttonColor: black,
         textTheme: TextTheme(

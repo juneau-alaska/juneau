@@ -158,7 +158,7 @@ class _PositionalDotsState extends State<PositionalDots> {
             decorator: DotsDecorator(
               size: Size.square(6.0),
               color: Colors.white,
-              activeColor: Theme.of(context).highlightColor,
+              activeColor: Theme.of(context).accentColor,
               activeSize: Size.square(6.0),
               spacing: const EdgeInsets.symmetric(horizontal: 2.5),
             ),
@@ -791,20 +791,14 @@ class _PollWidgetState extends State<PollWidget> {
 
     bool isCreator = user['_id'] == pollCreator['_id'];
     bool completed = completedPolls.indexOf(poll['_id']) >= 0;
+    bool categoryNotSelected = widget.currentCategory == null;
     String selectedOption;
-    int totalVotes = 0;
-    int highestVote = 0;
 
     if (completed) {
       for (var c in options) {
         String _id = c['_id'];
         if (selectedOptions.contains(_id)) {
           selectedOption = _id;
-        }
-        int votes = c['votes'];
-        totalVotes += votes;
-        if (votes > highestVote) {
-          highestVote = votes;
         }
       }
     }
@@ -844,46 +838,6 @@ class _PollWidgetState extends State<PollWidget> {
               child: Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            '$totalVotes ',
-                            style: TextStyle(fontSize: 13.0, color: Theme.of(context).hintColor),
-                          ),
-                          Text(
-                            totalVotes == 1 ? 'vote' : 'votes',
-                            style: TextStyle(color: Theme.of(context).hintColor),
-                          ),
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          widget.viewPoll(widget, poll['_id']);
-                        },
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              poll['comments'] != null
-                                  ? poll['comments'].length.toString() + ' '
-                                  : '0 ',
-                              style: TextStyle(fontSize: 13.0, color: Theme.of(context).hintColor),
-                            ),
-                            Text(
-                              poll['comments'].length == 1 ? 'comment' : 'comments',
-                              style: TextStyle(color: Theme.of(context).hintColor),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 6.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -945,47 +899,64 @@ class _PollWidgetState extends State<PollWidget> {
                     poll['prompt'],
                     style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                   ),
-                  widget.currentCategory == null ? SizedBox(height: 8.0) : Container(),
-                  widget.currentCategory == null
-                      ? SizedBox(
+                  SizedBox(height: 8.0),
+                  Row(
+                    mainAxisAlignment: categoryNotSelected ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      categoryNotSelected
+                        ? Container(
                           height: 28.0,
-                          child: Row(
-                            children: [
-                              Container(
-                                decoration: new BoxDecoration(
-                                    color: followingCategories.contains(pollCategory)
-                                        ? Theme.of(context).accentColor
-                                        : Theme.of(context).hintColor,
-                                    borderRadius:
-                                        new BorderRadius.all(const Radius.circular(18.0))),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    if (warning) {
-                                      showAlert(
-                                          context, "You're going that too fast. Take a break.");
-                                    }
-                                    HapticFeedback.mediumImpact();
-                                    streamController.add(pollCategory);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                    child: Center(
-                                      child: Text(
-                                        pollCategory,
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w300,
-                                          color: Theme.of(context).backgroundColor,
-                                        ),
-                                      ),
-                                    ),
+                          decoration: new BoxDecoration(
+                              color: followingCategories.contains(pollCategory)
+                                  ? Theme.of(context).accentColor
+                                  : Theme.of(context).hintColor,
+                              borderRadius: new BorderRadius.all(const Radius.circular(18.0))),
+                          child: GestureDetector(
+                            onTap: () {
+                              if (warning) {
+                                showAlert(context, "You're going that too fast. Take a break.");
+                              }
+                              HapticFeedback.mediumImpact();
+                              streamController.add(pollCategory);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                              child: Center(
+                                child: Text(
+                                  pollCategory,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w300,
+                                    color: Theme.of(context).backgroundColor,
                                   ),
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        )
-                      : Container(),
+                        ) : Container(),
+                      GestureDetector(
+                        onTap: () {
+                          widget.viewPoll(poll['_id']);
+                        },
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              poll['comments'] != null
+                                  ? poll['comments'].length.toString() + ' '
+                                  : '0 ',
+                              style: TextStyle(fontSize: 13.0, color: Theme.of(context).hintColor),
+                            ),
+                            Text(
+                              poll['comments'].length == 1 ? 'comment' : 'comments',
+                              style: TextStyle(color: Theme.of(context).hintColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
                 ]),
               ),
             ),

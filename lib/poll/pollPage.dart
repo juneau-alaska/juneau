@@ -281,18 +281,18 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
         },
         child: Text(text + ' ',
             style: TextStyle(
-              color: Theme.of(context).accentColor,
-              fontSize: 16.0,
+              color: Theme.of(context).highlightColor,
+              fontSize: 15.0,
             )),
       ));
     } else {
-      textChildren.add(Text(text + ' ', style: TextStyle(fontSize: 16.0)));
+      textChildren.add(Text(text + ' ', style: TextStyle(fontSize: 15.0)));
     }
   }
 
   EdgeInsets padding = nested
-      ? EdgeInsets.fromLTRB(75.0, 10.0, 15.0, 10.0)
-      : EdgeInsets.fromLTRB(15.0, 20.0, 15.0, 5.0);
+      ? EdgeInsets.fromLTRB(50.0, 0.0, 15.0, 10.0)
+      : EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0);
 
   double mediaWidth = MediaQuery.of(context).size.width;
 
@@ -311,9 +311,9 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                     child: Text(
                       creator['username'],
                       style: TextStyle(
-                          color: Theme.of(context).hintColor,
+                          color: Theme.of(context).accentColor,
                           fontSize: 15.0,
-                          fontWeight: FontWeight.w300),
+                      ),
                     ),
                     onTap: () {
                       print(creator['email']);
@@ -324,14 +324,13 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                       style: TextStyle(
                           color: Theme.of(context).hintColor,
                           fontSize: 13.0,
-                          fontWeight: FontWeight.w700)),
+                          fontWeight: FontWeight.bold)),
                 ),
                 Text(
                   time,
                   style: TextStyle(
                     color: Theme.of(context).hintColor,
                     fontSize: 14,
-                    fontWeight: FontWeight.w300,
                     wordSpacing: -4.0,
                   ),
                 ),
@@ -340,7 +339,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                 height: 5.0,
               ),
               Container(
-                width: nested ? mediaWidth - 105 : mediaWidth - 45,
+                width: nested ? mediaWidth - 80 : mediaWidth - 45,
                 child: Wrap(
                   alignment: WrapAlignment.start,
                   children: textChildren,
@@ -374,13 +373,13 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                 child: Icon(
                   liked ? Icons.favorite : Icons.favorite_border,
                   size: 15.0,
-                  color: liked ? Colors.redAccent : Theme.of(context).hintColor,
+                  color: liked ? Theme.of(context).accentColor : Theme.of(context).hintColor,
                 ),
               ),
               SizedBox(height: 2.5),
               Text(likes == 0 ? '' : '$likes',
                   style: TextStyle(
-                    fontSize: 13.0,
+                    fontSize: 12.0,
                     color: Theme.of(context).hintColor,
                   ))
             ],
@@ -413,7 +412,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                       comment['content'] = 'deleted';
                       rebuildStreamController.add({'list': commentList});
                     },
-                    color: Colors.redAccent,
+                    color: Colors.red,
                   ),
                 ],
                 child: commentContainer,
@@ -461,7 +460,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                         ),
                       )
                     : Padding(
-                        padding: const EdgeInsets.fromLTRB(75.0, 0.0, 15.0, 5.0),
+                        padding: const EdgeInsets.fromLTRB(50.0, 0.0, 15.0, 5.0),
                         child: GestureDetector(
                           onTap: () async {
                             commentRepliesOpened[id] = null;
@@ -711,11 +710,10 @@ class _BottomInputState extends State<BottomInput> {
 
 class PollPage extends StatefulWidget {
   final user;
-  final pollWidget;
   final pollId;
   final formKey;
 
-  PollPage({Key key, @required this.user, this.pollWidget, this.pollId, this.formKey})
+  PollPage({Key key, @required this.user, this.pollId, this.formKey})
       : super(key: key);
 
   @override
@@ -795,7 +793,6 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
                         ],
                       ),
                     ),
-                    widget.pollWidget,
                     Padding(
                       padding: const EdgeInsets.only(bottom: 60.0),
                       child: CommentsWidget(),
