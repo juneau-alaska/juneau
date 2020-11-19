@@ -43,20 +43,24 @@ class _PollMenuState extends State<PollMenu> {
               ),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.pop(context);
+              },
               behavior: HitTestBehavior.opaque,
               child: Container(
                 margin: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 14.0),
                 decoration: new BoxDecoration(
-                  borderRadius: new BorderRadius.circular(8.0),
-                  color: Theme.of(context).highlightColor,
+                  borderRadius: new BorderRadius.circular(50.0),
+                  color: Theme.of(context).buttonColor,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 13.0),
                   child: Center(
                     child: Text(
                       'Cancel',
-                      style: TextStyle(color: Theme.of(context).backgroundColor),
+                      style: TextStyle(
+                        color: Theme.of(context).backgroundColor
+                      ),
                     ),
                   ),
                 ),

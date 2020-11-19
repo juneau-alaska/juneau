@@ -794,6 +794,7 @@ class _PollWidgetState extends State<PollWidget> {
     bool isCreator = user['_id'] == pollCreator['_id'];
     bool completed = completedPolls.indexOf(poll['_id']) >= 0;
     bool categoryNotSelected = widget.currentCategory == null;
+    double screenWidth = MediaQuery.of(context).size.width;
     String selectedOption;
 
     if (completed) {
@@ -848,7 +849,7 @@ class _PollWidgetState extends State<PollWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            width: MediaQuery.of(context).size.width - 60,
+                            width: user['_id'] == pollCreator['_id'] ? screenWidth - 85 : screenWidth - 60,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
