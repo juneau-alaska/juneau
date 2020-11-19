@@ -102,28 +102,12 @@ class _PositionalDotsState extends State<PositionalDots> {
   @override
   void initState() {
     options = widget.options;
-    votes = options[0]['votes'];
-    if (votes == 0) {
-      votePercent = '0';
-    } else {
-      votePercent = (100 * widget.totalVotes ~/ votes).toString();
-    }
-
-    selected = widget.selectedOption == options[0]['_id'];
+    currentPosition = 0;
 
     widget.pageController.addListener(() {
       setState(() {
         double page = widget.pageController.page;
-        int index = page.toInt();
         currentPosition = page;
-        votes = options[index]['votes'];
-        if (votes == 0) {
-          votePercent = '0';
-        } else {
-          votePercent = (100 * widget.totalVotes ~/ votes).toString();
-        }
-
-        selected = widget.selectedOption == options[index]['_id'];
       });
     });
 
@@ -132,6 +116,16 @@ class _PositionalDotsState extends State<PositionalDots> {
 
   @override
   Widget build(BuildContext context) {
+    int index = currentPosition.toInt();
+    votes = options[index]['votes'];
+    if (votes == 0) {
+      votePercent = '0';
+    } else {
+      votePercent = (100 * votes ~/ widget.totalVotes).toString();
+    }
+
+    selected = widget.selectedOption == options[index]['_id'];
+
     return Opacity(
       opacity: 0.8,
       child: Row(
@@ -143,8 +137,11 @@ class _PositionalDotsState extends State<PositionalDots> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Icon(Icons.bar_chart, color: Colors.white, size: 18.0),
-                SizedBox(width: 5.0),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 0.5),
+                  child: Icon(Icons.equalizer, color: Colors.white, size: 18.0),
+                ),
+                SizedBox(width: 4.0),
                 Text('$votePercent%',
                     style: TextStyle(
                       color: Colors.white,
@@ -171,11 +168,11 @@ class _PositionalDotsState extends State<PositionalDots> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 1.0),
+                  padding: const EdgeInsets.only(bottom: 1.5),
                   child: Icon(Icons.favorite,
                       color: selected ? Theme.of(context).accentColor : Colors.white, size: 15.0),
                 ),
-                SizedBox(width: 5.0),
+                SizedBox(width: 4.0),
                 Text(
                   numberMethods.shortenNum(votes),
                   style: TextStyle(
@@ -300,6 +297,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
         future: getImages(options, imageBytesList),
         builder: (context, AsyncSnapshot<List> imageBytes) {
           if (imageBytes.hasData) {
+
             imageBytesList = imageBytesList + imageBytes.data;
 
             List<Widget> imageWidgets = [];
@@ -659,11 +657,12 @@ class _PollWidgetState extends State<PollWidget> {
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
 
-        user = jsonResponse['user'];
-
         if (mounted) {
-          setState(() {});
+          setState(() {
+            user = jsonResponse['user'];
+          });
         }
+
       }
       if (response.statusCode != 200) {
         print('Request failed with status: ${response.statusCode}.');
@@ -848,33 +847,62 @@ class _PollWidgetState extends State<PollWidget> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: <Widget>[
-                              GestureDetector(
-                                  child: Text(
-                                    pollCreator['username'],
-                                    style: TextStyle(
-                                      color: Theme.of(context).accentColor,
+                          Container(
+                            width: MediaQuery.of(context).size.width - 60,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Row(
+                                  children: [
+                                    GestureDetector(
+                                        child: Text(
+                                          pollCreator['username'],
+                                          style: TextStyle(
+                                            color: Theme.of(context).accentColor,
+                                          ),
+                                        ),
+                                        onTap: () {
+                                          print(pollCreator['email']);
+                                        }),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 2.0, right: 1.0),
+                                      child: Text('•',
+                                          style: TextStyle(
+                                            color: Theme.of(context).hintColor,
+                                          )),
                                     ),
-                                  ),
-                                  onTap: () {
-                                    print(pollCreator['email']);
-                                  }),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 2.0, right: 1.0),
-                                child: Text('•',
-                                    style: TextStyle(
-                                      color: Theme.of(context).hintColor,
-                                    )),
-                              ),
-                              Text(
-                                time,
-                                style: TextStyle(
-                                  color: Theme.of(context).hintColor,
-                                  wordSpacing: -3.5,
+                                    Text(
+                                      time,
+                                      style: TextStyle(
+                                        color: Theme.of(context).hintColor,
+                                        wordSpacing: -3.5,
+                                      ),
+                                    ),
+                                  ]
                                 ),
-                              ),
-                            ],
+                                selectedOption != null
+                                  ? Row(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 1.0),
+                                          child: Icon(
+                                            Icons.check_rounded,
+                                            size: 18.0,
+                                            color: Colors.green
+                                          ),
+                                        ),
+                                        SizedBox(width: 1.5),
+                                        Text(
+                                          'voted',
+                                          style: TextStyle(
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.w500
+                                          ),
+                                        ),
+                                      ],
+                                    ) : Container(),
+                              ],
+                            ),
                           ),
                         ],
                       ),
