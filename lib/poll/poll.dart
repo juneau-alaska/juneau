@@ -938,12 +938,12 @@ class _PollWidgetState extends State<PollWidget> {
                     children: [
                       categoryNotSelected
                         ? Container(
-                          height: 28.0,
+                          height: 25.0,
                           decoration: new BoxDecoration(
                               color: followingCategories.contains(pollCategory)
                                   ? Theme.of(context).accentColor
                                   : Theme.of(context).hintColor,
-                              borderRadius: new BorderRadius.all(const Radius.circular(18.0))),
+                              borderRadius: new BorderRadius.all(const Radius.circular(4.0))),
                           child: GestureDetector(
                             onTap: () {
                               if (warning) {
@@ -953,7 +953,7 @@ class _PollWidgetState extends State<PollWidget> {
                               streamController.add(pollCategory);
                             },
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 13.0),
                               child: Center(
                                 child: Text(
                                   pollCategory,

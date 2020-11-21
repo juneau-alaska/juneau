@@ -24,6 +24,7 @@ class _NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 82.0,
       child: BottomNavigationBar(
         elevation: 0.0,
         backgroundColor: Theme.of(context).backgroundColor,
@@ -56,21 +57,21 @@ class _NavBarState extends State<NavBar> {
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.home,
-              size: 28.0
+              size: 24.0
             ),
             title: Text(''),
           ),
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.add,
-              size: 28.0
+              size: 24.0
             ),
             title: Text(''),
           ),
           BottomNavigationBarItem(
             icon: new Icon(
               Icons.account_circle,
-              size: 28.0
+              size: 24.0
             ),
             title: Text(''),
           ),

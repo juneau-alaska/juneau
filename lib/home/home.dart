@@ -64,13 +64,16 @@ class _CategoryTabsState extends State<CategoryTabs> {
     categoryTabs = [
       Padding(
         padding: const EdgeInsets.only(right: 3.0),
-        child: FlatButton(
+        child: RawMaterialButton(
           onPressed: () {
             categoryStreamController.add(null);
           },
-          color: currentCategory == null
+          constraints: BoxConstraints(),
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          fillColor: currentCategory == null
               ? Theme.of(context).accentColor
               : Theme.of(context).backgroundColor,
+          elevation: 0.0,
           child: Text(
             'All',
             style: TextStyle(
@@ -96,13 +99,16 @@ class _CategoryTabsState extends State<CategoryTabs> {
       categoryTabs.add(
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 3.0),
-          child: FlatButton(
+          child: RawMaterialButton(
             onPressed: () {
               categoryStreamController.add(category);
             },
-            color: currentCategory == category
+            constraints: BoxConstraints(),
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            fillColor: currentCategory == category
                 ? Theme.of(context).accentColor
                 : Theme.of(context).backgroundColor,
+            elevation: 0.0,
             child: Text(
               category,
               style: TextStyle(
@@ -127,7 +133,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: Container(
-        height: 38.0,
+        height: 35.0,
         width: MediaQuery.of(context).size.width - 20,
         child: ListView(
           scrollDirection: Axis.horizontal,
@@ -299,10 +305,17 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.only(bottom: 10.0),
             child: categoryTabs,
           ),
-          Flexible(
+          polls.length > 0
+          ? Flexible(
             child: KeepAlivePage(
               child: listViewBuilder
             )
+          ) : Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Container(
+              height: MediaQuery.of(context).size.height/1.4,
+              child: Center(child: Text('No polls found')),
+            ),
           ),
         ],
       ),
