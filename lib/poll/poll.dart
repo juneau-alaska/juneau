@@ -425,6 +425,176 @@ class _ImageCarouselState extends State<ImageCarousel> {
   }
 }
 
+class CategoryButton extends StatefulWidget {
+  final followingCategories;
+  final pollCategory;
+  final warning;
+  final parentController;
+  final updatedUserModel;
+
+  CategoryButton(
+    {Key key,
+      @required this.followingCategories,
+      this.pollCategory,
+      this.warning,
+      this.parentController,
+      this.updatedUserModel})
+    : super(key: key);
+
+  @override
+  _CategoryButtonState createState() => _CategoryButtonState();
+}
+
+class _CategoryButtonState extends State<CategoryButton> {
+  List followingCategories;
+  bool warning;
+
+  final streamController = StreamController();
+
+  Future categoryAddFollower(String category, bool unfollow) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    String userId = prefs.getString('userId');
+
+    String url = 'http://localhost:4000/category/followers';
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    var body = jsonEncode({'name': category, 'userId': userId, 'unfollow': unfollow});
+    await http.put(url, headers: headers, body: body);
+  }
+
+  Future followCategory(String category, bool unfollow, context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    String userId = prefs.getString('userId');
+    var jsonResponse, user;
+
+    String url = 'http://localhost:4000/user/' + userId;
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    },
+      response,
+      body;
+
+    response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      jsonResponse = jsonDecode(response.body);
+
+      user = jsonResponse;
+      followingCategories = user['followingCategories'];
+
+      if (!followingCategories.contains(category) || unfollow) {
+        if (unfollow) {
+          followingCategories.remove(category);
+        } else {
+          followingCategories.add(category);
+        }
+
+        body = jsonEncode({'followingCategories': followingCategories});
+        response = await http.put(url, headers: headers, body: body);
+
+        if (response.statusCode == 200) {
+          jsonResponse = jsonDecode(response.body);
+          user = jsonResponse['user'];
+
+          await categoryAddFollower(category, unfollow);
+          widget.updatedUserModel(user);
+
+          if (unfollow) {
+            return showAlert(context, 'Successfully unfollowed category "' + category + '"', true);
+          } else {
+            return showAlert(context, 'Successfully following category "' + category + '"', true);
+          }
+        } else {
+          return showAlert(context, 'Something went wrong, please try again');
+        }
+      } else {
+        setState(() {});
+      }
+    } else {
+      return showAlert(context, 'Something went wrong, please try again');
+    }
+  }
+
+  @override
+  void initState() {
+    followingCategories = widget.followingCategories;
+
+    widget.parentController.stream.asBroadcastStream().listen((newUser) {
+      if (mounted)
+        setState(() {
+          followingCategories = newUser['followingCategories'];
+        });
+    });
+
+    streamController.stream.throttleTime(Duration(milliseconds: 1000)).listen((category) {
+      bool unfollow = false;
+      if (followingCategories.contains(category)) {
+        unfollow = true;
+      }
+
+      warning = true;
+      Timer(Duration(milliseconds: 1000), () {
+        warning = false;
+      });
+
+      followCategory(category, unfollow, context);
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    streamController.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var pollCategory = widget.pollCategory;
+
+    return Container(
+      height: 25.0,
+      decoration: new BoxDecoration(
+        color: followingCategories.contains(pollCategory)
+          ? Theme.of(context).accentColor
+          : Theme.of(context).hintColor,
+        borderRadius: new BorderRadius.all(const Radius.circular(4.0))),
+      child: GestureDetector(
+        onTap: () {
+          if (widget.warning) {
+            showAlert(context, "You're going that too fast. Take a break.");
+          }
+          HapticFeedback.mediumImpact();
+          streamController.add(pollCategory);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 13.0),
+          child: Center(
+            child: Text(
+              pollCategory,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w300,
+                color: Theme.of(context).backgroundColor,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
 class PollWidget extends StatefulWidget {
   final poll;
   final user;
@@ -457,7 +627,6 @@ class _PollWidgetState extends State<PollWidget> {
   List options;
   List followingCategories;
 
-  final streamController = StreamController();
 
   bool saved = false;
   bool liked = false;
@@ -485,100 +654,7 @@ class _PollWidgetState extends State<PollWidget> {
       });
     });
 
-    streamController.stream.throttleTime(Duration(milliseconds: 1000)).listen((category) {
-      bool unfollow = false;
-      if (followingCategories.contains(category)) {
-        unfollow = true;
-      }
-
-      warning = true;
-      Timer(Duration(milliseconds: 1000), () {
-        warning = false;
-      });
-
-      followCategory(category, unfollow, context);
-    });
-
-    widget.parentController.stream.asBroadcastStream().listen((newUser) {
-      if (mounted)
-        setState(() {
-          user = newUser;
-          followingCategories = user['followingCategories'];
-        });
-    });
-
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    streamController.close();
-    super.dispose();
-  }
-
-  Future categoryAddFollower(String category, String userId, bool unfollow) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token = prefs.getString('token');
-    String userId = prefs.getString('userId');
-
-    String url = 'http://localhost:4000/category/followers';
-
-    var headers = {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: token
-    };
-
-    var body = jsonEncode({'name': category, 'userId': userId, 'unfollow': unfollow});
-    await http.put(url, headers: headers, body: body);
-  }
-
-  Future followCategory(String category, bool unfollow, context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token = prefs.getString('token');
-    String userId = prefs.getString('userId');
-
-    String url = 'http://localhost:4000/user/' + userId;
-
-    var headers = {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: token
-        },
-        response,
-        body;
-
-    response = await http.get(url, headers: headers);
-
-    if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body);
-
-      user = jsonResponse;
-      followingCategories = user['followingCategories'];
-
-      if (!followingCategories.contains(category) || unfollow) {
-        if (unfollow) {
-          followingCategories.remove(category);
-        } else {
-          followingCategories.add(category);
-        }
-
-        body = jsonEncode({'followingCategories': followingCategories});
-        response = await http.put(url, headers: headers, body: body);
-
-        if (response.statusCode == 200) {
-          var jsonResponse = jsonDecode(response.body);
-          user = jsonResponse['user'];
-
-          await categoryAddFollower(category, userId, unfollow);
-          widget.updatedUserModel(user);
-        } else {
-          return showAlert(context, 'Something went wrong, please try again');
-        }
-      } else {
-        setState(() {});
-      }
-    } else {
-      return showAlert(context, 'Something went wrong, please try again');
-    }
   }
 
   @override
@@ -881,6 +957,8 @@ class _PollWidgetState extends State<PollWidget> {
                                     ),
                                   ]
                                 ),
+
+                                // TODO: COMPONENT
                                 selectedOption != null
                                   ? Row(
                                       children: [
@@ -902,6 +980,9 @@ class _PollWidgetState extends State<PollWidget> {
                                         ),
                                       ],
                                     ) : Container(),
+
+
+
                               ],
                             ),
                           ),
@@ -937,35 +1018,12 @@ class _PollWidgetState extends State<PollWidget> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       categoryNotSelected
-                        ? Container(
-                          height: 25.0,
-                          decoration: new BoxDecoration(
-                              color: followingCategories.contains(pollCategory)
-                                  ? Theme.of(context).accentColor
-                                  : Theme.of(context).hintColor,
-                              borderRadius: new BorderRadius.all(const Radius.circular(4.0))),
-                          child: GestureDetector(
-                            onTap: () {
-                              if (warning) {
-                                showAlert(context, "You're going that too fast. Take a break.");
-                              }
-                              HapticFeedback.mediumImpact();
-                              streamController.add(pollCategory);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 13.0),
-                              child: Center(
-                                child: Text(
-                                  pollCategory,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w300,
-                                    color: Theme.of(context).backgroundColor,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                        ? CategoryButton(
+                          followingCategories: followingCategories,
+                          pollCategory: pollCategory,
+                          warning: warning,
+                          parentController: widget.parentController,
+                          updatedUserModel: widget.updatedUserModel
                         ) : Container(),
                       GestureDetector(
                         onTap: () {

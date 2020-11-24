@@ -17,6 +17,7 @@ import 'dart:io';
 import 'dart:async';
 
 var user;
+var parentController;
 String prevId;
 String currentCategory;
 StreamController categoryStreamController;
@@ -58,6 +59,17 @@ class CategoryTabs extends StatefulWidget {
 class _CategoryTabsState extends State<CategoryTabs> {
   List followingCategories = user['followingCategories'];
   List<Widget> categoryTabs;
+
+  @override
+  void initState() {
+    parentController.stream.asBroadcastStream().listen((newUser) {
+      if (mounted)
+        setState(() {
+          followingCategories = newUser['followingCategories'];
+        });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,15 +190,9 @@ class _HomePageState extends State<HomePage> {
     if (mounted) setState(() {});
   }
 
-  final parentController = new StreamController.broadcast();
-
-  void updatedUserModel(updatedUser) {
-    user = updatedUser;
-    parentController.add(user);
-  }
-
   @override
   void initState() {
+    parentController = new StreamController.broadcast();
     categoryStreamController = StreamController();
     categoryStreamController.stream.listen((category) async {
       prevId = null;
@@ -198,6 +204,11 @@ class _HomePageState extends State<HomePage> {
       await _fetchData();
     });
     super.initState();
+  }
+
+  void updatedUserModel(updatedUser) {
+    user = updatedUser;
+    parentController.add(user);
   }
 
   RefreshController refreshController = RefreshController(initialRefresh: false);

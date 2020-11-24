@@ -39,7 +39,7 @@ class _AlertComponentState extends State<AlertComponent> with SingleTickerProvid
   void initState() {
     super.initState();
 
-    controller = AnimationController(vsync: this, duration: Duration(milliseconds: 100));
+    controller = AnimationController(vsync: this, duration: Duration(milliseconds: 200));
     position = Tween<Offset>(begin: Offset(0.0, 2.0), end: Offset.zero).animate(controller);
 
     controller.forward();
@@ -54,20 +54,17 @@ class _AlertComponentState extends State<AlertComponent> with SingleTickerProvid
         child: SlideTransition(
           position: position,
           child: Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.symmetric(vertical: 48.0),
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: 40,
-              decoration: new BoxDecoration(
-                borderRadius: new BorderRadius.circular(10.0),
-                color: widget.color,
-              ),
+              color: widget.color,
               child: Center(
                 child: Material(
                   color: Colors.transparent,
                   child: Text(
                     widget.text,
-                    style: TextStyle(fontSize: 14.0, color: Colors.white, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 14.0, color: Colors.white),
                   ),
                 ),
               ),
