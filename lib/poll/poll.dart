@@ -17,61 +17,6 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:rxdart/rxdart.dart';
 
-Future<List> getImages(List options, imageBytes) async {
-  if (imageBytes != null && imageBytes.length == 0) {
-    for (var option in options) {
-      String url = option['content'];
-      var response = await http.get(url);
-      if (response.statusCode == 200) {
-        imageBytes.add(response.bodyBytes);
-      }
-    }
-  }
-  return imageBytes;
-}
-
-Future<List> _getOptions(poll) async {
-  const url = 'http://localhost:4000/option';
-
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var token = prefs.getString('token');
-
-  var headers = {
-    HttpHeaders.contentTypeHeader: 'application/json',
-    HttpHeaders.authorizationHeader: token
-  };
-
-  List optionIds = poll['options'];
-  List<Future> futures = [];
-  List options;
-
-  for (var i = 0; i < optionIds.length; i++) {
-    var optionId = optionIds[i];
-    Future future() async {
-      var response = await http.get(
-        url + '/' + optionId,
-        headers: headers,
-      );
-
-      if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
-        return jsonResponse;
-      } else {
-        print('Request failed with status: ${response.statusCode}.');
-        return null;
-      }
-    }
-
-    futures.add(future());
-  }
-
-  await Future.wait(futures).then((results) {
-    options = results;
-  });
-
-  return options;
-}
-
 class PositionalDots extends StatefulWidget {
   final pageController;
   final numImages;
@@ -263,6 +208,7 @@ class ImageCarousel extends StatefulWidget {
   final vote;
   final isCreator;
   final completed;
+  final getImages;
 
   ImageCarousel(
       {Key key,
@@ -270,7 +216,8 @@ class ImageCarousel extends StatefulWidget {
       this.selectedOption,
       this.vote,
       this.isCreator,
-      this.completed})
+      this.completed,
+      this.getImages})
       : super(key: key);
 
   @override
@@ -294,7 +241,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
     List imageBytesList = [];
 
     return FutureBuilder<List>(
-        future: getImages(options, imageBytesList),
+        future: widget.getImages(options, imageBytesList),
         builder: (context, AsyncSnapshot<List> imageBytes) {
           if (imageBytes.hasData) {
 
@@ -510,7 +457,7 @@ class _CategoryButtonState extends State<CategoryButton> {
           if (unfollow) {
             return showAlert(context, 'Successfully unfollowed category "' + category + '"', true);
           } else {
-            return showAlert(context, 'Successfully following category "' + category + '"', true);
+            return showAlert(context, 'Successfully followed category "' + category + '"', true);
           }
         } else {
           return showAlert(context, 'Something went wrong, please try again');
@@ -594,7 +541,6 @@ class _CategoryButtonState extends State<CategoryButton> {
   }
 }
 
-
 class PollWidget extends StatefulWidget {
   final poll;
   final user;
@@ -625,12 +571,68 @@ class _PollWidgetState extends State<PollWidget> {
   var user, poll, pollCreator;
 
   List options;
+  List images;
   List followingCategories;
-
 
   bool saved = false;
   bool liked = false;
   bool warning = false;
+
+  Future<List> getImages(List options, imageBytes) async {
+    if (images == null && imageBytes != null && imageBytes.length == 0) {
+      for (var option in options) {
+        String url = option['content'];
+        var response = await http.get(url);
+        if (response.statusCode == 200) {
+          imageBytes.add(response.bodyBytes);
+        }
+      }
+      images = imageBytes;
+    }
+    return images;
+  }
+
+  Future<List> _getOptions(poll) async {
+    const url = 'http://localhost:4000/option';
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    List optionIds = poll['options'];
+    List<Future> futures = [];
+    List options;
+
+    for (var i = 0; i < optionIds.length; i++) {
+      var optionId = optionIds[i];
+      Future future() async {
+        var response = await http.get(
+          url + '/' + optionId,
+          headers: headers,
+        );
+
+        if (response.statusCode == 200) {
+          var jsonResponse = jsonDecode(response.body);
+          return jsonResponse;
+        } else {
+          print('Request failed with status: ${response.statusCode}.');
+          return null;
+        }
+      }
+
+      futures.add(future());
+    }
+
+    await Future.wait(futures).then((results) {
+      options = results;
+    });
+
+    return options;
+  }
 
   @override
   void initState() {
@@ -887,7 +889,8 @@ class _PollWidgetState extends State<PollWidget> {
         selectedOption: selectedOption,
         vote: vote,
         isCreator: isCreator,
-        completed: completed);
+        completed: completed,
+        getImages: getImages);
 
     return Padding(
       padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15.0),
