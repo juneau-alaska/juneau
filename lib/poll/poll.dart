@@ -877,7 +877,7 @@ class _PollWidgetState extends State<PollWidget> {
 
     bool isCreator = user['_id'] == pollCreator['_id'];
     bool completed = completedPolls.indexOf(poll['_id']) >= 0;
-    bool categoryNotSelected = widget.currentCategory == null;
+    bool categoryNotSelected = widget.currentCategory == null || widget.currentCategory == 'following';
     double screenWidth = MediaQuery.of(context).size.width;
     String selectedOption;
 
@@ -966,8 +966,6 @@ class _PollWidgetState extends State<PollWidget> {
                                     ),
                                   ),
                                 ]),
-
-                                // TODO: COMPONENT
                                 selectedOption != null
                                     ? Row(
                                         children: [

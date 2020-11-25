@@ -79,6 +79,36 @@ class _CategoryTabsState extends State<CategoryTabs> {
               borderRadius: BorderRadius.circular(50)),
         ),
       ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3.0),
+        child: RawMaterialButton(
+          onPressed: () {
+            categoryStreamController.add('following');
+          },
+          constraints: BoxConstraints(),
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          fillColor: currentCategory == 'following'
+            ? Theme.of(context).accentColor
+            : Theme.of(context).backgroundColor,
+          elevation: 0.0,
+          child: Text(
+            'Following',
+            style: TextStyle(
+              color: currentCategory == 'following'
+                ? Theme.of(context).backgroundColor
+                : Theme.of(context).buttonColor,
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color: currentCategory == 'following'
+                ? Theme.of(context).accentColor
+                : Theme.of(context).hintColor,
+              width: 1,
+              style: BorderStyle.solid),
+            borderRadius: BorderRadius.circular(50)),
+        ),
+      ),
     ];
 
     for (var i = 0; i < followingCategories.length; i++) {
@@ -137,7 +167,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String prevId = null;
+  String prevId;
   List polls;
   List<Widget> pollsList;
   BuildContext homeContext;
@@ -160,7 +190,17 @@ class _HomePageState extends State<HomePage> {
       HttpHeaders.authorizationHeader: token
     };
 
-    var body = jsonEncode({'prevId': prevId, 'category': currentCategory});
+    var categories;
+    if (currentCategory == null) {
+      categories = null;
+    } else if (currentCategory == 'following') {
+      categories = user['followingCategories'];
+    } else {
+      categories = [currentCategory];
+    }
+
+    var body = jsonEncode({'prevId': prevId, 'categories': categories});
+
 
     var response = await http.post(url, headers: headers, body: body);
 
@@ -209,11 +249,13 @@ class _HomePageState extends State<HomePage> {
     categoryStreamController = StreamController();
     categoryStreamController.stream.listen((category) async {
       prevId = null;
+      preventReload = false;
       currentCategory = category;
       await _fetchData();
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      prevId = null;
       await _fetchData();
     });
     super.initState();
