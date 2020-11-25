@@ -67,6 +67,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
               color: currentCategory == null
                   ? Theme.of(context).backgroundColor
                   : Theme.of(context).buttonColor,
+              fontWeight: FontWeight.w500,
             ),
           ),
           shape: RoundedRectangleBorder(
@@ -97,6 +98,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
               color: currentCategory == 'following'
                 ? Theme.of(context).backgroundColor
                 : Theme.of(context).buttonColor,
+              fontWeight: FontWeight.w500,
             ),
           ),
           shape: RoundedRectangleBorder(
@@ -132,6 +134,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
                 color: currentCategory == category
                     ? Theme.of(context).backgroundColor
                     : Theme.of(context).buttonColor,
+                fontWeight: FontWeight.w500,
               ),
             ),
             shape: RoundedRectangleBorder(
@@ -148,7 +151,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
+      padding: const EdgeInsets.only(left: 13.0, right: 13.0, bottom: 10.0),
       child: Container(
         height: 35.0,
         width: MediaQuery.of(context).size.width - 20,
