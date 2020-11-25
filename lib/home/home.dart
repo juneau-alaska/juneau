@@ -274,15 +274,21 @@ class _HomePageState extends State<HomePage> {
     pollsList = [];
     for (var i = 0; i < polls.length; i++) {
       var poll = polls[i];
-      pollsList.add(new PollWidget(
-          poll: poll,
-          user: user,
-          currentCategory: currentCategory,
-          dismissPoll: dismissPoll,
-          viewPoll: viewPoll,
-          index: i,
-          updatedUserModel: updatedUserModel,
-          parentController: parentController));
+      pollsList.add(
+        Container(
+          key: UniqueKey(),
+          child: PollWidget(
+            poll: poll,
+            user: user,
+            currentCategory: currentCategory,
+            dismissPoll: dismissPoll,
+            viewPoll: viewPoll,
+            index: i,
+            updatedUserModel: updatedUserModel,
+            parentController: parentController
+          ),
+        ),
+      );
     }
 
     return Flexible(
@@ -318,7 +324,6 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
-      key: UniqueKey(),
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appBar(),
       body: Column(
