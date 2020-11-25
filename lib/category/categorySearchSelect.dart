@@ -132,7 +132,9 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
     searchBarController = searchBar.controller;
     searchBarController.addListener(() => streamController.add(searchBarController.text.trim()));
     streamController.stream.debounceTime(Duration(milliseconds: 250)).listen((text) {
-      buildCategoryOptions(text, context);
+      if (mounted) {
+        buildCategoryOptions(text, context);
+      }
     });
   }
 

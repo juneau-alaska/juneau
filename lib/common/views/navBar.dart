@@ -19,6 +19,7 @@ class NavBar extends StatefulWidget {
 }
 
 class _NavBarState extends State<NavBar> {
+  int _previousIndex = 0;
   int _selectedIndex = 0;
 
   @override
@@ -30,6 +31,7 @@ class _NavBarState extends State<NavBar> {
         backgroundColor: Theme.of(context).backgroundColor,
         unselectedItemColor: Theme.of(context).buttonColor,
         selectedItemColor: Theme.of(context).accentColor,
+        selectedFontSize: 0,
         showSelectedLabels: false,
         showUnselectedLabels: false,
         currentIndex: _selectedIndex,
@@ -38,8 +40,10 @@ class _NavBarState extends State<NavBar> {
             _selectedIndex = index;
             switch (index) {
               case 0:
-                logout(context);
+                // logout(context);
+                _previousIndex = _selectedIndex;
                 break;
+
               case 1:
                 showModalBottomSheet(
                     isScrollControlled: true,
@@ -47,7 +51,13 @@ class _NavBarState extends State<NavBar> {
                     builder: (BuildContext context) {
                       return new PollCreate();
                     });
+                _selectedIndex = _previousIndex;
                 break;
+
+              case 2:
+                _previousIndex = _selectedIndex;
+                break;
+
               default:
                 break;
             }
@@ -56,22 +66,30 @@ class _NavBarState extends State<NavBar> {
         items: [
           BottomNavigationBarItem(
             icon: new Icon(
+              Icons.home_outlined,
+              size: 28.0
+            ),
+            activeIcon: new Icon(
               Icons.home,
-              size: 24.0
+              size: 28.0
             ),
             title: Text(''),
           ),
           BottomNavigationBarItem(
             icon: new Icon(
-              Icons.add,
-              size: 24.0
+              Icons.add_circle_outline,
+              size: 28.0
             ),
             title: Text(''),
           ),
           BottomNavigationBarItem(
             icon: new Icon(
+              Icons.account_circle_outlined,
+              size: 28.0
+            ),
+            activeIcon: new Icon(
               Icons.account_circle,
-              size: 24.0
+              size: 28.0
             ),
             title: Text(''),
           ),

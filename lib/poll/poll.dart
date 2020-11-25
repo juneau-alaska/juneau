@@ -185,7 +185,7 @@ class TransparentRoute extends PageRoute<void> {
   bool get maintainState => true;
 
   @override
-  Duration get transitionDuration => Duration(milliseconds: 300);
+  Duration get transitionDuration => Duration(milliseconds: 200);
 
   @override
   Widget buildPage(
@@ -236,7 +236,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
   @override
   Widget build(BuildContext context) {
     List options = widget.options;
-    double screenWidth = MediaQuery.of(context).size.width - 30;
+    double screenWidth = MediaQuery.of(context).size.width - 20;
     double screenHeight = screenWidth - (screenWidth * 0.2);
     List imageBytesList = [];
 
@@ -244,7 +244,6 @@ class _ImageCarouselState extends State<ImageCarousel> {
         future: widget.getImages(options, imageBytesList),
         builder: (context, AsyncSnapshot<List> imageBytes) {
           if (imageBytes.hasData) {
-
             imageBytesList = imageBytesList + imageBytes.data;
 
             List<Widget> imageWidgets = [];
@@ -286,7 +285,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                                 PhotoHero(
                                   tag: options[i]['_id'],
                                   photo: image,
-                                  width: screenWidth + 25,
+                                  width: screenWidth,
                                   onPanUpdate: (details) {
                                     if (details.delta.dy > 0) {
                                       Navigator.of(context).pop();
@@ -294,8 +293,8 @@ class _ImageCarouselState extends State<ImageCarousel> {
                                   },
                                   onLongPress: () {},
                                 ),
-                                SizedBox(
-                                  height: 50.0,
+                                Container(
+                                  height: 100.0,
                                 ),
                               ],
                             ),
@@ -345,7 +344,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     child: Padding(
-                      padding: const EdgeInsets.all(15.0),
+                      padding: const EdgeInsets.all(10.0),
                       child: PositionalDots(
                           pageController: pageController,
                           numImages: imageWidgets.length,
@@ -380,13 +379,13 @@ class CategoryButton extends StatefulWidget {
   final updatedUserModel;
 
   CategoryButton(
-    {Key key,
+      {Key key,
       @required this.followingCategories,
       this.pollCategory,
       this.warning,
       this.parentController,
       this.updatedUserModel})
-    : super(key: key);
+      : super(key: key);
 
   @override
   _CategoryButtonState createState() => _CategoryButtonState();
@@ -423,11 +422,11 @@ class _CategoryButtonState extends State<CategoryButton> {
     String url = 'http://localhost:4000/user/' + userId;
 
     var headers = {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: token
-    },
-      response,
-      body;
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: token
+        },
+        response,
+        body;
 
     response = await http.get(url, headers: headers);
 
@@ -474,11 +473,14 @@ class _CategoryButtonState extends State<CategoryButton> {
   void initState() {
     followingCategories = widget.followingCategories;
 
-    widget.parentController.stream.asBroadcastStream().listen((newUser) {
-      if (mounted)
-        setState(() {
-          followingCategories = newUser['followingCategories'];
-        });
+    widget.parentController.stream.asBroadcastStream().listen((options) {
+      if (options['dataType'] == 'user') {
+        var newUser = options['data'];
+        if (mounted)
+          setState(() {
+            followingCategories = newUser['followingCategories'];
+          });
+      }
     });
 
     streamController.stream.throttleTime(Duration(milliseconds: 1000)).listen((category) {
@@ -511,10 +513,10 @@ class _CategoryButtonState extends State<CategoryButton> {
     return Container(
       height: 25.0,
       decoration: new BoxDecoration(
-        color: followingCategories.contains(pollCategory)
-          ? Theme.of(context).accentColor
-          : Theme.of(context).hintColor,
-        borderRadius: new BorderRadius.all(const Radius.circular(4.0))),
+          color: followingCategories.contains(pollCategory)
+              ? Theme.of(context).accentColor
+              : Theme.of(context).hintColor,
+          borderRadius: new BorderRadius.all(const Radius.circular(4.0))),
       child: GestureDetector(
         onTap: () {
           if (widget.warning) {
@@ -740,7 +742,6 @@ class _PollWidgetState extends State<PollWidget> {
             user = jsonResponse['user'];
           });
         }
-
       }
       if (response.statusCode != 200) {
         print('Request failed with status: ${response.statusCode}.');
@@ -810,6 +811,11 @@ class _PollWidgetState extends State<PollWidget> {
     if (response.statusCode == 200) {
       deleteOptions();
       removePollFromUser(_id);
+      widget.parentController.add({
+        'dataType': 'delete',
+        'data': _id
+      });
+
     } else {
       showAlert(context, 'Something went wrong, please try again');
     }
@@ -893,7 +899,7 @@ class _PollWidgetState extends State<PollWidget> {
         getImages: getImages);
 
     return Padding(
-      padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15.0),
+      padding: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -928,64 +934,57 @@ class _PollWidgetState extends State<PollWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            width: user['_id'] == pollCreator['_id'] ? screenWidth - 85 : screenWidth - 60,
+                            width: user['_id'] == pollCreator['_id']
+                                ? screenWidth - 85
+                                : screenWidth - 60,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                        child: Text(
-                                          pollCreator['username'],
-                                          style: TextStyle(
-                                            color: Theme.of(context).accentColor,
-                                          ),
+                                Row(children: [
+                                  GestureDetector(
+                                      child: Text(
+                                        pollCreator['username'],
+                                        style: TextStyle(
+                                          color: Theme.of(context).accentColor,
                                         ),
-                                        onTap: () {
-                                          print(pollCreator['email']);
-                                        }),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 2.0, right: 1.0),
-                                      child: Text('•',
-                                          style: TextStyle(
-                                            color: Theme.of(context).hintColor,
-                                          )),
-                                    ),
-                                    Text(
-                                      time,
-                                      style: TextStyle(
-                                        color: Theme.of(context).hintColor,
-                                        wordSpacing: -3.5,
                                       ),
+                                      onTap: () {
+                                        print(pollCreator['email']);
+                                      }),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 2.0, right: 1.0),
+                                    child: Text('•',
+                                        style: TextStyle(
+                                          color: Theme.of(context).hintColor,
+                                        )),
+                                  ),
+                                  Text(
+                                    time,
+                                    style: TextStyle(
+                                      color: Theme.of(context).hintColor,
+                                      wordSpacing: -3.5,
                                     ),
-                                  ]
-                                ),
+                                  ),
+                                ]),
 
                                 // TODO: COMPONENT
                                 selectedOption != null
-                                  ? Row(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.only(bottom: 1.0),
-                                          child: Icon(
-                                            Icons.check_rounded,
-                                            size: 18.0,
-                                            color: Colors.green
+                                    ? Row(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(bottom: 1.0),
+                                            child: Icon(Icons.check_rounded,
+                                                size: 18.0, color: Colors.green),
                                           ),
-                                        ),
-                                        SizedBox(width: 1.5),
-                                        Text(
-                                          'voted',
-                                          style: TextStyle(
-                                            color: Colors.green,
-                                            fontWeight: FontWeight.w500
+                                          SizedBox(width: 1.5),
+                                          Text(
+                                            'voted',
+                                            style: TextStyle(
+                                                color: Colors.green, fontWeight: FontWeight.w500),
                                           ),
-                                        ),
-                                      ],
-                                    ) : Container(),
-
-
-
+                                        ],
+                                      )
+                                    : Container(),
                               ],
                             ),
                           ),
@@ -1017,17 +1016,19 @@ class _PollWidgetState extends State<PollWidget> {
                   ),
                   SizedBox(height: 8.0),
                   Row(
-                    mainAxisAlignment: categoryNotSelected ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
+                    mainAxisAlignment: categoryNotSelected
+                        ? MainAxisAlignment.spaceBetween
+                        : MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       categoryNotSelected
-                        ? CategoryButton(
-                          followingCategories: followingCategories,
-                          pollCategory: pollCategory,
-                          warning: warning,
-                          parentController: widget.parentController,
-                          updatedUserModel: widget.updatedUserModel
-                        ) : Container(),
+                          ? CategoryButton(
+                              followingCategories: followingCategories,
+                              pollCategory: pollCategory,
+                              warning: warning,
+                              parentController: widget.parentController,
+                              updatedUserModel: widget.updatedUserModel)
+                          : Container(),
                       GestureDetector(
                         onTap: () {
                           widget.viewPoll(poll['_id']);

@@ -32,7 +32,7 @@ class _LoginSelectPageState extends State<LoginSelectPage> {
                     children: [
                       Icon(Icons.email),
                       Center(
-                        child: Text('Log in with email'),
+                        child: Text('Log in with username or email'),
                       ),
                       Container()
                     ],

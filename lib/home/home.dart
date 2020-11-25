@@ -62,11 +62,16 @@ class _CategoryTabsState extends State<CategoryTabs> {
 
   @override
   void initState() {
-    parentController.stream.asBroadcastStream().listen((newUser) {
-      if (mounted)
-        setState(() {
-          followingCategories = newUser['followingCategories'];
-        });
+    parentController.stream.asBroadcastStream().listen((options) {
+      String dataType = options['dataType'];
+
+      if (dataType == 'user') {
+        var newUser = options['data'];
+        if (mounted)
+          setState(() {
+            followingCategories = newUser['followingCategories'];
+          });
+      }
     });
     super.initState();
   }
@@ -143,7 +148,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      padding: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 10.0),
       child: Container(
         height: 35.0,
         width: MediaQuery.of(context).size.width - 20,
@@ -164,9 +169,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List polls;
   List<Widget> pollsList;
-  SmartRefresher listViewBuilder;
-  bool preventReload = false;
+  BuildContext homeContext;
+  Widget listViewBuilder;
   CategoryTabs categoryTabs;
+
+  bool preventReload = false;
+
+  RefreshController refreshController = RefreshController(initialRefresh: false);
 
   _fetchData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -174,7 +183,7 @@ class _HomePageState extends State<HomePage> {
 
     await Future.wait([
       userMethods.getUser(userId),
-      getPolls(context),
+      getPolls(homeContext),
     ]).then((results) {
       var userResult = results[0], pollsResult = results[1];
 
@@ -187,7 +196,9 @@ class _HomePageState extends State<HomePage> {
       }
     });
 
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -208,10 +219,8 @@ class _HomePageState extends State<HomePage> {
 
   void updatedUserModel(updatedUser) {
     user = updatedUser;
-    parentController.add(user);
+    parentController.add({'dataType': 'user', 'data': user});
   }
-
-  RefreshController refreshController = RefreshController(initialRefresh: false);
 
   void _onRefresh() async {
     preventReload = false;
@@ -221,8 +230,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onLoading() async {
-    preventReload = true;
-    var nextPolls = await getPolls(context);
+    preventReload = false;
+    var nextPolls = await getPolls(homeContext);
     if (nextPolls != null && nextPolls.length > 0) {
       if (mounted)
         setState(() {
@@ -234,6 +243,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    print('HALO');
     parentController.close();
     refreshController.dispose();
     categoryStreamController.close();
@@ -253,15 +263,14 @@ class _HomePageState extends State<HomePage> {
       pollOpen = true;
       final _formKey = GlobalKey<FormState>();
       await showDialog(
-          context: context,
-          builder: (context) =>
-              PollPage(user: user, pollId: pollId, formKey: _formKey),
+          context: homeContext,
+          builder: (context) => PollPage(user: user, pollId: pollId, formKey: _formKey),
           barrierColor: Color(0x01000000));
       pollOpen = false;
     }
   }
 
-  void createPages(polls, user) {
+  Widget createPages() {
     pollsList = [];
     for (var i = 0; i < polls.length; i++) {
       var poll = polls[i];
@@ -276,23 +285,24 @@ class _HomePageState extends State<HomePage> {
           parentController: parentController));
     }
 
-    listViewBuilder = SmartRefresher(
-        enablePullDown: true,
-        enablePullUp: true,
-        header: ClassicHeader(),
-        footer: ClassicFooter(
-          loadStyle: LoadStyle.ShowWhenLoading,
+    return Flexible(
+      child: KeepAlivePage(
+        child: SmartRefresher(
+          enablePullDown: true,
+          enablePullUp: true,
+          header: ClassicHeader(),
+          footer: ClassicFooter(
+            loadStyle: LoadStyle.ShowWhenLoading,
+          ),
+          controller: refreshController,
+          onRefresh: _onRefresh,
+          onLoading: _onLoading,
+          child: ListView(
+            children: pollsList,
+          ),
         ),
-        controller: refreshController,
-        onRefresh: _onRefresh,
-        onLoading: _onLoading,
-        child: ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: pollsList.length,
-          itemBuilder: (context, index) {
-            return pollsList[index];
-          },
-        ));
+      ),
+    );
   }
 
   @override
@@ -302,8 +312,9 @@ class _HomePageState extends State<HomePage> {
     }
 
     if (!preventReload) {
-      preventReload = false;
-      createPages(polls, user);
+      homeContext = context;
+      preventReload = true;
+      listViewBuilder = createPages();
     }
 
     return Scaffold(
@@ -312,22 +323,16 @@ class _HomePageState extends State<HomePage> {
       appBar: appBar(),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10.0),
-            child: categoryTabs,
-          ),
+          categoryTabs,
           polls.length > 0
-          ? Flexible(
-            child: KeepAlivePage(
-              child: listViewBuilder
-            )
-          ) : Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Container(
-              height: MediaQuery.of(context).size.height/1.4,
-              child: Center(child: Text('No polls found')),
-            ),
-          ),
+              ? listViewBuilder
+              : Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Container(
+                    height: MediaQuery.of(context).size.height / 1.4,
+                    child: Center(child: Text('No polls found')),
+                  ),
+                ),
         ],
       ),
       bottomNavigationBar: navBar(),
