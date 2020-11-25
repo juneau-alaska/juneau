@@ -18,38 +18,8 @@ import 'dart:async';
 
 var user;
 var parentController;
-String prevId;
 String currentCategory;
 StreamController categoryStreamController;
-
-Future<List> getPolls(context) async {
-  const url = 'http://localhost:4000/polls';
-
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var token = prefs.getString('token');
-
-  var headers = {
-    HttpHeaders.contentTypeHeader: 'application/json',
-    HttpHeaders.authorizationHeader: token
-  };
-
-  var body = jsonEncode({'prevId': prevId, 'category': currentCategory});
-
-  var response = await http.post(url, headers: headers, body: body);
-
-  if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body);
-
-    if (jsonResponse.length > 0) {
-      prevId = jsonResponse.last['_id'];
-    }
-
-    return jsonResponse;
-  } else {
-    showAlert(context, 'Something went wrong, please try again');
-    return null;
-  }
-}
 
 class CategoryTabs extends StatefulWidget {
   @override
@@ -167,15 +137,46 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String prevId = null;
   List polls;
   List<Widget> pollsList;
   BuildContext homeContext;
   Widget listViewBuilder;
   CategoryTabs categoryTabs;
 
+  bool pollOpen = false;
   bool preventReload = false;
 
   RefreshController refreshController = RefreshController(initialRefresh: false);
+
+  Future<List> getPolls() async {
+    const url = 'http://localhost:4000/polls';
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    var body = jsonEncode({'prevId': prevId, 'category': currentCategory});
+
+    var response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+
+      if (jsonResponse.length > 0) {
+        prevId = jsonResponse.last['_id'];
+      }
+
+      return jsonResponse;
+    } else {
+      showAlert(homeContext, 'Something went wrong, please try again');
+      return null;
+    }
+  }
 
   _fetchData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -183,7 +184,7 @@ class _HomePageState extends State<HomePage> {
 
     await Future.wait([
       userMethods.getUser(userId),
-      getPolls(homeContext),
+      getPolls(),
     ]).then((results) {
       var userResult = results[0], pollsResult = results[1];
 
@@ -191,14 +192,15 @@ class _HomePageState extends State<HomePage> {
         user = userResult;
         categoryTabs = new CategoryTabs();
       }
+
       if (pollsResult != null) {
         polls = pollsResult;
       }
-    });
 
-    if (mounted) {
-      setState(() {});
-    }
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -217,6 +219,14 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    parentController.close();
+    refreshController.dispose();
+    categoryStreamController.close();
+    super.dispose();
+  }
+
   void updatedUserModel(updatedUser) {
     user = updatedUser;
     parentController.add({'dataType': 'user', 'data': user});
@@ -231,7 +241,7 @@ class _HomePageState extends State<HomePage> {
 
   void _onLoading() async {
     preventReload = false;
-    var nextPolls = await getPolls(homeContext);
+    var nextPolls = await getPolls();
     if (nextPolls != null && nextPolls.length > 0) {
       if (mounted)
         setState(() {
@@ -241,22 +251,11 @@ class _HomePageState extends State<HomePage> {
     refreshController.loadComplete();
   }
 
-  @override
-  void dispose() {
-    print('HALO');
-    parentController.close();
-    refreshController.dispose();
-    categoryStreamController.close();
-    super.dispose();
-  }
-
   void dismissPoll(index) {
     setState(() {
       pollsList.removeAt(index);
     });
   }
-
-  bool pollOpen = false;
 
   void viewPoll(String pollId) async {
     if (!pollOpen) {
@@ -314,7 +313,14 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     if (polls == null) {
-      return new Container();
+      return Scaffold(
+        backgroundColor: Theme.of(context).backgroundColor,
+        body: Center(
+          child: Container(
+            child: CircularProgressIndicator()
+          ),
+        ),
+      );
     }
 
     if (!preventReload) {

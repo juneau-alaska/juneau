@@ -40,7 +40,7 @@ class _NavBarState extends State<NavBar> {
             _selectedIndex = index;
             switch (index) {
               case 0:
-                // logout(context);
+                logout(context);
                 _previousIndex = _selectedIndex;
                 break;
 

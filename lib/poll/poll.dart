@@ -870,7 +870,7 @@ class _PollWidgetState extends State<PollWidget> {
 
     DateTime createdAt = DateTime.parse(poll['createdAt']);
     String pollCategory = poll['category'];
-    String time = timeago.format(createdAt, locale: 'en_short');
+    String time = timeago.format(createdAt, locale: 'en_short').replaceAll(new RegExp(r'~'), '');
 
     var completedPolls = user['completedPolls'];
     var selectedOptions = user['selectedOptions'];
