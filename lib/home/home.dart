@@ -4,8 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'package:juneau/common/methods/userMethods.dart';
-import 'package:juneau/common/views/appBar.dart';
-import 'package:juneau/common/views/navBar.dart';
+
 import 'package:juneau/poll/poll.dart';
 import 'package:juneau/poll/pollPage.dart';
 import 'package:juneau/common/components/keepAlivePage.dart';
@@ -320,7 +319,7 @@ class _HomePageState extends State<HomePage> {
       var poll = polls[i];
       pollsList.add(
         Container(
-          key: UniqueKey(),
+          // key: UniqueKey(),
           child: PollWidget(
             poll: poll,
             user: user,
@@ -374,24 +373,19 @@ class _HomePageState extends State<HomePage> {
       listViewBuilder = createPages();
     }
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appBar(),
-      body: Column(
-        children: [
-          categoryTabs,
-          polls.length > 0
-              ? listViewBuilder
-              : Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Container(
-                    height: MediaQuery.of(context).size.height / 1.4,
-                    child: Center(child: Text('No polls found')),
-                  ),
-                ),
-        ],
-      ),
-      bottomNavigationBar: navBar(),
+    return Column(
+      children: [
+        categoryTabs,
+        polls.length > 0
+          ? listViewBuilder
+          : Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Container(
+            height: MediaQuery.of(context).size.height / 1.4,
+            child: Center(child: Text('No polls found')),
+          ),
+        ),
+      ],
     );
   }
 }

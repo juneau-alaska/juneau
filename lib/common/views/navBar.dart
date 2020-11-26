@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,11 +10,16 @@ void logout(context) async {
   Navigator.of(context).pushNamedAndRemoveUntil('/loginSelect', (Route<dynamic> route) => false);
 }
 
-Widget navBar() {
-  return NavBar();
-}
-
 class NavBar extends StatefulWidget {
+  final navigatorKey;
+  final navController;
+
+  NavBar({Key key,
+    @required this.navigatorKey,
+    this.navController,
+  })
+    : super(key: key);
+
   @override
   _NavBarState createState() => _NavBarState();
 }
@@ -23,14 +29,25 @@ class _NavBarState extends State<NavBar> {
   int _selectedIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       height: 82.0,
       child: BottomNavigationBar(
         elevation: 0.0,
-        backgroundColor: Theme.of(context).backgroundColor,
-        unselectedItemColor: Theme.of(context).buttonColor,
-        selectedItemColor: Theme.of(context).accentColor,
+        backgroundColor: Theme
+          .of(context)
+          .backgroundColor,
+        unselectedItemColor: Theme
+          .of(context)
+          .buttonColor,
+        selectedItemColor: Theme
+          .of(context)
+          .accentColor,
         selectedFontSize: 0,
         showSelectedLabels: false,
         showUnselectedLabels: false,
@@ -40,22 +57,23 @@ class _NavBarState extends State<NavBar> {
             _selectedIndex = index;
             switch (index) {
               case 0:
-                logout(context);
                 _previousIndex = _selectedIndex;
+                widget.navController.add(0);
                 break;
 
               case 1:
                 showModalBottomSheet(
-                    isScrollControlled: true,
-                    context: context,
-                    builder: (BuildContext context) {
-                      return new PollCreate();
-                    });
+                  isScrollControlled: true,
+                  context: context,
+                  builder: (BuildContext context) {
+                    return new PollCreate();
+                  });
                 _selectedIndex = _previousIndex;
                 break;
 
               case 2:
                 _previousIndex = _selectedIndex;
+                widget.navController.add(1);
                 break;
 
               default:

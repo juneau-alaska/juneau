@@ -3,18 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:juneau/common/views/appBar.dart';
+import 'package:juneau/common/views/navBar.dart';
+
 import 'package:juneau/auth/loginSelect.dart';
 import 'package:juneau/auth/login.dart';
 import 'package:juneau/auth/signUpSelect.dart';
 import 'package:juneau/auth/signUp.dart';
 import 'package:juneau/home/home.dart';
+import 'package:juneau/profile/profile.dart';
 
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -39,7 +42,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/splash',
       routes: {
         '/splash': (BuildContext context) => SplashScreen(),
-        '/home': (BuildContext context) => HomePage(),
+        '/main': (BuildContext context) => MainScaffold(),
         '/loginSelect': (BuildContext context) => LoginSelectPage(),
         '/login': (BuildContext context) => LoginPage(),
         '/signUpSelect': (BuildContext context) => SignUpSelectPage(),
@@ -48,6 +51,57 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+class MainScaffold extends StatefulWidget {
+  @override
+  _MainScaffoldState createState() => _MainScaffoldState();
+}
+
+class _MainScaffoldState extends State<MainScaffold> {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  final PageController _pageController = PageController();
+  final StreamController _navController = StreamController();
+  var appBar, navBar, homePage, profilePage;
+
+  @override
+  void initState() {
+    appBar = ApplicationBar(height: 0.0);
+    navBar = NavBar(navigatorKey: _navigatorKey, navController: _navController);
+    homePage = HomePage();
+    profilePage = ProfilePage();
+
+    _navController.stream.listen((index) async {
+      _pageController.jumpToPage(index);
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _navController.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      appBar: appBar,
+      body: PageView(
+        physics:new NeverScrollableScrollPhysics(),
+        children:[
+          homePage,
+          profilePage,
+        ],
+        controller: _pageController,
+      ),
+      bottomNavigationBar: navBar,
+    );
+  }
+}
+
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -72,8 +126,7 @@ class _SplashScreenState extends State<SplashScreen> {
           width: 300.0,
           height: 300.0,
           decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage("images/cubesmelt.gif"), fit: BoxFit.fitWidth),
+            image: DecorationImage(image: AssetImage("images/cubesmelt.gif"), fit: BoxFit.fitWidth),
           ),
         ),
       ),
@@ -90,7 +143,7 @@ class _SplashScreenState extends State<SplashScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool status = prefs.getBool('isLoggedIn') ?? false;
     if (status) {
-      Navigator.pushNamed(context, '/home');
+      Navigator.pushNamed(context, '/main');
     } else {
       Navigator.pushNamed(context, '/signUpSelect');
     }
