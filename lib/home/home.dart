@@ -226,11 +226,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   _fetchData() async {
-    var pollsResult = await getPolls();
-    if (pollsResult != null) {
-      polls = pollsResult;
-    }
-
+    polls = await getPolls();
     if (mounted) {
       setState(() {});
     }
