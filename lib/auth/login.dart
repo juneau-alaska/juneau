@@ -41,7 +41,7 @@ void login(email, password, context) async {
       prefs.setString('userId', user['_id']);
     }
 
-    Navigator.pushNamed(context, '/home');
+    Navigator.pushNamed(context, '/main');
   } else {
     return showAlert(context, 'Incorrect email, username or password.');
   }

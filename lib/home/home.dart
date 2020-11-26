@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-import 'package:juneau/common/methods/userMethods.dart';
-
 import 'package:juneau/poll/poll.dart';
 import 'package:juneau/poll/pollPage.dart';
 import 'package:juneau/common/components/keepAlivePage.dart';
@@ -164,6 +162,13 @@ class _CategoryTabsState extends State<CategoryTabs> {
 }
 
 class HomePage extends StatefulWidget {
+  final user;
+
+  HomePage({Key key,
+    @required this.user,
+  })
+    : super(key: key);
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -174,7 +179,7 @@ class _HomePageState extends State<HomePage> {
   List<Widget> pollsList;
   BuildContext homeContext;
   Widget listViewBuilder;
-  CategoryTabs categoryTabs;
+  CategoryTabs categoryTabs = CategoryTabs();
 
   bool pollOpen = false;
   bool preventReload = false;
@@ -221,32 +226,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   _fetchData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String userId = prefs.getString('userId');
+    var pollsResult = await getPolls();
+    if (pollsResult != null) {
+      polls = pollsResult;
+    }
 
-    await Future.wait([
-      userMethods.getUser(userId),
-      getPolls(),
-    ]).then((results) {
-      var userResult = results[0], pollsResult = results[1];
-
-      if (userResult != null) {
-        user = userResult;
-        categoryTabs = new CategoryTabs();
-      }
-
-      if (pollsResult != null) {
-        polls = pollsResult;
-      }
-
-      if (mounted) {
-        setState(() {});
-      }
-    });
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
   void initState() {
+    user = widget.user;
     parentController = new StreamController.broadcast();
     categoryStreamController = StreamController();
     categoryStreamController.stream.listen((category) async {
@@ -319,7 +311,7 @@ class _HomePageState extends State<HomePage> {
       var poll = polls[i];
       pollsList.add(
         Container(
-          // key: UniqueKey(),
+          key: UniqueKey(),
           child: PollWidget(
             poll: poll,
             user: user,

@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:juneau/common/views/appBar.dart';
 import 'package:juneau/common/views/navBar.dart';
 
+import 'package:juneau/common/methods/userMethods.dart';
+
 import 'package:juneau/auth/loginSelect.dart';
 import 'package:juneau/auth/login.dart';
 import 'package:juneau/auth/signUpSelect.dart';
@@ -58,17 +60,30 @@ class MainScaffold extends StatefulWidget {
 }
 
 class _MainScaffoldState extends State<MainScaffold> {
+  var user;
+  Widget appBar;
+  Widget navBar;
+  Widget homePage;
+  Widget profilePage;
+
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final PageController _pageController = PageController();
   final StreamController _navController = StreamController();
-  var appBar, navBar, homePage, profilePage;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String userId = prefs.getString('userId');
+      user = await userMethods.getUser(userId);
+      setState(() {
+        homePage = HomePage(user: user);
+        profilePage = ProfilePage(user: user);
+      });
+    });
+
     appBar = ApplicationBar(height: 0.0);
     navBar = NavBar(navigatorKey: _navigatorKey, navController: _navController);
-    homePage = HomePage();
-    profilePage = ProfilePage();
 
     _navController.stream.listen((index) async {
       _pageController.jumpToPage(index);
@@ -89,14 +104,15 @@ class _MainScaffoldState extends State<MainScaffold> {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appBar,
-      body: PageView(
+      body: user != null
+      ? PageView(
         physics:new NeverScrollableScrollPhysics(),
         children:[
           homePage,
           profilePage,
         ],
         controller: _pageController,
-      ),
+      ) : Container(),
       bottomNavigationBar: navBar,
     );
   }

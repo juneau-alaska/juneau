@@ -1,14 +1,5 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:juneau/poll/pollCreate.dart';
-
-void logout(context) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs?.clear();
-  Navigator.of(context).pushNamedAndRemoveUntil('/loginSelect', (Route<dynamic> route) => false);
-}
 
 class NavBar extends StatefulWidget {
   final navigatorKey;

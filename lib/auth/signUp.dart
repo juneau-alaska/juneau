@@ -32,7 +32,7 @@ void signUp(email, username, password, context) async {
       prefs.setString('userId', user['_id']);
     }
 
-    Navigator.pushNamed(context, '/home');
+    Navigator.pushNamed(context, '/main');
   } else {
     var jsonResponse = jsonDecode(response.body), msg = jsonResponse['msg'];
     return showAlert(context, msg);
