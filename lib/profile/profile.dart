@@ -12,10 +12,10 @@ import 'dart:async';
 class ProfilePage extends StatefulWidget {
   final user;
 
-  ProfilePage({Key key,
+  ProfilePage({
+    Key key,
     @required this.user,
-  })
-    : super(key: key);
+  }) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -80,16 +80,18 @@ class _ProfilePageState extends State<ProfilePage> {
     pollsList = [];
     for (var i = 0; i < polls.length; i++) {
       var poll = polls[i];
-      pollsList.add(
-        Container(
-          key: UniqueKey(),
-          child: PollPreview(poll: poll),
-        ),
-      );
+      pollsList.add(Padding(
+        padding: const EdgeInsets.all(0.5),
+        child: PollPreview(poll: poll),
+      ));
     }
     return Flexible(
-      child: ListView(
-        children: pollsList,
+      child: Padding(
+        padding: const EdgeInsets.all(0.5),
+        child: GridView.count(
+          crossAxisCount: 3,
+          children: pollsList,
+        ),
       ),
     );
   }
@@ -114,32 +116,14 @@ class _ProfilePageState extends State<ProfilePage> {
           },
           child: Text('LOGOUT'),
         ),
-        Text(
-          widget.user['username'],
-          style: TextStyle(
-            fontSize: 28.0,
-            fontWeight: FontWeight.bold
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text(
+            widget.user['username'],
+            style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
           ),
         ),
-        gridView != null
-          ? gridView : Container(),
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 0.0),
-        //   child: GridView.count(
-        //     crossAxisCount: 3,
-        //     children: List.generate(images.length, (index) {
-        //       Asset asset = images[index];
-        //       return Padding(
-        //         padding: const EdgeInsets.all(0.0),
-        //         child: AssetThumb(
-        //           asset: asset,
-        //           width: images.length > 4 ? 300 : 600,
-        //           height: images.length > 4 ? 300 : 600,
-        //         ),
-        //       );
-        //     }),
-        //   ),
-        // ),
+        gridView != null ? gridView : Container(),
       ],
     );
   }
