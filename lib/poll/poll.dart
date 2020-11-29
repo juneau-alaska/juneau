@@ -328,7 +328,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                 ),
                 IgnorePointer(
                   child: Opacity(
-                    opacity: 0.3,
+                    opacity: 0.35,
                     child: Container(
                       width: screenWidth,
                       height: screenHeight,
@@ -339,24 +339,6 @@ class _ImageCarouselState extends State<ImageCarousel> {
                     ),
                   ),
                 ),
-                // IgnorePointer(
-                //     child: ShaderMask(
-                //   shaderCallback: (rect) {
-                //     return LinearGradient(
-                //       begin: Alignment.topCenter,
-                //       end: Alignment.bottomCenter,
-                //       colors: [Colors.transparent, Colors.black87],
-                //     ).createShader(Rect.fromLTRB(0, 0, screenWidth, screenHeight));
-                //   },
-                //   blendMode: BlendMode.darken,
-                //   child: Container(
-                //     decoration: BoxDecoration(
-                //         borderRadius: BorderRadius.all(Radius.circular(13)),
-                //     ),
-                //     width: screenWidth,
-                //     height: screenHeight,
-                //   ),
-                // )),
                 Positioned.fill(
                   child: PositionalDots(
                       pageController: pageController,
