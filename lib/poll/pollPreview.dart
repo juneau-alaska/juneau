@@ -122,11 +122,11 @@ class _PollPreviewState extends State<PollPreview> {
 
   @override
   Widget build(BuildContext context) {
-    double size = (MediaQuery.of(context).size.width / 3) - 2;
+    double size = (MediaQuery.of(context).size.width / 3) - 1;
 
     return GestureDetector(
       child: Padding(
-        padding: const EdgeInsets.all(0.5),
+        padding: const EdgeInsets.all(0.25),
         child: FutureBuilder<Widget>(
           future: buildPreview(size),
           builder: (context, AsyncSnapshot<Widget> pollPreview) {

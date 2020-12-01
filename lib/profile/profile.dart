@@ -108,7 +108,7 @@ class _ProfilePageState extends State<ProfilePage> {
       if ((i+1) % 3 == 0) {
         pollsList.add(
           Padding(
-            padding: const EdgeInsets.all(0.5),
+            padding: const EdgeInsets.all(0.25),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,

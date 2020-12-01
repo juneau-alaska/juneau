@@ -18,6 +18,8 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:rxdart/rxdart.dart';
 
+double radius = 13.0;
+
 class PositionalDots extends StatefulWidget {
   final pageController;
   final numImages;
@@ -156,13 +158,10 @@ class PhotoHero extends StatelessWidget {
       child: GestureDetector(
         onLongPress: onLongPress,
         onPanUpdate: onPanUpdate,
-        child: ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          child: Image.memory(
-            photo,
-            fit: BoxFit.cover,
-            width: width,
-          ),
+        child: Image.memory(
+          photo,
+          fit: BoxFit.cover,
+          width: width,
         ),
       ),
     );
@@ -284,23 +283,20 @@ class _ImageCarouselState extends State<ImageCarousel> {
                         Navigator.of(context)
                             .push(TransparentRoute(builder: (BuildContext context) {
                           return BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                            filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 PhotoHero(
                                   tag: options[i]['_id'],
                                   photo: image,
-                                  width: screenWidth + 5,
+                                  width: screenWidth + 20,
                                   onPanUpdate: (details) {
                                     if (details.delta.dy > 0) {
                                       Navigator.of(context).pop();
                                     }
                                   },
                                   onLongPress: () {},
-                                ),
-                                Container(
-                                  height: 100.0,
                                 ),
                               ],
                             ),
@@ -319,7 +315,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                   width: screenWidth,
                   height: screenHeight,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(13)),
+                    borderRadius: BorderRadius.all(Radius.circular(radius)),
                     child: PageView(
                       children: imageWidgets,
                       controller: pageController,
@@ -334,7 +330,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                       height: screenHeight,
                       decoration: BoxDecoration(
                         color: Colors.black45,
-                        borderRadius: BorderRadius.all(Radius.circular(13)),
+                        borderRadius: BorderRadius.all(Radius.circular(radius)),
                       ),
                     ),
                   ),
@@ -352,7 +348,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
           } else {
             return new Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(13)),
+                borderRadius: BorderRadius.all(Radius.circular(radius)),
                 color: Theme.of(context).hintColor,
               ),
               width: screenWidth,
@@ -888,10 +884,10 @@ class _PollWidgetState extends State<PollWidget> {
         getImages: getImages);
 
     return Padding(
-      padding: const EdgeInsets.only(left: 13.0, right: 13.0, bottom: 13.0),
+      padding: const EdgeInsets.all(5.0),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(13)),
+          borderRadius: BorderRadius.all(Radius.circular(radius)),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.3),
@@ -995,7 +991,7 @@ class _PollWidgetState extends State<PollWidget> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
                   child: Text(
                     poll['prompt'],
                     style: TextStyle(
