@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
         backgroundColor: const Color(0xFFFEFEFE),
         hintColor: const Color(0xFF9c9e9f),
         highlightColor: Colors.blue,
-        accentColor: Colors.deepPurple, // const Color(0xFFef3b4a),
+        accentColor: const Color(0xFFef3b4a),
         buttonColor: black,
         textTheme: TextTheme(
           headline1: TextStyle(color: black),

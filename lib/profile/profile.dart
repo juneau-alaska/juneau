@@ -39,61 +39,7 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.of(context).pushNamedAndRemoveUntil('/loginSelect', (Route<dynamic> route) => false);
   }
 
-  Future<List<int>> getImageBytes(option) async {
-    String url = option['content'];
-    List<int> imageBytes;
-
-    var response = await http.get(url);
-    if (response.statusCode == 200) {
-      imageBytes = response.bodyBytes;
-    }
-
-    return imageBytes;
-  }
-
-  Future<List> getOptions(poll) async {
-    const url = 'http://localhost:4000/option';
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token');
-
-    var headers = {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: token
-    };
-
-    List optionIds = poll['options'];
-    List<Future> futures = [];
-    List options;
-
-    for (var i = 0; i < optionIds.length; i++) {
-      var optionId = optionIds[i];
-      Future future() async {
-        var response = await http.get(
-          url + '/' + optionId,
-          headers: headers,
-        );
-
-        if (response.statusCode == 200) {
-          var jsonResponse = jsonDecode(response.body);
-          return jsonResponse;
-        } else {
-          print('Request failed with status: ${response.statusCode}.');
-          return null;
-        }
-      }
-
-      futures.add(future());
-    }
-
-    await Future.wait(futures).then((results) {
-      options = results;
-    });
-
-    return options;
-  }
-
-  Future<List> getPolls() async {
+  Future<List> getPollsFromUser() async {
     const url = 'http://localhost:4000/polls';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -126,25 +72,16 @@ class _ProfilePageState extends State<ProfilePage> {
     if (!next) {
       pollObjects = [];
     }
-    List polls = await getPolls();
-    for (var i = 0; i < polls.length; i++) {
+    List polls = await getPollsFromUser();
+
+    for (int i = 0; i < polls.length; i++) {
       var poll = polls[i];
-      List options = await getOptions(poll);
-      List images = [];
-
-      for (var j = 0; j < options.length; j++) {
-        var option = options[j];
-        List<int> image = await getImageBytes(option);
-        images.add(image);
-      }
-
       pollObjects.add({
-        'poll': poll,
-        'options': options,
-        'images': images,
         'index': i,
+        'poll': poll,
       });
     }
+
     setState(() {});
   }
 
@@ -163,13 +100,10 @@ class _ProfilePageState extends State<ProfilePage> {
     List<Widget> pollsList = [];
     List<Widget> gridRow = [];
 
-    for (var i = 0; i < pollObjects.length; i++) {
+    for (int i = 0; i < pollObjects.length; i++) {
       var pollObject = pollObjects[i];
 
-      gridRow.add(Padding(
-        padding: const EdgeInsets.all(0.5),
-        child: PollPreview(pollObject: pollObject),
-      ));
+      gridRow.add(PollPreview(pollObject: pollObject));
 
       if ((i+1) % 3 == 0) {
         pollsList.add(
@@ -220,13 +154,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Column(
       children: [
-        // FlatButton(
-        //   onPressed: () {
-        //     logout(context);
-        //   },
-        //   color: Colors.deepPurple,
-        //   child: Text('LOGOUT', style: TextStyle(fontWeight: FontWeight.bold)),
-        // ),
+        FlatButton(
+          onPressed: () {
+            logout(context);
+          },
+          color: Colors.deepPurple,
+          child: Text('LOGOUT', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
           child: Text(

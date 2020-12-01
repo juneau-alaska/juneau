@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
+import 'dart:async';
 
 class PollPreview extends StatefulWidget {
   final pollObject;
@@ -13,54 +19,132 @@ class PollPreview extends StatefulWidget {
 }
 
 class _PollPreviewState extends State<PollPreview> {
+  var poll;
   List options;
   List images;
-  Widget pollPreview;
+  Widget preview;
 
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      options = widget.pollObject['options'];
-      images = widget.pollObject['images'];
+  Future<List<int>> getImageBytes(option) async {
+    String url = option['content'];
+    List<int> imageBytes;
 
-      var firstOption = options[0];
-      var highestVotedIndex = 0;
-      int highestVoteCount = firstOption['votes'];
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      imageBytes = response.bodyBytes;
+    }
 
-      for (var i = 1; i < options.length; i++) {
-        var option = options[i];
-        int votes = option['votes'];
+    return imageBytes;
+  }
 
-        if (votes > highestVoteCount) {
-          highestVoteCount = votes;
-          highestVotedIndex = i;
+  Future<List> getOptions(poll) async {
+    const url = 'http://localhost:4000/option';
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    List optionIds = poll['options'];
+    List<Future> futures = [];
+    List options;
+
+    for (int i = 0; i < optionIds.length; i++) {
+      var optionId = optionIds[i];
+      Future future() async {
+        var response = await http.get(
+          url + '/' + optionId,
+          headers: headers,
+        );
+
+        if (response.statusCode == 200) {
+          var jsonResponse = jsonDecode(response.body);
+          return jsonResponse;
+        } else {
+          print('Request failed with status: ${response.statusCode}.');
+          return null;
         }
       }
 
-      double size = MediaQuery.of(context).size.width / 3;
+      futures.add(future());
+    }
 
-      setState(() {
-        pollPreview = Container(
-          width: size - 2,
-          height: size - 2,
-          child: Image.memory(
-            images[highestVotedIndex],
-            fit: BoxFit.cover,
-            width: size - 2,
-          ),
-        );
-      });
+    await Future.wait(futures).then((results) {
+      options = results;
     });
 
-    super.initState();
+    return options;
+  }
+
+  Future<Widget> buildPreview(size) async {
+      poll =  widget.pollObject['poll'];
+
+      if (preview == null) {
+
+        options = await getOptions(poll);
+        widget.pollObject['options'] = options;
+
+        List images = [];
+
+        var firstOption = options[0];
+        int highestIndex = 0;
+        int highestVoteCount = firstOption['votes'];
+
+        for (int i = 1; i < options.length; i++) {
+          var option = options[i];
+          int votes = option['votes'];
+
+          if (votes > highestVoteCount) {
+            highestVoteCount = votes;
+            highestIndex = i;
+          }
+
+          List<int> image = await getImageBytes(option);
+          images.add(image);
+        }
+
+        widget.pollObject['images'] = images;
+        preview = Container(
+          width: size,
+          height: size,
+          child: Image.memory(
+            images[highestIndex],
+            fit: BoxFit.cover,
+            width: size,
+          ),
+        );
+      }
+
+      return preview;
   }
 
   @override
   Widget build(BuildContext context) {
-    return pollPreview != null
-        ? pollPreview
-        : Container(
-            color: Theme.of(context).hintColor,
-          );
+    double size = (MediaQuery.of(context).size.width / 3) - 2;
+
+    return GestureDetector(
+      child: Padding(
+        padding: const EdgeInsets.all(0.5),
+        child: FutureBuilder<Widget>(
+          future: buildPreview(size),
+          builder: (context, AsyncSnapshot<Widget> pollPreview) {
+            if (pollPreview.hasData) {
+              return Container(
+                color: Theme.of(context).hintColor,
+                child: pollPreview.data
+              );
+            } else {
+              return Container(
+                width: size,
+                height: size,
+                color: Theme.of(context).hintColor,
+              );
+            }
+          }
+        ),
+      ),
+    );
   }
 }
