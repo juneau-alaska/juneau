@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:juneau/poll/pollMenu.dart';
+import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/common/methods/numMethods.dart';
@@ -163,45 +164,6 @@ class PhotoHero extends StatelessWidget {
           fit: BoxFit.cover,
           width: width,
         ),
-      ),
-    );
-  }
-}
-
-class TransparentRoute extends PageRoute<void> {
-  TransparentRoute({
-    @required this.builder,
-    RouteSettings settings,
-  })  : assert(builder != null),
-        super(settings: settings, fullscreenDialog: false);
-
-  final WidgetBuilder builder;
-
-  @override
-  bool get opaque => false;
-
-  @override
-  Color get barrierColor => null;
-
-  @override
-  String get barrierLabel => null;
-
-  @override
-  bool get maintainState => true;
-
-  @override
-  Duration get transitionDuration => Duration(milliseconds: 200);
-
-  @override
-  Widget buildPage(
-      BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-    final result = builder(context);
-    return FadeTransition(
-      opacity: Tween<double>(begin: 0, end: 1).animate(animation),
-      child: Semantics(
-        scopesRoute: true,
-        explicitChildNodes: true,
-        child: result,
       ),
     );
   }
@@ -461,15 +423,17 @@ class _CategoryButtonState extends State<CategoryButton> {
   void initState() {
     followingCategories = widget.followingCategories;
 
-    widget.parentController.stream.asBroadcastStream().listen((options) {
-      if (options['dataType'] == 'user') {
-        var newUser = options['data'];
-        if (mounted)
-          setState(() {
-            followingCategories = newUser['followingCategories'];
-          });
-      }
-    });
+    if (widget.parentController != null) {
+      widget.parentController.stream.asBroadcastStream().listen((options) {
+        if (options['dataType'] == 'user') {
+          var newUser = options['data'];
+          if (mounted)
+            setState(() {
+              followingCategories = newUser['followingCategories'];
+            });
+        }
+      });
+    }
 
     streamController.stream.throttleTime(Duration(milliseconds: 1000)).listen((category) {
       bool unfollow = false;
@@ -535,8 +499,9 @@ class _CategoryButtonState extends State<CategoryButton> {
 
 class PollWidget extends StatefulWidget {
   final poll;
+  final options;
+  final images;
   final user;
-  final currentCategory;
   final dismissPoll;
   final viewPoll;
   final index;
@@ -546,8 +511,9 @@ class PollWidget extends StatefulWidget {
   PollWidget(
       {Key key,
       @required this.poll,
+      this.options,
+      this.images,
       this.user,
-      this.currentCategory,
       this.dismissPoll,
       this.viewPoll,
       this.index,
@@ -571,15 +537,18 @@ class _PollWidgetState extends State<PollWidget> {
   bool warning = false;
 
   Future<List> getImages(List options, imageBytes) async {
-    if (images == null && imageBytes != null && imageBytes.length == 0) {
+    if (images == null) {
+      images = [];
       for (var option in options) {
         String url = option['content'];
         var response = await http.get(url);
         if (response.statusCode == 200) {
-          imageBytes.add(response.bodyBytes);
+          images.add(response.bodyBytes);
         }
       }
-      images = imageBytes;
+    }
+    if (imageBytes == null) {
+      imageBytes = images;
     }
     return images;
   }
@@ -630,6 +599,8 @@ class _PollWidgetState extends State<PollWidget> {
   void initState() {
     poll = widget.poll;
     user = widget.user;
+    options = widget.options;
+    images = widget.images;
 
     followingCategories = user['followingCategories'];
 
@@ -637,15 +608,18 @@ class _PollWidgetState extends State<PollWidget> {
       if (pollUser != null) {
         pollCreator = pollUser;
       }
-      _getOptions(poll).then((pollOptions) {
-        if (mounted) {
-          setState(() {
-            if (pollOptions != null && pollOptions.length > 0) {
-              options = pollOptions;
-            }
-          });
-        }
-      });
+
+      if (options == null) {
+        _getOptions(poll).then((pollOptions) {
+          if (mounted) {
+            setState(() {
+              if (pollOptions != null && pollOptions.length > 0) {
+                options = pollOptions;
+              }
+            });
+          }
+        });
+      }
     });
 
     super.initState();

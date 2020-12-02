@@ -311,7 +311,6 @@ class _HomePageState extends State<HomePage> {
           child: PollWidget(
             poll: poll,
             user: user,
-            currentCategory: currentCategory,
             dismissPoll: dismissPoll,
             viewPoll: viewPoll,
             index: i,

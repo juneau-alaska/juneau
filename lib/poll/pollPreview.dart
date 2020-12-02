@@ -8,10 +8,12 @@ import 'dart:async';
 
 class PollPreview extends StatefulWidget {
   final pollObject;
+  final openListView;
 
   PollPreview({
     Key key,
     @required this.pollObject,
+    this.openListView,
   }) : super(key: key);
 
   @override
@@ -82,25 +84,13 @@ class _PollPreviewState extends State<PollPreview> {
       poll =  widget.pollObject['poll'];
 
       if (preview == null) {
-
         options = await getOptions(poll);
         widget.pollObject['options'] = options;
 
         List images = [];
 
-        var firstOption = options[0];
-        int highestIndex = 0;
-        int highestVoteCount = firstOption['votes'];
-
-        for (int i = 1; i < options.length; i++) {
+        for (int i=0; i < options.length; i++) {
           var option = options[i];
-          int votes = option['votes'];
-
-          if (votes > highestVoteCount) {
-            highestVoteCount = votes;
-            highestIndex = i;
-          }
-
           List<int> image = await getImageBytes(option);
           images.add(image);
         }
@@ -110,7 +100,7 @@ class _PollPreviewState extends State<PollPreview> {
           width: size,
           height: size,
           child: Image.memory(
-            images[highestIndex],
+            images[0],
             fit: BoxFit.cover,
             width: size,
           ),
@@ -125,6 +115,9 @@ class _PollPreviewState extends State<PollPreview> {
     double size = (MediaQuery.of(context).size.width / 3) - 1;
 
     return GestureDetector(
+      onTap: () {
+        widget.openListView();
+      },
       child: Padding(
         padding: const EdgeInsets.all(0.25),
         child: FutureBuilder<Widget>(

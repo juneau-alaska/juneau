@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/components/keepAlivePage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/poll/pollPreview.dart';
+import 'package:juneau/poll/poll.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -26,8 +28,8 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String prevId;
   Widget gridListView;
-  BuildContext profileContext;
   List pollObjects;
+  BuildContext profileContext;
 
   bool preventReload = false;
 
@@ -103,17 +105,19 @@ class _ProfilePageState extends State<ProfilePage> {
     for (int i = 0; i < pollObjects.length; i++) {
       var pollObject = pollObjects[i];
 
-      gridRow.add(PollPreview(pollObject: pollObject));
+      gridRow.add(PollPreview(
+        pollObject: pollObject,
+        openListView: openListView,
+      ));
 
-      if ((i+1) % 3 == 0) {
+      if ((i + 1) % 3 == 0) {
         pollsList.add(
           Padding(
             padding: const EdgeInsets.all(0.25),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: gridRow
-            ),
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: gridRow),
           ),
         );
         gridRow = [];
@@ -138,6 +142,90 @@ class _ProfilePageState extends State<ProfilePage> {
     refreshController.loadComplete();
   }
 
+  void openListView() async {
+    List<Widget> pollsList = [];
+
+    print(pollObjects.length);
+    for (int i = 0; i < pollObjects.length; i++) {
+      var pollObject = pollObjects[i];
+
+      pollsList.add(Container(
+        key: UniqueKey(),
+        child: PollWidget(
+          poll: pollObject['poll'],
+          options: pollObject['options'],
+          images: pollObject['images'],
+          user: widget.user,
+        ),
+      ));
+    }
+
+    Navigator.of(context).push(
+      TransparentRoute(builder: (BuildContext context) {
+        return Scaffold(
+          backgroundColor: Theme.of(context).backgroundColor,
+          body: Column(
+            children: [
+              SizedBox(height: 40),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: 30,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Icon(
+                            Icons.arrow_back,
+                            size: 25.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      widget.user['username'],
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Container(
+                      width: 30,
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: KeepAlivePage(
+                  child: SmartRefresher(
+                    enablePullDown: true,
+                    enablePullUp: true,
+                    header: ClassicHeader(),
+                    footer: ClassicFooter(
+                      loadStyle: LoadStyle.ShowWhenLoading,
+                    ),
+                    controller: refreshController,
+                    onRefresh: _onRefresh,
+                    onLoading: _onLoading,
+                    child: ListView(
+                      children: pollsList,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      })
+    );
+
+  }
+
   @override
   void dispose() {
     refreshController.dispose();
@@ -154,13 +242,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Column(
       children: [
-        FlatButton(
-          onPressed: () {
-            logout(context);
-          },
-          color: Colors.deepPurple,
-          child: Text('LOGOUT', style: TextStyle(fontWeight: FontWeight.bold)),
-        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
           child: Text(
