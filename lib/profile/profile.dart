@@ -7,11 +7,139 @@ import 'package:juneau/common/components/keepAlivePage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/poll/pollPreview.dart';
 import 'package:juneau/poll/poll.dart';
+import 'package:juneau/poll/pollPage.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
+
+class PollListPopover extends StatefulWidget {
+  final user;
+  final pollObjects;
+  final pollListController;
+  final dismissPoll;
+  final viewPoll;
+  final updatedUserModel;
+  final parentController;
+
+  PollListPopover({
+    Key key,
+    @required this.user,
+    this.pollObjects,
+    this.pollListController,
+    this.dismissPoll,
+    this.viewPoll,
+    this.updatedUserModel,
+    this.parentController,
+  }) : super(key: key);
+
+  @override
+  _PollListPopoverState createState() => _PollListPopoverState();
+}
+
+class _PollListPopoverState extends State<PollListPopover> {
+  List<Widget> pollsList = [];
+  List pollObjects;
+
+  void createPolls() {
+    for (int i = 0; i < pollObjects.length; i++) {
+      var pollObject = pollObjects[i],
+        poll = pollObject['poll'],
+        options = pollObject['options'],
+        images = pollObject['images'];
+
+      pollsList.add(Container(
+        key: UniqueKey(),
+        child: PollWidget(
+          poll: poll,
+          options: options,
+          images: images,
+          user: widget.user,
+          dismissPoll: widget.dismissPoll,
+          viewPoll: widget.viewPoll,
+          index: i,
+          updatedUserModel: widget.updatedUserModel,
+          parentController: widget.parentController
+        ),
+      ));
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    pollObjects = widget.pollObjects;
+
+    createPolls();
+
+    widget.pollListController.stream.listen((updatedPollObjects) {
+      pollObjects = updatedPollObjects;
+      createPolls();
+    });
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      body: Column(
+        children: [
+          SizedBox(height: 40),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 30,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Icon(
+                        Icons.arrow_back,
+                        size: 25.0,
+                      ),
+                    ),
+                  ),
+                ),
+                Text(
+                  widget.user['username'],
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Container(
+                  width: 30,
+                ),
+              ],
+            ),
+          ),
+          Flexible(
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: ListView(
+                physics: ClampingScrollPhysics(),
+                children: pollsList,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class ProfilePage extends StatefulWidget {
   final user;
@@ -26,14 +154,18 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  var user;
   String prevId;
   Widget gridListView;
   List pollObjects;
   BuildContext profileContext;
 
+  bool pollOpen = false;
   bool preventReload = false;
 
   RefreshController refreshController = RefreshController(initialRefresh: false);
+  StreamController pollListController = StreamController();
+  var parentController;
 
   void logout(context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -52,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
       HttpHeaders.authorizationHeader: token
     };
 
-    var body = jsonEncode({'prevId': prevId, 'createdBy': widget.user['_id']});
+    var body = jsonEncode({'prevId': prevId, 'createdBy': user['_id']});
 
     var response = await http.post(url, headers: headers, body: body);
 
@@ -89,7 +221,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   void initState() {
+    user = widget.user;
     prevId = null;
+    parentController = new StreamController.broadcast();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await fetchPollData(false);
@@ -112,13 +246,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if ((i + 1) % 3 == 0 || i == pollObjects.length - 1) {
         pollsList.add(
-          Padding(
-            padding: const EdgeInsets.all(0.25),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: gridRow),
-          ),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: gridRow),
         );
         gridRow = [];
       }
@@ -127,6 +258,41 @@ class _ProfilePageState extends State<ProfilePage> {
     return ListView(
       children: pollsList,
     );
+  }
+
+  @override
+  void dispose() {
+    refreshController.dispose();
+    pollListController.close();
+    parentController.close();
+    super.dispose();
+  }
+
+  void updatedUserModel(updatedUser) {
+    user = updatedUser;
+    parentController.add({'dataType': 'user', 'data': user});
+  }
+
+  void dismissPoll(index) {
+    if (mounted) {
+      setState(() {
+        preventReload = false;
+        pollObjects.removeAt(index);
+        pollListController.add(pollObjects);
+      });
+    }
+  }
+
+  void viewPoll(String pollId) async {
+    if (!pollOpen) {
+      pollOpen = true;
+      final _formKey = GlobalKey<FormState>();
+      await showDialog(
+        context: profileContext,
+        builder: (context) => PollPage(user: user, pollId: pollId, formKey: _formKey),
+        barrierColor: Color(0x01000000));
+      pollOpen = false;
+    }
   }
 
   void _onRefresh() async {
@@ -143,92 +309,17 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void openListView() async {
-    List<Widget> pollsList = [];
-
-    for (int i = 0; i < pollObjects.length; i++) {
-      var pollObject = pollObjects[i],
-          poll = pollObject['poll'],
-          options = pollObject['options'],
-          images = pollObject['images'];
-
-      pollsList.add(Container(
-        key: UniqueKey(),
-        child: PollWidget(
-          poll: poll,
-          options: options,
-          images: images,
-          user: widget.user,
-        ),
-      ));
-    }
-
     Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
-      return Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
-        body: Column(
-          children: [
-            SizedBox(height: 40),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: 30,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Icon(
-                          Icons.arrow_back,
-                          size: 25.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Text(
-                    widget.user['username'],
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Container(
-                    width: 30,
-                  ),
-                ],
-              ),
-            ),
-            Flexible(
-              child: KeepAlivePage(
-                child: SmartRefresher(
-                  enablePullDown: true,
-                  enablePullUp: true,
-                  header: ClassicHeader(),
-                  footer: ClassicFooter(
-                    loadStyle: LoadStyle.ShowWhenLoading,
-                  ),
-                  controller: refreshController,
-                  onRefresh: _onRefresh,
-                  onLoading: _onLoading,
-                  child: ListView(
-                    children: pollsList,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+      return PollListPopover(
+        user: user,
+        pollObjects: pollObjects,
+        pollListController: pollListController,
+        dismissPoll: dismissPoll,
+        viewPoll: viewPoll,
+        updatedUserModel: updatedUserModel,
+        parentController: parentController,
       );
     }));
-  }
-
-  @override
-  void dispose() {
-    refreshController.dispose();
-    super.dispose();
   }
 
   @override
@@ -244,7 +335,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Padding(
           padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
           child: Text(
-            widget.user['username'],
+            user['username'],
             style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
           ),
         ),

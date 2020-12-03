@@ -112,7 +112,7 @@ class _PollPreviewState extends State<PollPreview> {
 
   @override
   Widget build(BuildContext context) {
-    double size = (MediaQuery.of(context).size.width / 3) - 1;
+    double size = (MediaQuery.of(context).size.width / 3) - 0.5;
 
     return GestureDetector(
       onTap: () {
