@@ -204,7 +204,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
   Widget build(BuildContext context) {
     List options = widget.options;
     double screenWidth = MediaQuery.of(context).size.width - 20;
-    double screenHeight = screenWidth * 1.3;
+    double screenHeight = screenWidth / 1.3;
     List imageBytesList = [];
 
     return FutureBuilder<List>(
@@ -619,6 +619,10 @@ class _PollWidgetState extends State<PollWidget> {
             });
           }
         });
+      } else {
+        if (mounted) {
+          setState(() {});
+        }
       }
     });
 
