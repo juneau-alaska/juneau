@@ -83,29 +83,27 @@ class _PollPreviewState extends State<PollPreview> {
   Future<Widget> buildPreview(size) async {
       poll =  widget.pollObject['poll'];
 
-      if (preview == null) {
-        options = await getOptions(poll);
-        widget.pollObject['options'] = options;
+      options = await getOptions(poll);
+      widget.pollObject['options'] = options;
 
-        List images = [];
+      List images = [];
 
-        for (int i=0; i < options.length; i++) {
-          var option = options[i];
-          List<int> image = await getImageBytes(option);
-          images.add(image);
-        }
-
-        widget.pollObject['images'] = images;
-        preview = Container(
-          width: size,
-          height: size,
-          child: Image.memory(
-            images[0],
-            fit: BoxFit.cover,
-            width: size,
-          ),
-        );
+      for (int i=0; i < options.length; i++) {
+        var option = options[i];
+        List<int> image = await getImageBytes(option);
+        images.add(image);
       }
+
+      widget.pollObject['images'] = images;
+      preview = Container(
+        width: size,
+        height: size,
+        child: Image.memory(
+          images[0],
+          fit: BoxFit.cover,
+          width: size,
+        ),
+      );
 
       return preview;
   }

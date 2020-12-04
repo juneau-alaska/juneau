@@ -39,29 +39,28 @@ class PollListPopover extends StatefulWidget {
 }
 
 class _PollListPopoverState extends State<PollListPopover> {
-  List<Widget> pollsList = [];
-  List pollObjects;
+  List<Widget> pollsList;
 
-  void createPolls() {
+  void createPolls(pollObjects) {
+    pollsList = [];
     for (int i = 0; i < pollObjects.length; i++) {
       var pollObject = pollObjects[i],
-        poll = pollObject['poll'],
-        options = pollObject['options'],
-        images = pollObject['images'];
+          poll = pollObject['poll'],
+          options = pollObject['options'],
+          images = pollObject['images'];
 
       pollsList.add(Container(
         key: UniqueKey(),
         child: PollWidget(
-          poll: poll,
-          options: options,
-          images: images,
-          user: widget.user,
-          dismissPoll: widget.dismissPoll,
-          viewPoll: widget.viewPoll,
-          index: i,
-          updatedUserModel: widget.updatedUserModel,
-          parentController: widget.parentController
-        ),
+            poll: poll,
+            options: options,
+            images: images,
+            user: widget.user,
+            dismissPoll: widget.dismissPoll,
+            viewPoll: widget.viewPoll,
+            index: i,
+            updatedUserModel: widget.updatedUserModel,
+            parentController: widget.parentController),
       ));
     }
 
@@ -72,13 +71,10 @@ class _PollListPopoverState extends State<PollListPopover> {
 
   @override
   void initState() {
-    pollObjects = widget.pollObjects;
-
-    createPolls();
+    createPolls(widget.pollObjects);
 
     widget.pollListController.stream.listen((updatedPollObjects) {
-      pollObjects = updatedPollObjects;
-      createPolls();
+      createPolls(updatedPollObjects);
     });
 
     super.initState();
@@ -128,10 +124,15 @@ class _PollListPopoverState extends State<PollListPopover> {
             child: MediaQuery.removePadding(
               context: context,
               removeTop: true,
-              child: ListView(
-                physics: ClampingScrollPhysics(),
-                children: pollsList,
-              ),
+              child: pollsList != null && pollsList.length > 0
+                  ? ListView(
+                      physics: ClampingScrollPhysics(),
+                      children: pollsList,
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 100.0),
+                      child: Container(child: Text('No created polls found')),
+                    ),
             ),
           ),
         ],
@@ -139,7 +140,6 @@ class _PollListPopoverState extends State<PollListPopover> {
     );
   }
 }
-
 
 class ProfilePage extends StatefulWidget {
   final user;
@@ -198,25 +198,28 @@ class _ProfilePageState extends State<ProfilePage> {
       return jsonResponse;
     } else {
       showAlert(context, 'Something went wrong, please try again');
-      return null;
+      return [];
     }
   }
 
   Future fetchPollData(bool next) async {
-    if (!next) {
-      pollObjects = [];
-    }
     List polls = await getPollsFromUser();
 
-    for (int i = 0; i < polls.length; i++) {
-      var poll = polls[i];
-      pollObjects.add({
-        'index': i,
-        'poll': poll,
+    if (pollObjects == null || (next && polls.length > 0) || (!next && polls.length != pollObjects.length)) {
+      if (!next) {
+        pollObjects = [];
+      }
+      for (int i = 0; i < polls.length; i++) {
+        var poll = polls[i];
+        pollObjects.add({
+          'index': i,
+          'poll': poll,
+        });
+      }
+      setState(() {
+        preventReload = false;
       });
     }
-
-    setState(() {});
   }
 
   @override
@@ -239,7 +242,7 @@ class _ProfilePageState extends State<ProfilePage> {
     for (int i = 0; i < pollObjects.length; i++) {
       var pollObject = pollObjects[i];
 
-      gridRow.add(PollPreview(
+      gridRow.add(new PollPreview(
         pollObject: pollObject,
         openListView: openListView,
       ));
@@ -255,7 +258,7 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     }
 
-    return ListView(
+    return Column(
       children: pollsList,
     );
   }
@@ -288,22 +291,20 @@ class _ProfilePageState extends State<ProfilePage> {
       pollOpen = true;
       final _formKey = GlobalKey<FormState>();
       await showDialog(
-        context: profileContext,
-        builder: (context) => PollPage(user: user, pollId: pollId, formKey: _formKey),
-        barrierColor: Color(0x01000000));
+          context: profileContext,
+          builder: (context) => PollPage(user: user, pollId: pollId, formKey: _formKey),
+          barrierColor: Color(0x01000000));
       pollOpen = false;
     }
   }
 
   void _onRefresh() async {
-    preventReload = false;
     prevId = null;
     await fetchPollData(false);
     refreshController.refreshCompleted();
   }
 
   void _onLoading() async {
-    preventReload = false;
     await fetchPollData(true);
     refreshController.loadComplete();
   }
@@ -330,67 +331,70 @@ class _ProfilePageState extends State<ProfilePage> {
       gridListView = createGridList();
     }
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
-          child: Text(
-            user['username'],
-            style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
-          ),
+    return KeepAlivePage(
+      child: SmartRefresher(
+        enablePullDown: true,
+        enablePullUp: true,
+        header: ClassicHeader(),
+        footer: ClassicFooter(
+          loadStyle: LoadStyle.ShowWhenLoading,
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 10.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FlatButton(
-                onPressed: () {},
-                child: Text(
-                  'Follow',
-                ),
+        controller: refreshController,
+        onRefresh: _onRefresh,
+        onLoading: _onLoading,
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+              child: Text(
+                user['username'],
+                style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
               ),
-              SizedBox(width: 5.0),
-              FlatButton(
-                onPressed: () {},
-                child: Text(
-                  'Message',
-                ),
-              )
-            ],
-          ),
-        ),
-        pollObjects != null
-            ? pollObjects.length > 0
-                ? Flexible(
-                    child: KeepAlivePage(
-                      child: SmartRefresher(
-                        enablePullDown: true,
-                        enablePullUp: true,
-                        header: ClassicHeader(),
-                        footer: ClassicFooter(
-                          loadStyle: LoadStyle.ShowWhenLoading,
-                        ),
-                        controller: refreshController,
-                        onRefresh: _onRefresh,
-                        onLoading: _onLoading,
-                        child: gridListView,
-                      ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () {},
+                    child: Text(
+                      'Follow',
+                    ),
+                  ),
+                  SizedBox(width: 5.0),
+                  FlatButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Message',
                     ),
                   )
+                ],
+              ),
+            ),
+            Divider(
+              thickness: 1,
+              height: 1,
+            ),
+            pollObjects != null
+                ? pollObjects.length > 0
+                    ? gridListView
+                    : Padding(
+                        padding: const EdgeInsets.only(top: 100.0),
+                        child: Center(
+                          child: Container(child: Text('No created polls found')),
+                        ),
+                      )
                 : Padding(
                     padding: const EdgeInsets.only(top: 50.0),
                     child: Center(
-                      child: Container(child: Text('No created polls found')),
+                      child: Container(child: CircularProgressIndicator()),
                     ),
-                  )
-            : Padding(
-                padding: const EdgeInsets.only(top: 50.0),
-                child: Center(
-                  child: Container(child: CircularProgressIndicator()),
-                ),
-              ),
-      ],
+                  ),
+          ],
+        ),
+      ),
     );
   }
 }
