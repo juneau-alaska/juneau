@@ -21,10 +21,12 @@ class PollPreview extends StatefulWidget {
 }
 
 class _PollPreviewState extends State<PollPreview> {
+  var pollObject;
   var poll;
   List options;
   List images;
   Widget preview;
+  int index;
 
   Future<List<int>> getImageBytes(option) async {
     String url = option['content'];
@@ -81,10 +83,10 @@ class _PollPreviewState extends State<PollPreview> {
   }
 
   Future<Widget> buildPreview(size) async {
-      poll =  widget.pollObject['poll'];
+      poll =  pollObject['poll'];
 
       options = await getOptions(poll);
-      widget.pollObject['options'] = options;
+      pollObject['options'] = options;
 
       List images = [];
 
@@ -94,7 +96,7 @@ class _PollPreviewState extends State<PollPreview> {
         images.add(image);
       }
 
-      widget.pollObject['images'] = images;
+      pollObject['images'] = images;
       preview = Container(
         width: size,
         height: size,
@@ -109,12 +111,19 @@ class _PollPreviewState extends State<PollPreview> {
   }
 
   @override
+  void initState() {
+    pollObject = widget.pollObject;
+    index = pollObject['index'];
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     double size = (MediaQuery.of(context).size.width / 3) - 0.5;
 
     return GestureDetector(
       onTap: () {
-        widget.openListView();
+        widget.openListView(index);
       },
       child: Padding(
         padding: const EdgeInsets.all(0.25),

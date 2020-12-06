@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/components/keepAlivePage.dart';
@@ -15,6 +17,7 @@ import 'dart:io';
 import 'dart:async';
 
 class PollListPopover extends StatefulWidget {
+  final selectedIndex;
   final user;
   final pollObjects;
   final pollListController;
@@ -25,7 +28,8 @@ class PollListPopover extends StatefulWidget {
 
   PollListPopover({
     Key key,
-    @required this.user,
+    @required this.selectedIndex,
+    this.user,
     this.pollObjects,
     this.pollListController,
     this.dismissPoll,
@@ -39,45 +43,32 @@ class PollListPopover extends StatefulWidget {
 }
 
 class _PollListPopoverState extends State<PollListPopover> {
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+
   List<Widget> pollsList;
-
-  void createPolls(pollObjects) {
-    pollsList = [];
-    for (int i = 0; i < pollObjects.length; i++) {
-      var pollObject = pollObjects[i],
-          poll = pollObject['poll'],
-          options = pollObject['options'],
-          images = pollObject['images'];
-
-      pollsList.add(Container(
-        key: UniqueKey(),
-        child: PollWidget(
-            poll: poll,
-            options: options,
-            images: images,
-            user: widget.user,
-            dismissPoll: widget.dismissPoll,
-            viewPoll: widget.viewPoll,
-            index: i,
-            updatedUserModel: widget.updatedUserModel,
-            parentController: widget.parentController),
-      ));
-    }
-
-    if (mounted) {
-      setState(() {});
-    }
-  }
+  List pollObjects;
 
   @override
   void initState() {
-    createPolls(widget.pollObjects);
+    pollObjects = widget.pollObjects;
 
     widget.pollListController.stream.listen((updatedPollObjects) {
-      createPolls(updatedPollObjects);
+      setState(() {
+        pollObjects = updatedPollObjects;
+      });
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      itemScrollController.jumpTo(index: widget.selectedIndex);
     });
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -86,9 +77,9 @@ class _PollListPopoverState extends State<PollListPopover> {
       backgroundColor: Theme.of(context).backgroundColor,
       body: Column(
         children: [
-          SizedBox(height: 40),
+          SizedBox(height: 50),
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -110,7 +101,7 @@ class _PollListPopoverState extends State<PollListPopover> {
                 Text(
                   widget.user['username'],
                   style: TextStyle(
-                    fontSize: 16.0,
+                    fontSize: 18.0,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -120,21 +111,41 @@ class _PollListPopoverState extends State<PollListPopover> {
               ],
             ),
           ),
-          Flexible(
-            child: MediaQuery.removePadding(
-              context: context,
-              removeTop: true,
-              child: pollsList != null && pollsList.length > 0
-                  ? ListView(
-                      physics: ClampingScrollPhysics(),
-                      children: pollsList,
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.only(top: 100.0),
-                      child: Container(child: Text('No created polls found')),
-                    ),
-            ),
-          ),
+          pollObjects != null && pollObjects.length > 0
+              ? Flexible(
+                child: ScrollablePositionedList.builder(
+                    itemCount: pollObjects.length+1,
+                    itemBuilder: (context, index) {
+                      if (index == pollObjects.length) {
+                        return SizedBox(height: 43);
+                      }
+                      var pollObject = pollObjects[index],
+                        poll = pollObject['poll'],
+                        options = pollObject['options'],
+                        images = pollObject['images'];
+
+                      return Container(
+                        key: UniqueKey(),
+                        child: PollWidget(
+                          poll: poll,
+                          options: options,
+                          images: images,
+                          user: widget.user,
+                          dismissPoll: widget.dismissPoll,
+                          viewPoll: widget.viewPoll,
+                          index: index,
+                          updatedUserModel: widget.updatedUserModel,
+                          parentController: widget.parentController),
+                      );
+                    },
+                    itemScrollController: itemScrollController,
+                    itemPositionsListener: itemPositionsListener,
+                  ),
+              )
+              : Padding(
+                  padding: const EdgeInsets.only(top: 100.0),
+                  child: Container(child: Text('No created polls found')),
+                ),
         ],
       ),
     );
@@ -164,7 +175,7 @@ class _ProfilePageState extends State<ProfilePage> {
   bool preventReload = false;
 
   RefreshController refreshController = RefreshController(initialRefresh: false);
-  StreamController pollListController = StreamController();
+  StreamController pollListController = StreamController.broadcast();
   var parentController;
 
   void logout(context) async {
@@ -242,7 +253,7 @@ class _ProfilePageState extends State<ProfilePage> {
     for (int i = 0; i < pollObjects.length; i++) {
       var pollObject = pollObjects[i];
 
-      gridRow.add(new PollPreview(
+      gridRow.add(PollPreview(
         pollObject: pollObject,
         openListView: openListView,
       ));
@@ -305,13 +316,15 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _onLoading() async {
+    if (pollObjects.length == user['createdPolls'].length) return;
     await fetchPollData(true);
     refreshController.loadComplete();
   }
 
-  void openListView() async {
+  void openListView(index) async {
     Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
       return PollListPopover(
+        selectedIndex: index,
         user: user,
         pollObjects: pollObjects,
         pollListController: pollListController,

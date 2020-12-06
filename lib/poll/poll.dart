@@ -19,7 +19,7 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:rxdart/rxdart.dart';
 
-double radius = 13.0;
+double radius = 0.0;
 
 class PositionalDots extends StatefulWidget {
   final pageController;
@@ -203,7 +203,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
   @override
   Widget build(BuildContext context) {
     List options = widget.options;
-    double screenWidth = MediaQuery.of(context).size.width - 20;
+    double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = screenWidth / 1.3;
     List imageBytesList = [];
 
@@ -862,18 +862,18 @@ class _PollWidgetState extends State<PollWidget> {
         getImages: getImages);
 
     return Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.symmetric(vertical: 0.5),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(radius)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 1),
-            ),
-          ],
+          // boxShadow: [
+          //   BoxShadow(
+          //     color: Colors.grey.withOpacity(0.3),
+          //     spreadRadius: 2,
+          //     blurRadius: 5,
+          //     offset: Offset(0, 1),
+          //   ),
+          // ],
         ),
         child: Stack(
           alignment: Alignment.bottomCenter,
