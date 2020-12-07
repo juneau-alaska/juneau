@@ -14,6 +14,7 @@ import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/common/methods/numMethods.dart';
+import 'package:juneau/profile/profile.dart';
 
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -244,15 +245,15 @@ class _ImageCarouselState extends State<ImageCarousel> {
                         HapticFeedback.heavyImpact();
                         Navigator.of(context)
                             .push(TransparentRoute(builder: (BuildContext context) {
-                          return BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                PhotoHero(
+                          return Scaffold(
+                            backgroundColor: Colors.transparent,
+                            body: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                              child: Center(
+                                child: PhotoHero(
                                   tag: options[i]['_id'],
                                   photo: image,
-                                  width: screenWidth + 20,
+                                  width: screenWidth,
                                   onPanUpdate: (details) {
                                     if (details.delta.dy > 0) {
                                       Navigator.of(context).pop();
@@ -260,7 +261,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                                   },
                                   onLongPress: () {},
                                 ),
-                              ],
+                              ),
                             ),
                           );
                         }));
@@ -271,41 +272,41 @@ class _ImageCarouselState extends State<ImageCarousel> {
               }
             }
 
-            return Stack(
-              children: [
-                Container(
-                  width: screenWidth,
-                  height: screenHeight,
-                  child: ClipRRect(
+            return Container(
+              width: screenWidth,
+              height: screenHeight,
+              child: Stack(
+                children: [
+                  ClipRRect(
                     borderRadius: BorderRadius.all(Radius.circular(radius)),
                     child: PageView(
                       children: imageWidgets,
                       controller: pageController,
                     ),
                   ),
-                ),
-                IgnorePointer(
-                  child: Opacity(
-                    opacity: 0.35,
-                    child: Container(
-                      width: screenWidth,
-                      height: screenHeight,
-                      decoration: BoxDecoration(
-                        color: Colors.black45,
-                        borderRadius: BorderRadius.all(Radius.circular(radius)),
+                  IgnorePointer(
+                    child: Opacity(
+                      opacity: 0.35,
+                      child: Container(
+                        width: screenWidth,
+                        height: screenHeight,
+                        decoration: BoxDecoration(
+                          color: Colors.black45,
+                          borderRadius: BorderRadius.all(Radius.circular(radius)),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Positioned.fill(
-                  child: PositionalDots(
-                      pageController: pageController,
-                      numImages: imageWidgets.length,
-                      totalVotes: totalVotes,
-                      options: options,
-                      selectedOption: widget.selectedOption),
-                ),
-              ],
+                  Positioned.fill(
+                    child: PositionalDots(
+                        pageController: pageController,
+                        numImages: imageWidgets.length,
+                        totalVotes: totalVotes,
+                        options: options,
+                        selectedOption: widget.selectedOption),
+                  ),
+                ],
+              ),
             );
           } else {
             return new Container(
@@ -908,7 +909,25 @@ class _PollWidgetState extends State<PollWidget> {
                                         ),
                                       ),
                                       onTap: () {
-                                        print(pollCreator['email']);
+                                        Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
+                                          return Scaffold(
+                                            backgroundColor: Theme.of(context).backgroundColor,
+                                            appBar: AppBar(
+                                              backgroundColor: Theme.of(context).backgroundColor,
+                                              brightness: Theme.of(context).brightness,
+                                              elevation: 0,
+                                              leading: IconButton(
+                                                icon: Icon(
+                                                  Icons.arrow_back,
+                                                  size: 25.0,
+                                                  color: Theme.of(context).buttonColor,
+                                                ),
+                                                onPressed: () => Navigator.of(context).pop(),
+                                              ),
+                                            ),
+                                            body: ProfilePage(user: pollCreator));
+                                        }));
+
                                       }),
                                   Padding(
                                     padding: const EdgeInsets.only(left: 2.0, right: 1.0),
@@ -936,8 +955,8 @@ class _PollWidgetState extends State<PollWidget> {
                                         child: Text(
                                           'voted',
                                           style: TextStyle(
-                                              fontSize: 14.0,
-                                              color: Colors.lightGreenAccent,
+                                            fontSize: 14.0,
+                                            color: Colors.lightGreenAccent,
                                           ),
                                         ),
                                       )
@@ -984,11 +1003,11 @@ class _PollWidgetState extends State<PollWidget> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     CategoryButton(
-                      followingCategories: followingCategories,
-                      pollCategory: pollCategory,
-                      warning: warning,
-                      parentController: widget.parentController,
-                      updatedUserModel: widget.updatedUserModel),
+                        followingCategories: followingCategories,
+                        pollCategory: pollCategory,
+                        warning: warning,
+                        parentController: widget.parentController,
+                        updatedUserModel: widget.updatedUserModel),
                     GestureDetector(
                       onTap: () {
                         widget.viewPoll(poll['_id']);
@@ -1009,9 +1028,7 @@ class _PollWidgetState extends State<PollWidget> {
                           Padding(
                             padding: const EdgeInsets.only(left: 3.0),
                             child: Text(
-                              poll['comments'] != null
-                                  ? poll['comments'].length.toString()
-                                  : '0',
+                              poll['comments'] != null ? poll['comments'].length.toString() : '0',
                               style: TextStyle(
                                   fontSize: 17.0,
                                   color: Theme.of(context).backgroundColor,

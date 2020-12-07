@@ -48,6 +48,7 @@ class _PollListPopoverState extends State<PollListPopover> {
 
   List<Widget> pollsList;
   List pollObjects;
+  int visibleIndex;
 
   @override
   void initState() {
@@ -67,86 +68,63 @@ class _PollListPopoverState extends State<PollListPopover> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      body: Column(
-        children: [
-          SizedBox(height: 50),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 10.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  width: 30,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Icon(
-                        Icons.arrow_back,
-                        size: 25.0,
-                      ),
-                    ),
-                  ),
-                ),
-                Text(
-                  widget.user['username'],
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Container(
-                  width: 30,
-                ),
-              ],
-            ),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).backgroundColor,
+        brightness: Theme.of(context).brightness,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            size: 25.0,
+            color: Theme.of(context).buttonColor,
           ),
-          pollObjects != null && pollObjects.length > 0
-              ? Flexible(
-                child: ScrollablePositionedList.builder(
-                    itemCount: pollObjects.length+1,
-                    itemBuilder: (context, index) {
-                      if (index == pollObjects.length) {
-                        return SizedBox(height: 43);
-                      }
-                      var pollObject = pollObjects[index],
-                        poll = pollObject['poll'],
-                        options = pollObject['options'],
-                        images = pollObject['images'];
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          widget.user['username'],
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).buttonColor,
+          ),
+        ),
+      ),
+      body: pollObjects != null && pollObjects.length > 0
+        ? ScrollablePositionedList.builder(
+          itemCount: pollObjects.length + 1,
+          itemBuilder: (context, index) {
+            if (index == pollObjects.length) {
+              return SizedBox(height: 43);
+            }
 
-                      return Container(
-                        key: UniqueKey(),
-                        child: PollWidget(
-                          poll: poll,
-                          options: options,
-                          images: images,
-                          user: widget.user,
-                          dismissPoll: widget.dismissPoll,
-                          viewPoll: widget.viewPoll,
-                          index: index,
-                          updatedUserModel: widget.updatedUserModel,
-                          parentController: widget.parentController),
-                      );
-                    },
-                    itemScrollController: itemScrollController,
-                    itemPositionsListener: itemPositionsListener,
-                  ),
-              )
-              : Padding(
-                  padding: const EdgeInsets.only(top: 100.0),
-                  child: Container(child: Text('No created polls found')),
-                ),
-        ],
+            var pollObject = pollObjects[index],
+              poll = pollObject['poll'],
+              options = pollObject['options'],
+              images = pollObject['images'];
+
+            return Container(
+              key: UniqueKey(),
+              child: PollWidget(
+                poll: poll,
+                options: options,
+                images: images,
+                user: widget.user,
+                dismissPoll: widget.dismissPoll,
+                viewPoll: widget.viewPoll,
+                index: index,
+                updatedUserModel: widget.updatedUserModel,
+                parentController: widget.parentController),
+            );
+          },
+          itemScrollController: itemScrollController,
+          itemPositionsListener: itemPositionsListener,
+        )
+        : Padding(
+        padding: const EdgeInsets.only(top: 100.0),
+        child: Container(child: Text('No created polls found')),
       ),
     );
   }
@@ -216,7 +194,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Future fetchPollData(bool next) async {
     List polls = await getPollsFromUser();
 
-    if (pollObjects == null || (next && polls.length > 0) || (!next && polls.length != pollObjects.length)) {
+    if (pollObjects == null ||
+        (next && polls.length > 0) ||
+        (!next && polls.length != pollObjects.length)) {
       if (!next) {
         pollObjects = [];
       }
@@ -301,10 +281,11 @@ class _ProfilePageState extends State<ProfilePage> {
     if (!pollOpen) {
       pollOpen = true;
       final _formKey = GlobalKey<FormState>();
-      await showDialog(
-          context: profileContext,
-          builder: (context) => PollPage(user: user, pollId: pollId, formKey: _formKey),
-          barrierColor: Color(0x01000000));
+
+      Navigator.of(profileContext).push(TransparentRoute(builder: (BuildContext context) {
+        return PollPage(user: user, pollId: pollId, formKey: _formKey);
+      }));
+
       pollOpen = false;
     }
   }

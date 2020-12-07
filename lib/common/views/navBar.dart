@@ -27,9 +27,9 @@ class _NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 80.0,
+      height: 75.0,
       child: Padding(
-        padding: const EdgeInsets.only(top: 10.0),
+        padding: const EdgeInsets.only(top: 5.0),
         child: BottomNavigationBar(
           elevation: 0.0,
           backgroundColor: Theme

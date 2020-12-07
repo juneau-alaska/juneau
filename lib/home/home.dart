@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/poll/poll.dart';
 import 'package:juneau/poll/pollPage.dart';
 import 'package:juneau/common/components/keepAlivePage.dart';
@@ -293,10 +294,11 @@ class _HomePageState extends State<HomePage> {
     if (!pollOpen) {
       pollOpen = true;
       final _formKey = GlobalKey<FormState>();
-      await showDialog(
-          context: homeContext,
-          builder: (context) => PollPage(user: user, pollId: pollId, formKey: _formKey),
-          barrierColor: Color(0x01000000));
+
+      Navigator.of(homeContext).push(TransparentRoute(builder: (BuildContext context) {
+        return PollPage(user: user, pollId: pollId, formKey: _formKey);
+      }));
+
       pollOpen = false;
     }
   }
@@ -334,6 +336,7 @@ class _HomePageState extends State<HomePage> {
           onRefresh: _onRefresh,
           onLoading: _onLoading,
           child: ListView(
+            physics: ClampingScrollPhysics(),
             children: pollsList,
           ),
         ),

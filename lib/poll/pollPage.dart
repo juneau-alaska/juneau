@@ -643,7 +643,7 @@ class _BottomInputState extends State<BottomInput> {
           width: MediaQuery.of(context).size.width,
           color: Theme.of(context).backgroundColor,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+            padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 30.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
