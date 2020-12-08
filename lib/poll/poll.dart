@@ -909,25 +909,7 @@ class _PollWidgetState extends State<PollWidget> {
                                         ),
                                       ),
                                       onTap: () {
-                                        Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
-                                          return Scaffold(
-                                            backgroundColor: Theme.of(context).backgroundColor,
-                                            appBar: AppBar(
-                                              backgroundColor: Theme.of(context).backgroundColor,
-                                              brightness: Theme.of(context).brightness,
-                                              elevation: 0,
-                                              leading: IconButton(
-                                                icon: Icon(
-                                                  Icons.arrow_back,
-                                                  size: 25.0,
-                                                  color: Theme.of(context).buttonColor,
-                                                ),
-                                                onPressed: () => Navigator.of(context).pop(),
-                                              ),
-                                            ),
-                                            body: ProfilePage(user: pollCreator));
-                                        }));
-
+                                        openProfile(context, pollCreator);
                                       }),
                                   Padding(
                                     padding: const EdgeInsets.only(left: 2.0, right: 1.0),

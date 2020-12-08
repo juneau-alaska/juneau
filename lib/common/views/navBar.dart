@@ -53,7 +53,6 @@ class _NavBarState extends State<NavBar> {
                   _previousIndex = _selectedIndex;
                   widget.navController.add(0);
                   break;
-
                 case 1:
                   showModalBottomSheet(
                     isScrollControlled: true,
@@ -63,12 +62,10 @@ class _NavBarState extends State<NavBar> {
                     });
                   _selectedIndex = _previousIndex;
                   break;
-
                 case 2:
                   _previousIndex = _selectedIndex;
                   widget.navController.add(1);
                   break;
-
                 default:
                   break;
               }

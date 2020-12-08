@@ -32,21 +32,21 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
         backgroundColor: const Color(0xFFFEFEFE),
         hintColor: const Color(0xFF9c9e9f),
-        highlightColor: Colors.blue,
+        highlightColor: const Color(0xff1f64ef),
         accentColor: const Color(0xFFef3b4a),
         buttonColor: black,
         textTheme: TextTheme(
           headline1: TextStyle(
             color: black,
-            letterSpacing: -0.5,
+            letterSpacing: -0.25,
           ),
           headline6: TextStyle(
             color: black,
-            letterSpacing: -0.5,
+            letterSpacing: -0.25,
           ),
           bodyText2: TextStyle(
             color: black,
-            letterSpacing: -0.5,
+            letterSpacing: -0.25,
           ),
         ),
       ),

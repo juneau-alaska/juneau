@@ -16,6 +16,28 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
+void openProfile(context, user) {
+  Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      appBar: AppBar(
+        toolbarHeight: 30.0,
+        backgroundColor: Theme.of(context).backgroundColor,
+        brightness: Theme.of(context).brightness,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            size: 25.0,
+            color: Theme.of(context).buttonColor,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: ProfilePage(user: user));
+  }));
+}
+
 class PollListPopover extends StatefulWidget {
   final selectedIndex;
   final user;
@@ -345,7 +367,7 @@ class _ProfilePageState extends State<ProfilePage> {
           shrinkWrap: true,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 10.0),
+              padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 5.0),
               child: Text(
                 user['username'],
                 style: TextStyle(
@@ -356,7 +378,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 10.0),
+              padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: isUser != null && isUser

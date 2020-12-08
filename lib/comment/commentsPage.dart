@@ -300,29 +300,9 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
     if (regExp.hasMatch(text)) {
       textChildren.add(GestureDetector(
         onTap: () async {
-
           String username = text.substring(1);
-
           var user = await getUser(username);
-
-          Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
-            return Scaffold(
-              backgroundColor: Theme.of(context).backgroundColor,
-              appBar: AppBar(
-                backgroundColor: Theme.of(context).backgroundColor,
-                brightness: Theme.of(context).brightness,
-                elevation: 0,
-                leading: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
-                    size: 25.0,
-                    color: Theme.of(context).buttonColor,
-                  ),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ),
-              body: ProfilePage(user: user));
-          }));
+          openProfile(context, user);
         },
         child: Text(text + ' ',
             style: TextStyle(
@@ -361,7 +341,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                       ),
                     ),
                     onTap: () {
-                      print(creator['email']);
+                      openProfile(context, creator);
                     }),
                 Padding(
                   padding: const EdgeInsets.only(left: 3.0, right: 1.0),
