@@ -36,9 +36,18 @@ class MyApp extends StatelessWidget {
         accentColor: const Color(0xFFef3b4a),
         buttonColor: black,
         textTheme: TextTheme(
-          headline1: TextStyle(color: black),
-          headline6: TextStyle(color: black),
-          bodyText2: TextStyle(color: black),
+          headline1: TextStyle(
+            color: black,
+            letterSpacing: -0.5,
+          ),
+          headline6: TextStyle(
+            color: black,
+            letterSpacing: -0.5,
+          ),
+          bodyText2: TextStyle(
+            color: black,
+            letterSpacing: -0.5,
+          ),
         ),
       ),
       initialRoute: '/splash',

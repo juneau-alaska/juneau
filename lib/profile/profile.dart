@@ -93,39 +93,39 @@ class _PollListPopoverState extends State<PollListPopover> {
         ),
       ),
       body: pollObjects != null && pollObjects.length > 0
-        ? ScrollablePositionedList.builder(
-          itemCount: pollObjects.length + 1,
-          itemBuilder: (context, index) {
-            if (index == pollObjects.length) {
-              return SizedBox(height: 43);
-            }
+          ? ScrollablePositionedList.builder(
+              itemCount: pollObjects.length + 1,
+              itemBuilder: (context, index) {
+                if (index == pollObjects.length) {
+                  return SizedBox(height: 43);
+                }
 
-            var pollObject = pollObjects[index],
-              poll = pollObject['poll'],
-              options = pollObject['options'],
-              images = pollObject['images'];
+                var pollObject = pollObjects[index],
+                    poll = pollObject['poll'],
+                    options = pollObject['options'],
+                    images = pollObject['images'];
 
-            return Container(
-              key: UniqueKey(),
-              child: PollWidget(
-                poll: poll,
-                options: options,
-                images: images,
-                user: widget.user,
-                dismissPoll: widget.dismissPoll,
-                viewPoll: widget.viewPoll,
-                index: index,
-                updatedUserModel: widget.updatedUserModel,
-                parentController: widget.parentController),
-            );
-          },
-          itemScrollController: itemScrollController,
-          itemPositionsListener: itemPositionsListener,
-        )
-        : Padding(
-        padding: const EdgeInsets.only(top: 100.0),
-        child: Container(child: Text('No created polls found')),
-      ),
+                return Container(
+                  key: UniqueKey(),
+                  child: PollWidget(
+                      poll: poll,
+                      options: options,
+                      images: images,
+                      user: widget.user,
+                      dismissPoll: widget.dismissPoll,
+                      viewPoll: widget.viewPoll,
+                      index: index,
+                      updatedUserModel: widget.updatedUserModel,
+                      parentController: widget.parentController),
+                );
+              },
+              itemScrollController: itemScrollController,
+              itemPositionsListener: itemPositionsListener,
+            )
+          : Padding(
+              padding: const EdgeInsets.only(top: 100.0),
+              child: Container(child: Text('No created polls found')),
+            ),
     );
   }
 }
@@ -151,6 +151,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool pollOpen = false;
   bool preventReload = false;
+  bool isUser;
 
   RefreshController refreshController = RefreshController(initialRefresh: false);
   StreamController pollListController = StreamController.broadcast();
@@ -220,6 +221,10 @@ class _ProfilePageState extends State<ProfilePage> {
     parentController = new StreamController.broadcast();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String userId = prefs.getString('userId');
+      isUser = userId == user['_id'];
+
       await fetchPollData(false);
     });
 
@@ -340,36 +345,108 @@ class _ProfilePageState extends State<ProfilePage> {
           shrinkWrap: true,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+              padding: const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 10.0),
               child: Text(
                 user['username'],
-                style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 28.0,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -1.3,
+                ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  GestureDetector(
-                    onTap: () {},
-                    child: Text(
-                      'Follow',
-                    ),
-                  ),
-                  SizedBox(width: 5.0),
-                  FlatButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Message',
-                    ),
-                  )
-                ],
+                children: isUser != null && isUser
+                    ? [
+                        RawMaterialButton(
+                          onPressed: () {},
+                          constraints: BoxConstraints(),
+                          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                          fillColor: Theme.of(context).backgroundColor,
+                          elevation: 0.0,
+                          child: Text(
+                            'Edit Profile',
+                            style: TextStyle(
+                              color: Theme.of(context).buttonColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                  color: Theme.of(context).hintColor,
+                                  width: 1,
+                                  style: BorderStyle.solid),
+                              borderRadius: BorderRadius.circular(5)),
+                        ),
+                        SizedBox(width: 5.0),
+                        RawMaterialButton(
+                          onPressed: () {},
+                          constraints: BoxConstraints(),
+                          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                          fillColor: Theme.of(context).backgroundColor,
+                          elevation: 0.0,
+                          child: Text(
+                            'Settings',
+                            style: TextStyle(
+                              color: Theme.of(context).buttonColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                  color: Theme.of(context).hintColor,
+                                  width: 1,
+                                  style: BorderStyle.solid),
+                              borderRadius: BorderRadius.circular(5)),
+                        ),
+                      ]
+                    : [
+                        RawMaterialButton(
+                          onPressed: () {},
+                          constraints: BoxConstraints(),
+                          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                          fillColor: Theme.of(context).backgroundColor,
+                          elevation: 0.0,
+                          child: Text(
+                            'Follow',
+                            style: TextStyle(
+                              color: Theme.of(context).buttonColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                  color: Theme.of(context).hintColor,
+                                  width: 1,
+                                  style: BorderStyle.solid),
+                              borderRadius: BorderRadius.circular(5)),
+                        ),
+                        SizedBox(width: 5.0),
+                        RawMaterialButton(
+                          onPressed: () {},
+                          constraints: BoxConstraints(),
+                          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                          fillColor: Theme.of(context).backgroundColor,
+                          elevation: 0.0,
+                          child: Text(
+                            'Message',
+                            style: TextStyle(
+                              color: Theme.of(context).buttonColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                  color: Theme.of(context).hintColor,
+                                  width: 1,
+                                  style: BorderStyle.solid),
+                              borderRadius: BorderRadius.circular(5)),
+                        ),
+                      ],
               ),
-            ),
-            Divider(
-              thickness: 1,
-              height: 1,
             ),
             pollObjects != null
                 ? pollObjects.length > 0
