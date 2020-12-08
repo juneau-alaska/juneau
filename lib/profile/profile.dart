@@ -9,7 +9,7 @@ import 'package:juneau/common/components/keepAlivePage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/poll/pollPreview.dart';
 import 'package:juneau/poll/poll.dart';
-import 'package:juneau/poll/pollPage.dart';
+import 'package:juneau/comment/commentsPage.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -283,7 +283,7 @@ class _ProfilePageState extends State<ProfilePage> {
       final _formKey = GlobalKey<FormState>();
 
       Navigator.of(profileContext).push(TransparentRoute(builder: (BuildContext context) {
-        return PollPage(user: user, pollId: pollId, formKey: _formKey);
+        return CommentsPage(user: user, pollId: pollId, formKey: _formKey);
       }));
 
       pollOpen = false;

@@ -5,7 +5,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/poll/poll.dart';
-import 'package:juneau/poll/pollPage.dart';
+import 'package:juneau/comment/commentsPage.dart';
 import 'package:juneau/common/components/keepAlivePage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 
@@ -296,7 +296,7 @@ class _HomePageState extends State<HomePage> {
       final _formKey = GlobalKey<FormState>();
 
       Navigator.of(homeContext).push(TransparentRoute(builder: (BuildContext context) {
-        return PollPage(user: user, pollId: pollId, formKey: _formKey);
+        return CommentsPage(user: user, pollId: pollId, formKey: _formKey);
       }));
 
       pollOpen = false;

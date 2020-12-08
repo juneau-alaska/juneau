@@ -9,6 +9,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
+import 'package:juneau/profile/profile.dart';
+import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/methods/numMethods.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/controllers/richTextController.dart';
@@ -168,6 +170,27 @@ Future getCreatedByUser(String createdById) async {
   }
 }
 
+Future getUser(String username) async {
+  String url = 'http://localhost:4000/user/username/' + username;
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  var response = await http.get(url, headers: headers);
+
+  if (response.statusCode == 200) {
+    var jsonResponse = jsonDecode(response.body);
+    return jsonResponse;
+  } else {
+    return null;
+  }
+}
+
 Future<bool> updateUserLikedComments(String commentId, bool liked) async {
   String url = 'http://localhost:4000/user/';
 
@@ -276,8 +299,30 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
 
     if (regExp.hasMatch(text)) {
       textChildren.add(GestureDetector(
-        onTap: () {
-          print(text);
+        onTap: () async {
+
+          String username = text.substring(1);
+
+          var user = await getUser(username);
+
+          Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
+            return Scaffold(
+              backgroundColor: Theme.of(context).backgroundColor,
+              appBar: AppBar(
+                backgroundColor: Theme.of(context).backgroundColor,
+                brightness: Theme.of(context).brightness,
+                elevation: 0,
+                leading: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back,
+                    size: 25.0,
+                    color: Theme.of(context).buttonColor,
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+              body: ProfilePage(user: user));
+          }));
         },
         child: Text(text + ' ',
             style: TextStyle(
@@ -708,19 +753,19 @@ class _BottomInputState extends State<BottomInput> {
   }
 }
 
-class PollPage extends StatefulWidget {
+class CommentsPage extends StatefulWidget {
   final user;
   final pollId;
   final formKey;
 
-  PollPage({Key key, @required this.user, this.pollId, this.formKey})
+  CommentsPage({Key key, @required this.user, this.pollId, this.formKey})
       : super(key: key);
 
   @override
-  _PollPageState createState() => _PollPageState();
+  _CommentsPageState createState() => _CommentsPageState();
 }
 
-class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin {
+class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Animation<Offset> _animation;
 
