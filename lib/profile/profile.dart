@@ -47,6 +47,7 @@ class PollListPopover extends StatefulWidget {
   final viewPoll;
   final updatedUserModel;
   final parentController;
+  final tag;
 
   PollListPopover({
     Key key,
@@ -58,6 +59,7 @@ class PollListPopover extends StatefulWidget {
     this.viewPoll,
     this.updatedUserModel,
     this.parentController,
+    this.tag
   }) : super(key: key);
 
   @override
@@ -114,40 +116,48 @@ class _PollListPopoverState extends State<PollListPopover> {
           ),
         ),
       ),
-      body: pollObjects != null && pollObjects.length > 0
-          ? ScrollablePositionedList.builder(
-              itemCount: pollObjects.length + 1,
-              itemBuilder: (context, index) {
-                if (index == pollObjects.length) {
-                  return SizedBox(height: 43);
-                }
+      body: Stack(
+        children: [
+          Hero(
+            tag: widget.tag,
+            child: Container()
+          ),
+        pollObjects != null && pollObjects.length > 0
+            ? ScrollablePositionedList.builder(
+                itemCount: pollObjects.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == pollObjects.length) {
+                    return SizedBox(height: 43);
+                  }
 
-                var pollObject = pollObjects[index],
-                    poll = pollObject['poll'],
-                    options = pollObject['options'],
-                    images = pollObject['images'];
+                  var pollObject = pollObjects[index],
+                      poll = pollObject['poll'],
+                      options = pollObject['options'],
+                      images = pollObject['images'];
 
-                return Container(
-                  key: UniqueKey(),
-                  child: PollWidget(
-                      poll: poll,
-                      options: options,
-                      images: images,
-                      user: widget.user,
-                      dismissPoll: widget.dismissPoll,
-                      viewPoll: widget.viewPoll,
-                      index: index,
-                      updatedUserModel: widget.updatedUserModel,
-                      parentController: widget.parentController),
-                );
-              },
-              itemScrollController: itemScrollController,
-              itemPositionsListener: itemPositionsListener,
-            )
-          : Padding(
-              padding: const EdgeInsets.only(top: 100.0),
-              child: Container(child: Text('No created polls found')),
-            ),
+                  return Container(
+                    key: UniqueKey(),
+                    child: PollWidget(
+                        poll: poll,
+                        options: options,
+                        images: images,
+                        user: widget.user,
+                        dismissPoll: widget.dismissPoll,
+                        viewPoll: widget.viewPoll,
+                        index: index,
+                        updatedUserModel: widget.updatedUserModel,
+                        parentController: widget.parentController),
+                  );
+                },
+                itemScrollController: itemScrollController,
+                itemPositionsListener: itemPositionsListener,
+              )
+            : Padding(
+                padding: const EdgeInsets.only(top: 100.0),
+                child: Container(child: Text('No created polls found')),
+              ),
+        ],
+      ),
     );
   }
 }
@@ -260,9 +270,12 @@ class _ProfilePageState extends State<ProfilePage> {
     for (int i = 0; i < pollObjects.length; i++) {
       var pollObject = pollObjects[i];
 
-      gridRow.add(PollPreview(
-        pollObject: pollObject,
-        openListView: openListView,
+      gridRow.add(Hero(
+        tag: pollObject['poll']['_id'],
+        child: PollPreview(
+          pollObject: pollObject,
+          openListView: openListView,
+        ),
       ));
 
       if ((i + 1) % 3 == 0 || i == pollObjects.length - 1) {
@@ -329,7 +342,7 @@ class _ProfilePageState extends State<ProfilePage> {
     refreshController.loadComplete();
   }
 
-  void openListView(index) async {
+  void openListView(index, tag) async {
     Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
       return PollListPopover(
         selectedIndex: index,
@@ -340,6 +353,7 @@ class _ProfilePageState extends State<ProfilePage> {
         viewPoll: viewPoll,
         updatedUserModel: updatedUserModel,
         parentController: parentController,
+        tag: tag
       );
     }));
   }

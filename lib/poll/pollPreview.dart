@@ -83,36 +83,37 @@ class _PollPreviewState extends State<PollPreview> {
   }
 
   Future<Widget> buildPreview(size) async {
-      poll =  pollObject['poll'];
+    options = await getOptions(poll);
+    pollObject['options'] = options;
 
-      options = await getOptions(poll);
-      pollObject['options'] = options;
+    List images = [];
 
-      List images = [];
+    for (int i = 0; i < options.length; i++) {
+      var option = options[i];
+      List<int> image = await getImageBytes(option);
+      images.add(image);
+    }
 
-      for (int i=0; i < options.length; i++) {
-        var option = options[i];
-        List<int> image = await getImageBytes(option);
-        images.add(image);
-      }
-
-      pollObject['images'] = images;
-      preview = Container(
+    pollObject['images'] = images;
+    preview = Container(
+      width: size,
+      height: size,
+      child: Image.memory(
+        images[0],
+        fit: BoxFit.cover,
         width: size,
-        height: size,
-        child: Image.memory(
-          images[0],
-          fit: BoxFit.cover,
-          width: size,
-        ),
-      );
+      ),
+    );
 
-      return preview;
+    pollObject['preview'] = preview;
+    return preview;
   }
 
   @override
   void initState() {
     pollObject = widget.pollObject;
+    poll = pollObject['poll'];
+    preview = pollObject['preview'];
     index = pollObject['index'];
     super.initState();
   }
@@ -123,27 +124,25 @@ class _PollPreviewState extends State<PollPreview> {
 
     return GestureDetector(
       onTap: () {
-        widget.openListView(index);
+        widget.openListView(index, poll['_id']);
       },
       child: Padding(
         padding: const EdgeInsets.all(0.25),
-        child: FutureBuilder<Widget>(
-          future: buildPreview(size),
-          builder: (context, AsyncSnapshot<Widget> pollPreview) {
-            if (pollPreview.hasData) {
-              return Container(
-                color: Theme.of(context).hintColor,
-                child: pollPreview.data
-              );
-            } else {
-              return Container(
-                width: size,
-                height: size,
-                color: Theme.of(context).hintColor,
-              );
-            }
-          }
-        ),
+        child: preview == null
+            ? FutureBuilder<Widget>(
+                future: buildPreview(size),
+                builder: (context, AsyncSnapshot<Widget> pollPreview) {
+                  if (pollPreview.hasData) {
+                    return Container(color: Theme.of(context).hintColor, child: pollPreview.data);
+                  } else {
+                    return Container(
+                      width: size,
+                      height: size,
+                      color: Theme.of(context).hintColor,
+                    );
+                  }
+                })
+            : preview,
       ),
     );
   }
