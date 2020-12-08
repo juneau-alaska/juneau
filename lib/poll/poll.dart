@@ -20,8 +20,6 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:rxdart/rxdart.dart';
 
-double radius = 0.0;
-
 class PositionalDots extends StatefulWidget {
   final pageController;
   final numImages;
@@ -248,7 +246,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                           return Scaffold(
                             backgroundColor: Colors.transparent,
                             body: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                               child: Center(
                                 child: PhotoHero(
                                   tag: options[i]['_id'],
@@ -277,12 +275,9 @@ class _ImageCarouselState extends State<ImageCarousel> {
               height: screenHeight,
               child: Stack(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(radius)),
-                    child: PageView(
-                      children: imageWidgets,
-                      controller: pageController,
-                    ),
+                  PageView(
+                    children: imageWidgets,
+                    controller: pageController,
                   ),
                   IgnorePointer(
                     child: Opacity(
@@ -290,10 +285,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                       child: Container(
                         width: screenWidth,
                         height: screenHeight,
-                        decoration: BoxDecoration(
-                          color: Colors.black45,
-                          borderRadius: BorderRadius.all(Radius.circular(radius)),
-                        ),
+                        color: Colors.black45,
                       ),
                     ),
                   ),
@@ -310,10 +302,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
             );
           } else {
             return new Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(radius)),
-                color: Theme.of(context).hintColor,
-              ),
+              color: Theme.of(context).hintColor,
               width: screenWidth,
               height: screenHeight,
             );
@@ -865,17 +854,6 @@ class _PollWidgetState extends State<PollWidget> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 0.5),
       child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(radius)),
-          // boxShadow: [
-          //   BoxShadow(
-          //     color: Colors.grey.withOpacity(0.3),
-          //     spreadRadius: 2,
-          //     blurRadius: 5,
-          //     offset: Offset(0, 1),
-          //   ),
-          // ],
-        ),
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [

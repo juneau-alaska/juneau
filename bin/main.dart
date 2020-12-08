@@ -148,12 +148,10 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: Theme.of(context).backgroundColor,
       body: Center(
         child: Container(
-          width: 300.0,
-          height: 300.0,
-          decoration: BoxDecoration(
-            image: DecorationImage(image: AssetImage("images/cubesmelt.gif"), fit: BoxFit.fitWidth),
-          ),
-        ),
+          width: 100,
+          height: 100,
+          color: Colors.lightGreenAccent
+        )
       ),
     );
   }

@@ -10,6 +10,7 @@ import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/poll/pollPreview.dart';
 import 'package:juneau/poll/poll.dart';
 import 'package:juneau/comment/commentsPage.dart';
+import 'package:juneau/profile/editProfile.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -19,22 +20,22 @@ import 'dart:async';
 void openProfile(context, user) {
   Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      appBar: AppBar(
-        toolbarHeight: 30.0,
         backgroundColor: Theme.of(context).backgroundColor,
-        brightness: Theme.of(context).brightness,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            size: 25.0,
-            color: Theme.of(context).buttonColor,
+        appBar: AppBar(
+          toolbarHeight: 30.0,
+          backgroundColor: Theme.of(context).backgroundColor,
+          brightness: Theme.of(context).brightness,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              size: 25.0,
+              color: Theme.of(context).buttonColor,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
           ),
-          onPressed: () => Navigator.of(context).pop(),
         ),
-      ),
-      body: ProfilePage(user: user));
+        body: ProfilePage(user: user));
   }));
 }
 
@@ -49,18 +50,18 @@ class PollListPopover extends StatefulWidget {
   final parentController;
   final tag;
 
-  PollListPopover({
-    Key key,
-    @required this.selectedIndex,
-    this.user,
-    this.pollObjects,
-    this.pollListController,
-    this.dismissPoll,
-    this.viewPoll,
-    this.updatedUserModel,
-    this.parentController,
-    this.tag
-  }) : super(key: key);
+  PollListPopover(
+      {Key key,
+      @required this.selectedIndex,
+      this.user,
+      this.pollObjects,
+      this.pollListController,
+      this.dismissPoll,
+      this.viewPoll,
+      this.updatedUserModel,
+      this.parentController,
+      this.tag})
+      : super(key: key);
 
   @override
   _PollListPopoverState createState() => _PollListPopoverState();
@@ -93,71 +94,75 @@ class _PollListPopoverState extends State<PollListPopover> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).backgroundColor,
-        brightness: Theme.of(context).brightness,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            size: 25.0,
-            color: Theme.of(context).buttonColor,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
+    return Stack(
+      children: [
+        Center(
+          child: Hero(
+              tag: widget.tag,
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.width,
+              )),
         ),
-        title: Text(
-          widget.user['username'],
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).buttonColor,
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          Hero(
-            tag: widget.tag,
-            child: Container()
-          ),
-        pollObjects != null && pollObjects.length > 0
-            ? ScrollablePositionedList.builder(
-                itemCount: pollObjects.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == pollObjects.length) {
-                    return SizedBox(height: 43);
-                  }
-
-                  var pollObject = pollObjects[index],
-                      poll = pollObject['poll'],
-                      options = pollObject['options'],
-                      images = pollObject['images'];
-
-                  return Container(
-                    key: UniqueKey(),
-                    child: PollWidget(
-                        poll: poll,
-                        options: options,
-                        images: images,
-                        user: widget.user,
-                        dismissPoll: widget.dismissPoll,
-                        viewPoll: widget.viewPoll,
-                        index: index,
-                        updatedUserModel: widget.updatedUserModel,
-                        parentController: widget.parentController),
-                  );
-                },
-                itemScrollController: itemScrollController,
-                itemPositionsListener: itemPositionsListener,
-              )
-            : Padding(
-                padding: const EdgeInsets.only(top: 100.0),
-                child: Container(child: Text('No created polls found')),
+        Scaffold(
+          backgroundColor: Theme.of(context).backgroundColor,
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).backgroundColor,
+            brightness: Theme.of(context).brightness,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                size: 25.0,
+                color: Theme.of(context).buttonColor,
               ),
-        ],
-      ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: Text(
+              widget.user['username'],
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).buttonColor,
+              ),
+            ),
+          ),
+          body: pollObjects != null && pollObjects.length > 0
+              ? ScrollablePositionedList.builder(
+                  itemCount: pollObjects.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == pollObjects.length) {
+                      return SizedBox(height: 43);
+                    }
+
+                    var pollObject = pollObjects[index],
+                        poll = pollObject['poll'],
+                        options = pollObject['options'],
+                        images = pollObject['images'];
+
+                    return Container(
+                      key: UniqueKey(),
+                      child: PollWidget(
+                          poll: poll,
+                          options: options,
+                          images: images,
+                          user: widget.user,
+                          dismissPoll: widget.dismissPoll,
+                          viewPoll: widget.viewPoll,
+                          index: index,
+                          updatedUserModel: widget.updatedUserModel,
+                          parentController: widget.parentController),
+                    );
+                  },
+                  itemScrollController: itemScrollController,
+                  itemPositionsListener: itemPositionsListener,
+                )
+              : Padding(
+                  padding: const EdgeInsets.only(top: 100.0),
+                  child: Container(child: Text('No created polls found')),
+                ),
+        ),
+      ],
     );
   }
 }
@@ -345,16 +350,15 @@ class _ProfilePageState extends State<ProfilePage> {
   void openListView(index, tag) async {
     Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
       return PollListPopover(
-        selectedIndex: index,
-        user: user,
-        pollObjects: pollObjects,
-        pollListController: pollListController,
-        dismissPoll: dismissPoll,
-        viewPoll: viewPoll,
-        updatedUserModel: updatedUserModel,
-        parentController: parentController,
-        tag: tag
-      );
+          selectedIndex: index,
+          user: user,
+          pollObjects: pollObjects,
+          pollListController: pollListController,
+          dismissPoll: dismissPoll,
+          viewPoll: viewPoll,
+          updatedUserModel: updatedUserModel,
+          parentController: parentController,
+          tag: tag);
     }));
   }
 
@@ -398,7 +402,16 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: isUser != null && isUser
                     ? [
                         RawMaterialButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            showModalBottomSheet(
+                              isScrollControlled: true,
+                              context: context,
+                              builder: (BuildContext context) {
+                                return new EditProfileModal(
+                                  user: user,
+                                );
+                              });
+                          },
                           constraints: BoxConstraints(),
                           padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
                           fillColor: Theme.of(context).backgroundColor,
