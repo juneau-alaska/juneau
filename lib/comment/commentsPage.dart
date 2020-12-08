@@ -10,7 +10,6 @@ import 'dart:io';
 import 'dart:async';
 
 import 'package:juneau/profile/profile.dart';
-import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/methods/numMethods.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/controllers/richTextController.dart';
@@ -302,7 +301,11 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
         onTap: () async {
           String username = text.substring(1);
           var user = await getUser(username);
-          openProfile(context, user);
+          if (user != null) {
+            openProfile(context, user);
+          } else {
+            showAlert(context, "User doesn't exist");
+          }
         },
         child: Text(text + ' ',
             style: TextStyle(
