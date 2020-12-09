@@ -35,6 +35,9 @@ void signUp(email, username, password, context) async {
     Navigator.pushNamed(context, '/main');
   } else {
     var jsonResponse = jsonDecode(response.body), msg = jsonResponse['msg'];
+    if (msg == null) {
+      msg = 'Something went wrong, please try again';
+    }
     return showAlert(context, msg);
   }
 }

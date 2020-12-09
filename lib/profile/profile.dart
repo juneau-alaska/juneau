@@ -159,7 +159,7 @@ class _PollListPopoverState extends State<PollListPopover> {
                 )
               : Padding(
                   padding: const EdgeInsets.only(top: 100.0),
-                  child: Container(child: Text('No created polls found')),
+                  child: Center(child: Container(child: Text('No created polls found'))),
                 ),
         ),
       ],
@@ -385,7 +385,7 @@ class _ProfilePageState extends State<ProfilePage> {
           shrinkWrap: true,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 5.0),
+              padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 0.0),
               child: Text(
                 user['username'],
                 style: TextStyle(
@@ -396,14 +396,20 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+              child: Text(
+                user['description'],
+              ),
+            ),
+            Padding(
               padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: isUser != null && isUser
                     ? [
                         RawMaterialButton(
-                          onPressed: () {
-                            showModalBottomSheet(
+                          onPressed: () async {
+                            var update = await showModalBottomSheet(
                               isScrollControlled: true,
                               context: context,
                               builder: (BuildContext context) {
@@ -411,6 +417,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                   user: user,
                                 );
                               });
+
+                            setState(() {
+                              user = update['user'];
+                            });
                           },
                           constraints: BoxConstraints(),
                           padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
