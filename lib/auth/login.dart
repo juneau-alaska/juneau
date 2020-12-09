@@ -41,7 +41,7 @@ void login(email, password, context) async {
       prefs.setString('userId', user['_id']);
     }
 
-    Navigator.pushNamed(context, '/home');
+    Navigator.pushNamed(context, '/main');
   } else {
     return showAlert(context, 'Incorrect email, username or password.');
   }
@@ -84,92 +84,99 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5.0),
+        padding: const EdgeInsets.symmetric(vertical: 80.0, horizontal: 30.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            SizedBox(height: 40.0),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(80.0, 80.0, 80.0, 40.0),
-              child: Align(
-                alignment: Alignment.center,
-                child: Container(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                    child: Text(
-                      'LOGIN',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            emailInput,
-            passwordInput,
-            Padding(
-              padding: const EdgeInsets.only(top: 5.0, bottom: 10.0, right: 10.0),
-              child: GestureDetector(
-                onTap: () {
-                  // TODO: RESET PASSWORD
-                  print('');
-                },
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    'Forgot password?',
-                    style: TextStyle(
-                      color: Theme.of(context).hintColor,
-                      fontSize: 14.0,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-              child: FlatButton(
-                onPressed: () {
-                  String email = emailController.text;
-                  String password = passwordController.text;
 
-                  _isPasswordValid = validator.validatePassword(password);
-                  _isEmailValid = EmailValidator.validate(email);
-                  _isUsernameValid = validator.validateUsername(email);
-
-                  if (_isPasswordValid && (_isEmailValid || _isUsernameValid)) {
-                    login(email, password, context);
-                  } else {
-                    return showAlert(context, 'Incorrect email, username or password.');
-                  }
-                },
-                color: Theme.of(context).buttonColor,
-                shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(10.0)),
-                child: Padding(
-                  padding: const EdgeInsets.all(13.0),
-                  child: Text(
-                    'Log In',
-                    style: TextStyle(color: Theme.of(context).backgroundColor),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/loginSelect');
+                  },
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    size: 20.0
                   ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-              child: FlatButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/signup');
-                },
-                child: Text(
-                  'Sign Up',
+                Text(
+                  'LOGIN',
                   style: TextStyle(
-                    color: Theme.of(context).buttonColor,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 20,
+                  ),
+                ),
+                Container()
+              ]
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 50.0, bottom: 10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'ENTER EMAIL / USERNAME AND PASSWORD',
+                    style: TextStyle(
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.bold
+                    )
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 15.0, bottom: 10.0),
+                    child: emailInput,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5.0, bottom: 10.0),
+                    child: passwordInput,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 30.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Trouble logging in?',
+                  style: TextStyle(
+                    color: Theme.of(context).accentColor,
+                    fontWeight: FontWeight.w500
+                  )
+                ),
+              ),
+            ),
+            FlatButton(
+              onPressed: () {
+                String email = emailController.text;
+                String password = passwordController.text;
+
+                _isPasswordValid = validator.validatePassword(password);
+                _isEmailValid = EmailValidator.validate(email);
+                _isUsernameValid = validator.validateUsername(email);
+
+                if (_isPasswordValid && (_isEmailValid || _isUsernameValid)) {
+                  login(email, password, context);
+                } else {
+                  return showAlert(context, 'Incorrect email, username or password.');
+                }
+              },
+              color: Theme.of(context).accentColor,
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Text(
+                  'Log in',
+                  style: TextStyle(
+                    color: Theme.of(context).backgroundColor,
                   ),
                 ),
               ),
+              shape: RoundedRectangleBorder(
+                side: BorderSide(
+                  color: Theme.of(context).accentColor, width: 1, style: BorderStyle.solid),
+                borderRadius: BorderRadius.circular(50)),
             ),
           ],
         ),

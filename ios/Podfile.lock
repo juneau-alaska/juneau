@@ -47,7 +47,7 @@ SPEC CHECKSUMS:
   BSGridCollectionViewLayout: 333dcb457a5a3bdd9212607ab5756553dcfe06cb
   BSImagePicker: 07404254f2fcdaf5a2eb403c0f8c337267ce8738
   BSImageView: a149459433a2687157d034c78e059d30ac7f2544
-  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   flutter_absolute_path: 5adb13678c88f0bdfba527f3851f9543d01dde66
   keyboard_visibility: 96a24de806fe6823c3ad956c01ba2ec6d056616f
   multi_image_picker: c068931d08240565e0615fb01437d16984909183

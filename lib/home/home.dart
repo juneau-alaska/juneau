@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-import 'package:juneau/common/methods/userMethods.dart';
-import 'package:juneau/common/views/appBar.dart';
-import 'package:juneau/common/views/navBar.dart';
+import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/poll/poll.dart';
-import 'package:juneau/poll/pollPage.dart';
+import 'package:juneau/comment/commentsPage.dart';
 import 'package:juneau/common/components/keepAlivePage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 
@@ -16,84 +14,256 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
-String prevId;
+var user;
+var parentController;
+String currentCategory;
+StreamController categoryStreamController;
 
-Future<List> getPolls(context) async {
-  const url = 'http://localhost:4000/polls';
+class CategoryTabs extends StatefulWidget {
+  @override
+  _CategoryTabsState createState() => _CategoryTabsState();
+}
 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var token = prefs.getString('token');
+class _CategoryTabsState extends State<CategoryTabs> {
+  List followingCategories = user['followingCategories'];
+  List<Widget> categoryTabs;
 
-  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+  @override
+  void initState() {
+    parentController.stream.asBroadcastStream().listen((options) {
+      String dataType = options['dataType'];
 
-  var body = jsonEncode({'prevId': prevId});
+      if (dataType == 'user') {
+        var newUser = options['data'];
+        if (mounted)
+          setState(() {
+            followingCategories = newUser['followingCategories'];
+          });
+      }
+    });
+    super.initState();
+  }
 
-  var response = await http.post(url, headers: headers, body: body);
+  @override
+  Widget build(BuildContext context) {
+    categoryTabs = [
+      Padding(
+        padding: const EdgeInsets.only(right: 3.0),
+        child: RawMaterialButton(
+          onPressed: () {
+            categoryStreamController.add(null);
+          },
+          constraints: BoxConstraints(),
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          fillColor: currentCategory == null
+              ? Theme.of(context).accentColor
+              : Theme.of(context).backgroundColor,
+          elevation: 0.0,
+          child: Text(
+            'All',
+            style: TextStyle(
+              color: currentCategory == null
+                  ? Theme.of(context).backgroundColor
+                  : Theme.of(context).buttonColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+              side: BorderSide(
+                  color: currentCategory == null
+                      ? Theme.of(context).accentColor
+                      : Theme.of(context).hintColor,
+                  width: 1,
+                  style: BorderStyle.solid),
+              borderRadius: BorderRadius.circular(50)),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3.0),
+        child: RawMaterialButton(
+          onPressed: () {
+            categoryStreamController.add('following');
+          },
+          constraints: BoxConstraints(),
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          fillColor: currentCategory == 'following'
+            ? Theme.of(context).accentColor
+            : Theme.of(context).backgroundColor,
+          elevation: 0.0,
+          child: Text(
+            'Following',
+            style: TextStyle(
+              color: currentCategory == 'following'
+                ? Theme.of(context).backgroundColor
+                : Theme.of(context).buttonColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color: currentCategory == 'following'
+                ? Theme.of(context).accentColor
+                : Theme.of(context).hintColor,
+              width: 1,
+              style: BorderStyle.solid),
+            borderRadius: BorderRadius.circular(50)),
+        ),
+      ),
+    ];
 
-  if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body);
-
-    if (jsonResponse.length > 0) {
-      prevId = jsonResponse.last['_id'];
+    for (var i = 0; i < followingCategories.length; i++) {
+      String category = followingCategories[i];
+      categoryTabs.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 3.0),
+          child: RawMaterialButton(
+            onPressed: () {
+              categoryStreamController.add(category);
+            },
+            constraints: BoxConstraints(),
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            fillColor: currentCategory == category
+                ? Theme.of(context).accentColor
+                : Theme.of(context).backgroundColor,
+            elevation: 0.0,
+            child: Text(
+              category,
+              style: TextStyle(
+                color: currentCategory == category
+                    ? Theme.of(context).backgroundColor
+                    : Theme.of(context).buttonColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            shape: RoundedRectangleBorder(
+                side: BorderSide(
+                    color: currentCategory == category
+                        ? Theme.of(context).accentColor
+                        : Theme.of(context).hintColor,
+                    width: 1,
+                    style: BorderStyle.solid),
+                borderRadius: BorderRadius.circular(50)),
+          ),
+        ),
+      );
     }
 
-    return jsonResponse;
-  } else {
-    showAlert(context, 'Something went wrong, please try again');
-    return null;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 10.0),
+      child: Container(
+        height: 38.0,
+        width: MediaQuery.of(context).size.width - 20,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: categoryTabs,
+        ),
+      ),
+    );
   }
 }
 
 class HomePage extends StatefulWidget {
+  final user;
+
+  HomePage({Key key,
+    @required this.user,
+  })
+    : super(key: key);
+
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  var user;
+  String prevId;
   List polls;
-  List<Widget> pages;
   List<Widget> pollsList;
-  SmartRefresher listViewBuilder;
+  BuildContext homeContext;
+  Widget listViewBuilder;
+  CategoryTabs categoryTabs = CategoryTabs();
+
+  bool pollOpen = false;
   bool preventReload = false;
 
-  _fetchData() async {
+  RefreshController refreshController = RefreshController(initialRefresh: false);
+
+  Future<List> getPolls() async {
+    const url = 'http://localhost:4000/polls';
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String userId = prefs.getString('userId');
+    var token = prefs.getString('token');
 
-    await Future.wait([
-      userMethods.getUser(userId),
-      getPolls(context),
-    ]).then((results) {
-      var userResult = results[0], pollsResult = results[1];
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
 
-      if (userResult != null) {
-        user = userResult;
+    var categories;
+    if (currentCategory == null) {
+      categories = null;
+    } else if (currentCategory == 'following') {
+      categories = user['followingCategories'];
+    } else {
+      categories = [currentCategory];
+    }
+
+    var body = jsonEncode({'prevId': prevId, 'categories': categories});
+
+
+    var response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+
+      if (jsonResponse.length > 0) {
+        prevId = jsonResponse.last['_id'];
       }
-      if (pollsResult != null) {
-        polls = pollsResult;
-      }
-    });
 
-    if (mounted) setState(() {});
+      return jsonResponse;
+    } else {
+      showAlert(homeContext, 'Something went wrong, please try again');
+      return null;
+    }
   }
 
-  final parentController = new StreamController.broadcast();
-
-  void updatedUserModel(updatedUser) {
-    user = updatedUser;
-    parentController.add(user);
+  _fetchData() async {
+    polls = await getPolls();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
   void initState() {
+    user = widget.user;
+    parentController = new StreamController.broadcast();
+    categoryStreamController = StreamController();
+    categoryStreamController.stream.listen((category) async {
+      prevId = null;
+      preventReload = false;
+      currentCategory = category;
+      await _fetchData();
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      prevId = null;
       await _fetchData();
     });
     super.initState();
   }
 
-  RefreshController refreshController = RefreshController(initialRefresh: false);
+  @override
+  void dispose() {
+    parentController.close();
+    refreshController.dispose();
+    categoryStreamController.close();
+    super.dispose();
+  }
+
+  void updatedUserModel(updatedUser) {
+    user = updatedUser;
+    parentController.add({'dataType': 'user', 'data': user});
+  }
 
   void _onRefresh() async {
     preventReload = false;
@@ -103,8 +273,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onLoading() async {
-    preventReload = true;
-    var nextPolls = await getPolls(context);
+    preventReload = false;
+    var nextPolls = await getPolls();
     if (nextPolls != null && nextPolls.length > 0) {
       if (mounted)
         setState(() {
@@ -114,87 +284,98 @@ class _HomePageState extends State<HomePage> {
     refreshController.loadComplete();
   }
 
-  @override
-  void dispose() {
-    parentController.close();
-    refreshController.dispose();
-    super.dispose();
-  }
-
   void dismissPoll(index) {
     setState(() {
       pollsList.removeAt(index);
     });
   }
 
-  bool pollOpen = false;
-
-  void viewPoll(Widget pollWidget, String pollId) async {
+  void viewPoll(String pollId) async {
     if (!pollOpen) {
       pollOpen = true;
       final _formKey = GlobalKey<FormState>();
-      await showDialog(
-          context: context,
-          builder: (context) => PollPage(user: user, pollWidget: pollWidget, pollId: pollId, formKey: _formKey),
-          barrierColor: Color(0x01000000));
+
+      Navigator.of(homeContext).push(TransparentRoute(builder: (BuildContext context) {
+        return CommentsPage(user: user, pollId: pollId, formKey: _formKey);
+      }));
+
       pollOpen = false;
     }
   }
 
-  void createPages(polls, user) {
+  Widget createPages() {
     pollsList = [];
     for (var i = 0; i < polls.length; i++) {
       var poll = polls[i];
-      pollsList.add(new PollWidget(
-          poll: poll,
-          user: user,
-          dismissPoll: dismissPoll,
-          viewPoll: viewPoll,
-          index: i,
-          updatedUserModel: updatedUserModel,
-          parentController: parentController));
+      pollsList.add(
+        Container(
+          key: UniqueKey(),
+          child: PollWidget(
+            poll: poll,
+            user: user,
+            dismissPoll: dismissPoll,
+            viewPoll: viewPoll,
+            index: i,
+            updatedUserModel: updatedUserModel,
+            parentController: parentController
+          ),
+        ),
+      );
     }
 
-    listViewBuilder = SmartRefresher(
-        enablePullDown: true,
-        enablePullUp: true,
-        header: ClassicHeader(),
-        footer: ClassicFooter(
-          loadStyle: LoadStyle.ShowWhenLoading,
+    return Flexible(
+      child: KeepAlivePage(
+        child: SmartRefresher(
+          enablePullDown: true,
+          enablePullUp: true,
+          header: ClassicHeader(),
+          footer: ClassicFooter(
+            loadStyle: LoadStyle.ShowWhenLoading,
+          ),
+          controller: refreshController,
+          onRefresh: _onRefresh,
+          onLoading: _onLoading,
+          child: ListView(
+            physics: ClampingScrollPhysics(),
+            children: pollsList,
+          ),
         ),
-        controller: refreshController,
-        onRefresh: _onRefresh,
-        onLoading: _onLoading,
-        child: ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: pollsList.length,
-          itemBuilder: (context, index) {
-            return pollsList[index];
-          },
-        ));
-
-    pages = [KeepAlivePage(child: listViewBuilder)];
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     if (polls == null) {
-      return new Container();
+      return Scaffold(
+        backgroundColor: Theme.of(context).backgroundColor,
+        body: Center(
+          child: Container(
+            child: CircularProgressIndicator()
+          ),
+        ),
+      );
     }
 
     if (!preventReload) {
-      preventReload = false;
-      createPages(polls, user);
+      homeContext = context;
+      preventReload = true;
+      listViewBuilder = createPages();
     }
 
-    return Scaffold(
-      key: UniqueKey(),
-      backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appBar(),
-      body: PageView(
-        children: pages,
-      ),
-      bottomNavigationBar: navBar(),
+    return Column(
+      children: [
+        categoryTabs,
+        polls.length > 0
+          ? listViewBuilder
+          : Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Container(
+            height: MediaQuery.of(context).size.height / 1.4,
+            child: Center(child: Text('No polls found')),
+          ),
+        ),
+      ],
     );
   }
 }

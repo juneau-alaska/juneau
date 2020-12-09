@@ -92,12 +92,10 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(name,
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            )),
+                        Text(name),
+                        SizedBox(height: 1.0),
                         Text(category['followers'].length.toString() + ' following',
-                            style: TextStyle(fontSize: 13.0, color: Theme.of(context).hintColor)),
+                            style: TextStyle(fontSize: 12.0, color: Theme.of(context).hintColor)),
                       ],
                     ),
                   ))));
@@ -115,7 +113,7 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
                 child: Text(text,
                     style: TextStyle(
                       fontSize: 16.0,
-                      color: Colors.blue,
+                      color: Theme.of(context).highlightColor,
                     ))));
       }
     }
@@ -129,13 +127,17 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
     super.initState();
     searchBar = new InputComponent(
       hintText: "Search",
-      padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
-      contentPadding: EdgeInsets.fromLTRB(35.0, 12.0, 12.0, 12.0),
+      contentPadding: EdgeInsets.fromLTRB(35.0, 7.0, 12.0, 15.0),
     );
     searchBarController = searchBar.controller;
     searchBarController.addListener(() => streamController.add(searchBarController.text.trim()));
-    streamController.stream.debounceTime(Duration(milliseconds: 250)).listen((text) {
-      buildCategoryOptions(text, context);
+    streamController.stream.debounceTime(Duration(milliseconds: 250)).listen((String text) {
+      if (mounted) {
+        if (text.toLowerCase() == 'following') {
+          text = '';
+        }
+        buildCategoryOptions(text, context);
+      }
     });
   }
 
@@ -187,8 +189,8 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
           Stack(children: [
             searchBar,
             Padding(
-              padding: const EdgeInsets.only(left: 25.0, top: 21.0),
-              child: Icon(Icons.search, color: Theme.of(context).hintColor, size: 20.0),
+              padding: const EdgeInsets.only(left: 12.0, top: 7.0),
+              child: Icon(Icons.search, color: Theme.of(context).hintColor, size: 19.0),
             ),
           ]),
           Expanded(

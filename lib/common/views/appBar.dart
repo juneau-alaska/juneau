@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 
-Widget appBar() {
-  return _AppBar(height: 30.0);
-}
-
-class _AppBar extends StatelessWidget implements PreferredSizeWidget {
+class ApplicationBar extends StatelessWidget implements PreferredSizeWidget {
   final double height;
 
-  const _AppBar({
+  const ApplicationBar({
     Key key,
     @required this.height,
   }) : super(key: key);
@@ -19,6 +15,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0.0,
       centerTitle: true,
       backgroundColor: Theme.of(context).backgroundColor,
+      brightness: Theme.of(context).brightness,
     );
   }
 

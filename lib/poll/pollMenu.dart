@@ -38,25 +38,29 @@ class _PollMenuState extends State<PollMenu> {
                     SizedBox(
                       width: 13.0,
                     ),
-                    Text('Delete', style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300))
+                    Text('Delete')
                   ])),
               ),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.pop(context);
+              },
               behavior: HitTestBehavior.opaque,
               child: Container(
                 margin: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 14.0),
                 decoration: new BoxDecoration(
-                  borderRadius: new BorderRadius.circular(8.0),
-                  color: Theme.of(context).highlightColor,
+                  borderRadius: new BorderRadius.circular(50.0),
+                  color: Theme.of(context).buttonColor,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 13.0),
                   child: Center(
                     child: Text(
                       'Cancel',
-                      style: TextStyle(color: Theme.of(context).hintColor, fontSize: 13.0, fontWeight: FontWeight.w300),
+                      style: TextStyle(
+                        color: Theme.of(context).backgroundColor
+                      ),
                     ),
                   ),
                 ),
@@ -74,7 +78,7 @@ class _PollMenuState extends State<PollMenu> {
                     SizedBox(
                       width: 13.0,
                     ),
-                    Text('Report', style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300, color: Colors.red))
+                    Text('Report', style: TextStyle(fontSize: 15.0, color: Colors.red))
                   ])),
               ),
             ),
@@ -89,7 +93,7 @@ class _PollMenuState extends State<PollMenu> {
                     SizedBox(
                       width: 13.0,
                     ),
-                    Text('Save', style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w300))
+                    Text('Save', style: TextStyle(fontSize: 15.0))
                   ])),
               ),
             ),
@@ -100,14 +104,14 @@ class _PollMenuState extends State<PollMenu> {
                 margin: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 14.0),
                 decoration: new BoxDecoration(
                   borderRadius: new BorderRadius.circular(8.0),
-                  color: Theme.of(context).highlightColor,
+                  color: Theme.of(context).buttonColor,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 13.0),
                   child: Center(
                     child: Text(
                       'Cancel',
-                      style: TextStyle(color: Theme.of(context).hintColor, fontSize: 13.0, fontWeight: FontWeight.w300),
+                      style: TextStyle(color: Theme.of(context).backgroundColor),
                     ),
                   ),
                 ),

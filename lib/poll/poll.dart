@@ -1,168 +1,343 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timeago/timeago.dart' as timeago;
-import 'package:rxdart/rxdart.dart';
 
-import 'package:http/http.dart' as http;
+import 'dart:math' as math;
+import 'dart:ui';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:juneau/poll/pollMenu.dart';
+import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/components/alertComponent.dart';
-
 import 'package:juneau/common/methods/userMethods.dart';
+import 'package:juneau/common/methods/numMethods.dart';
+import 'package:juneau/profile/profile.dart';
 
-List imageBytes = [];
+import 'package:dots_indicator/dots_indicator.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import 'package:rxdart/rxdart.dart';
 
-Future<List> getImages(List options) async {
-  if (imageBytes != null && imageBytes.length == 0) {
-    for (var option in options) {
-      String url = option['content'];
-      var response = await http.get(url);
-      if (response.statusCode == 200) {
-        imageBytes.add(response.bodyBytes);
-      }
-    }
-  }
-  return imageBytes;
-}
+class PositionalDots extends StatefulWidget {
+  final pageController;
+  final numImages;
+  final totalVotes;
+  final options;
+  final selectedOption;
 
-Future<List> _getOptions(poll) async {
-  const url = 'http://localhost:4000/option';
-
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var token = prefs.getString('token');
-
-  var headers = {
-    HttpHeaders.contentTypeHeader: 'application/json',
-    HttpHeaders.authorizationHeader: token
-  };
-
-  List optionIds = poll['options'];
-  List<Future> futures = [];
-  List options;
-
-  for (var i = 0; i < optionIds.length; i++) {
-    var optionId = optionIds[i];
-    Future future() async {
-      var response = await http.get(
-        url + '/' + optionId,
-        headers: headers,
-      );
-
-      if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
-
-        return jsonResponse;
-      } else {
-        print('Request failed with status: ${response.statusCode}.');
-        return null;
-      }
-    }
-
-    futures.add(future());
-  }
-
-  await Future.wait(futures).then((results) {
-    options = results;
-  });
-
-  return options;
-}
-
-class PollWidget extends StatefulWidget {
-  final poll;
-  final user;
-  final dismissPoll;
-  final viewPoll;
-  final index;
-  final updatedUserModel;
-  final parentController;
-
-  PollWidget(
+  PositionalDots(
       {Key key,
-      @required this.poll,
-      this.user,
-      this.dismissPoll,
-      this.viewPoll,
-      this.index,
-      this.updatedUserModel,
-      this.parentController})
+      @required this.pageController,
+      this.numImages,
+      this.totalVotes,
+      this.options,
+      this.selectedOption})
       : super(key: key);
 
   @override
-  _PollWidgetState createState() => _PollWidgetState();
+  _PositionalDotsState createState() => _PositionalDotsState();
 }
 
-class _PollWidgetState extends State<PollWidget> {
-  var user, poll, pollCreator;
-
+class _PositionalDotsState extends State<PositionalDots> {
+  double currentPosition = 0.0;
+  int votes;
+  String votePercent;
+  bool selected = false;
   List options;
-  List followingCategories;
-  Widget imageOptions;
-
-  final streamController = StreamController();
-
-  bool saved = false;
-  bool liked = false;
-  bool warning = false;
 
   @override
   void initState() {
-    poll = widget.poll;
-    user = widget.user;
+    options = widget.options;
+    currentPosition = 0;
 
-    followingCategories = user['followingCategories'];
-
-    userMethods.getUser(poll['createdBy']).then((pollUser) {
-      if (pollUser != null) {
-        pollCreator = pollUser;
-      }
-      _getOptions(poll).then((pollOptions) {
-        if (mounted) {
-          setState(() {
-            if (pollOptions != null && pollOptions.length > 0) {
-              options = pollOptions;
-            }
-          });
-        }
-      });
-    });
-
-    streamController.stream.throttleTime(Duration(milliseconds: 1000)).listen((category) {
-      bool unfollow = false;
-      if (followingCategories.contains(category)) {
-        unfollow = true;
-      }
-
-      warning = true;
-      Timer(Duration(milliseconds: 1000), () {
-        warning = false;
-      });
-
-      followCategory(category, unfollow, context);
-    });
-
-    widget.parentController.stream.asBroadcastStream().listen((newUser) {
-      if (mounted)
+    widget.pageController.addListener(() {
+      if (mounted) {
         setState(() {
-          user = newUser;
-          followingCategories = user['followingCategories'];
+          double page = widget.pageController.page;
+          currentPosition = page;
         });
+      }
     });
 
     super.initState();
   }
 
   @override
+  Widget build(BuildContext context) {
+    int index = currentPosition.toInt();
+    votes = options[index]['votes'];
+    if (votes == 0) {
+      votePercent = '0';
+    } else {
+      votePercent = (100 * votes ~/ widget.totalVotes).toString();
+    }
+
+    selected = widget.selectedOption == options[index]['_id'];
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Icon(Icons.equalizer, color: Colors.white, size: 20.0),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 3.0),
+                    child: Text('$votePercent%',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 17.0,
+                          fontWeight: FontWeight.bold,
+                        )),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Icon(Icons.favorite,
+                      color: selected ? Theme.of(context).accentColor : Colors.white, size: 20.0),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 3.0),
+                    child: Text(
+                      numberMethods.shortenNum(votes),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 17.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 25.0),
+          child: DotsIndicator(
+            dotsCount: widget.numImages,
+            position: currentPosition,
+            decorator: DotsDecorator(
+              size: Size.square(6.0),
+              color: Colors.white,
+              activeColor: Theme.of(context).accentColor,
+              activeSize: Size.square(6.0),
+              spacing: const EdgeInsets.symmetric(horizontal: 2.5),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class PhotoHero extends StatelessWidget {
+  const PhotoHero({Key key, this.tag, this.photo, this.onLongPress, this.onPanUpdate, this.width})
+      : super(key: key);
+
+  final String tag;
+  final photo;
+  final onLongPress;
+  final onPanUpdate;
+  final double width;
+
+  Widget build(BuildContext context) {
+    return Hero(
+      tag: tag,
+      child: GestureDetector(
+        onLongPress: onLongPress,
+        onPanUpdate: onPanUpdate,
+        child: Image.memory(
+          photo,
+          fit: BoxFit.cover,
+          width: width,
+        ),
+      ),
+    );
+  }
+}
+
+class ImageCarousel extends StatefulWidget {
+  final options;
+  final selectedOption;
+  final vote;
+  final isCreator;
+  final completed;
+  final getImages;
+
+  ImageCarousel(
+      {Key key,
+      @required this.options,
+      this.selectedOption,
+      this.vote,
+      this.isCreator,
+      this.completed,
+      this.getImages})
+      : super(key: key);
+
+  @override
+  _ImageCarouselState createState() => _ImageCarouselState();
+}
+
+class _ImageCarouselState extends State<ImageCarousel> {
+  PageController pageController = PageController();
+
+  @override
   void dispose() {
-    streamController.close();
+    pageController.dispose();
     super.dispose();
   }
 
-  Future categoryAddFollower(String category, String userId, bool unfollow) async {
+  @override
+  Widget build(BuildContext context) {
+    List options = widget.options;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = screenWidth / 1.3;
+    List imageBytesList = [];
+
+    return FutureBuilder<List>(
+        future: widget.getImages(options, imageBytesList),
+        builder: (context, AsyncSnapshot<List> imageBytes) {
+          if (imageBytes.hasData) {
+            imageBytesList = imageBytesList + imageBytes.data;
+
+            List<Widget> imageWidgets = [];
+
+            int totalVotes = 0;
+
+            for (var j = 0; j < options.length; j++) {
+              totalVotes += options[j]['votes'];
+            }
+
+            if (imageWidgets.length == 0) {
+              List imageBytesList = imageBytes.data;
+
+              for (var i = 0; i < imageBytesList.length; i++) {
+                var image = imageBytesList[i];
+
+                imageWidgets.add(
+                  GestureDetector(
+                    onDoubleTap: () {
+                      if (!widget.completed && !widget.isCreator) {
+                        HapticFeedback.mediumImpact();
+                        widget.vote(options[i]);
+                      }
+                    },
+                    child: PhotoHero(
+                      tag: options[i]['_id'],
+                      photo: image,
+                      width: screenWidth,
+                      onPanUpdate: (details) {},
+                      onLongPress: () async {
+                        HapticFeedback.heavyImpact();
+                        Navigator.of(context)
+                            .push(TransparentRoute(builder: (BuildContext context) {
+                          return Scaffold(
+                            backgroundColor: Colors.transparent,
+                            body: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                              child: Center(
+                                child: PhotoHero(
+                                  tag: options[i]['_id'],
+                                  photo: image,
+                                  width: screenWidth,
+                                  onPanUpdate: (details) {
+                                    if (details.delta.dy > 0) {
+                                      Navigator.of(context).pop();
+                                    }
+                                  },
+                                  onLongPress: () {},
+                                ),
+                              ),
+                            ),
+                          );
+                        }));
+                      },
+                    ),
+                  ),
+                );
+              }
+            }
+
+            return Container(
+              width: screenWidth,
+              height: screenHeight,
+              child: Stack(
+                children: [
+                  PageView(
+                    children: imageWidgets,
+                    controller: pageController,
+                  ),
+                  IgnorePointer(
+                    child: Opacity(
+                      opacity: 0.35,
+                      child: Container(
+                        width: screenWidth,
+                        height: screenHeight,
+                        color: Colors.black45,
+                      ),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: PositionalDots(
+                        pageController: pageController,
+                        numImages: imageWidgets.length,
+                        totalVotes: totalVotes,
+                        options: options,
+                        selectedOption: widget.selectedOption),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            return new Container(
+              color: Theme.of(context).hintColor,
+              width: screenWidth,
+              height: screenHeight,
+            );
+          }
+        });
+  }
+}
+
+class CategoryButton extends StatefulWidget {
+  final followingCategories;
+  final pollCategory;
+  final warning;
+  final parentController;
+  final updatedUserModel;
+
+  CategoryButton(
+      {Key key,
+      @required this.followingCategories,
+      this.pollCategory,
+      this.warning,
+      this.parentController,
+      this.updatedUserModel})
+      : super(key: key);
+
+  @override
+  _CategoryButtonState createState() => _CategoryButtonState();
+}
+
+class _CategoryButtonState extends State<CategoryButton> {
+  List followingCategories;
+  bool warning;
+
+  final streamController = StreamController();
+
+  Future categoryAddFollower(String category, bool unfollow) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
     String userId = prefs.getString('userId');
@@ -182,6 +357,7 @@ class _PollWidgetState extends State<PollWidget> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
     String userId = prefs.getString('userId');
+    var jsonResponse, user;
 
     String url = 'http://localhost:4000/user/' + userId;
 
@@ -195,7 +371,7 @@ class _PollWidgetState extends State<PollWidget> {
     response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body);
+      jsonResponse = jsonDecode(response.body);
 
       user = jsonResponse;
       followingCategories = user['followingCategories'];
@@ -211,11 +387,17 @@ class _PollWidgetState extends State<PollWidget> {
         response = await http.put(url, headers: headers, body: body);
 
         if (response.statusCode == 200) {
-          var jsonResponse = jsonDecode(response.body);
+          jsonResponse = jsonDecode(response.body);
           user = jsonResponse['user'];
 
-          await categoryAddFollower(category, userId, unfollow);
+          await categoryAddFollower(category, unfollow);
           widget.updatedUserModel(user);
+
+          if (unfollow) {
+            return showAlert(context, 'Successfully unfollowed category "' + category + '"', true);
+          } else {
+            return showAlert(context, 'Successfully followed category "' + category + '"', true);
+          }
         } else {
           return showAlert(context, 'Something went wrong, please try again');
         }
@@ -225,6 +407,216 @@ class _PollWidgetState extends State<PollWidget> {
     } else {
       return showAlert(context, 'Something went wrong, please try again');
     }
+  }
+
+  @override
+  void initState() {
+    followingCategories = widget.followingCategories;
+
+    if (widget.parentController != null) {
+      widget.parentController.stream.asBroadcastStream().listen((options) {
+        if (options['dataType'] == 'user') {
+          var newUser = options['data'];
+          if (mounted)
+            setState(() {
+              followingCategories = newUser['followingCategories'];
+            });
+        }
+      });
+    }
+
+    streamController.stream.throttleTime(Duration(milliseconds: 1000)).listen((category) {
+      bool unfollow = false;
+      if (followingCategories.contains(category)) {
+        unfollow = true;
+      }
+
+      warning = true;
+      Timer(Duration(milliseconds: 1000), () {
+        warning = false;
+      });
+
+      followCategory(category, unfollow, context);
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    streamController.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var pollCategory = widget.pollCategory;
+
+    return Container(
+      height: 28,
+      constraints: BoxConstraints(maxWidth: 120),
+      decoration: new BoxDecoration(
+          color: followingCategories.contains(pollCategory)
+              ? Theme.of(context).accentColor
+              : Theme.of(context).backgroundColor,
+          borderRadius: new BorderRadius.all(const Radius.circular(4.0))),
+      child: GestureDetector(
+        onTap: () {
+          if (widget.warning) {
+            showAlert(context, "You're going that too fast. Take a break.");
+          }
+          HapticFeedback.mediumImpact();
+          streamController.add(pollCategory);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
+          child: Text(
+            pollCategory,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: followingCategories.contains(pollCategory)
+                  ? Theme.of(context).backgroundColor
+                  : Theme.of(context).buttonColor,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PollWidget extends StatefulWidget {
+  final poll;
+  final options;
+  final images;
+  final user;
+  final dismissPoll;
+  final viewPoll;
+  final index;
+  final updatedUserModel;
+  final parentController;
+
+  PollWidget(
+      {Key key,
+      @required this.poll,
+      this.options,
+      this.images,
+      this.user,
+      this.dismissPoll,
+      this.viewPoll,
+      this.index,
+      this.updatedUserModel,
+      this.parentController})
+      : super(key: key);
+
+  @override
+  _PollWidgetState createState() => _PollWidgetState();
+}
+
+class _PollWidgetState extends State<PollWidget> {
+  var user, poll, pollCreator;
+
+  List options;
+  List images;
+  List followingCategories;
+
+  bool saved = false;
+  bool liked = false;
+  bool warning = false;
+
+  Future<List> getImages(List options, imageBytes) async {
+    if (images == null) {
+      images = [];
+      for (var option in options) {
+        String url = option['content'];
+        var response = await http.get(url);
+        if (response.statusCode == 200) {
+          images.add(response.bodyBytes);
+        }
+      }
+    }
+    if (imageBytes == null) {
+      imageBytes = images;
+    }
+    return images;
+  }
+
+  Future<List> _getOptions(poll) async {
+    const url = 'http://localhost:4000/option';
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    List optionIds = poll['options'];
+    List<Future> futures = [];
+    List options;
+
+    for (var i = 0; i < optionIds.length; i++) {
+      var optionId = optionIds[i];
+      Future future() async {
+        var response = await http.get(
+          url + '/' + optionId,
+          headers: headers,
+        );
+
+        if (response.statusCode == 200) {
+          var jsonResponse = jsonDecode(response.body);
+          return jsonResponse;
+        } else {
+          print('Request failed with status: ${response.statusCode}.');
+          return null;
+        }
+      }
+
+      futures.add(future());
+    }
+
+    await Future.wait(futures).then((results) {
+      options = results;
+    });
+
+    return options;
+  }
+
+  @override
+  void initState() {
+    poll = widget.poll;
+    user = widget.user;
+    options = widget.options;
+    images = widget.images;
+
+    followingCategories = user['followingCategories'];
+
+    userMethods.getUser(poll['createdBy']).then((pollUser) {
+      if (pollUser != null) {
+        pollCreator = pollUser;
+      }
+
+      if (options == null) {
+        _getOptions(poll).then((pollOptions) {
+          if (mounted) {
+            setState(() {
+              if (pollOptions != null && pollOptions.length > 0) {
+                options = pollOptions;
+              }
+            });
+          }
+        });
+      } else {
+        if (mounted) {
+          setState(() {});
+        }
+      }
+    });
+
+    super.initState();
   }
 
   @override
@@ -303,10 +695,10 @@ class _PollWidgetState extends State<PollWidget> {
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
 
-        user = jsonResponse['user'];
-
         if (mounted) {
-          setState(() {});
+          setState(() {
+            user = jsonResponse['user'];
+          });
         }
       }
       if (response.statusCode != 200) {
@@ -333,9 +725,7 @@ class _PollWidgetState extends State<PollWidget> {
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body), createdPolls = jsonResponse['createdPolls'];
 
-      print(createdPolls.length);
       createdPolls.remove(pollId);
-      print(createdPolls.length);
       body = jsonEncode({'createdPolls': createdPolls});
 
       response = await http.put(url + userId, headers: headers, body: body);
@@ -379,6 +769,7 @@ class _PollWidgetState extends State<PollWidget> {
     if (response.statusCode == 200) {
       deleteOptions();
       removePollFromUser(_id);
+      widget.parentController.add({'dataType': 'delete', 'data': _id});
     } else {
       showAlert(context, 'Something went wrong, please try again');
     }
@@ -388,7 +779,7 @@ class _PollWidgetState extends State<PollWidget> {
     switch (action) {
       case 'delete':
         Widget cancelButton = FlatButton(
-          child: Text("CANCEL", style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w700)),
+          child: Text("CANCEL", style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -396,7 +787,7 @@ class _PollWidgetState extends State<PollWidget> {
 
         Widget continueButton = FlatButton(
           child: Text("DELETE",
-              style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w700, color: Colors.red)),
+              style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold, color: Colors.red)),
           onPressed: () {
             deletePoll();
             Navigator.pop(context);
@@ -425,323 +816,195 @@ class _PollWidgetState extends State<PollWidget> {
     }
   }
 
-  Widget buildPoll() {
+  @override
+  Widget build(BuildContext context) {
+    if (options == null || options.length == 0 || pollCreator == null) {
+      return new Container();
+    }
+
     DateTime createdAt = DateTime.parse(poll['createdAt']);
-    List pollCategories = poll['categories'];
-    String time = timeago.format(createdAt, locale: 'en_short');
-    List<Widget> children = [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(15.0, 20.0, 15.0, 3.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: <Widget>[
-                    GestureDetector(
-                        child: Text(
-                          pollCreator['username'],
-                          style: TextStyle(
-                              color: Theme.of(context).accentColor,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w300),
-                        ),
-                        onTap: () {
-                          print(pollCreator['email']);
-                        }),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 3.0, right: 1.0),
-                      child: Text('•',
-                          style: TextStyle(
-                              color: Theme.of(context).hintColor,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w700)),
-                    ),
-                    Text(
-                      time,
-                      style: TextStyle(
-                        color: Theme.of(context).hintColor,
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w300,
-                        wordSpacing: -4.0,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            user['_id'] == pollCreator['_id']
-                ? GestureDetector(
-                    onTap: () async {
-                      bool isCreator = user['_id'] == pollCreator['_id'];
-                      String action = await showModalBottomSheet(
-                          backgroundColor: Colors.transparent,
-                          context: context,
-                          builder: (BuildContext context) => PollMenu(isCreator: isCreator));
-                      handleAction(action);
-                    },
-                    child: Icon(
-                      Icons.more_horiz,
-                      size: 20.0,
-                      color: Theme.of(context).hintColor,
-                    ),
-                  )
-                : Container(),
-          ],
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-        child: Text(
-          poll['prompt'],
-          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700),
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 15.0),
-        child: SizedBox(
-          height: 26.0,
-          child: new ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: pollCategories.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2.5),
-                child: Container(
-                  decoration: new BoxDecoration(
-                      color: followingCategories.contains(pollCategories[index])
-                          ? Theme.of(context).buttonColor
-                          : Theme.of(context).highlightColor,
-                      borderRadius: new BorderRadius.all(const Radius.circular(18.0))),
-                  child: GestureDetector(
-                    onTap: () {
-                      if (warning) {
-                        showAlert(context, "You're going that too fast. Take a break.");
-                      }
-                      HapticFeedback.mediumImpact();
-                      streamController.add(pollCategories[index]);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Center(
-                        child: Text(
-                          pollCategories[index],
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    ];
+    String pollCategory = poll['category'];
+    String time = timeago.format(createdAt, locale: 'en_short').replaceAll(new RegExp(r'~'), '');
 
-    if (options.length > 0) {
-      var completedPolls = user['completedPolls'];
-      var selectedOptions = user['selectedOptions'];
+    var completedPolls = user['completedPolls'];
+    var selectedOptions = user['selectedOptions'];
 
-      bool completed = completedPolls.indexOf(poll['_id']) >= 0;
-      String selectedOption;
-      int totalVotes = 0;
-      int highestVote = 0;
+    bool isCreator = user['_id'] == pollCreator['_id'];
+    bool completed = completedPolls.indexOf(poll['_id']) >= 0;
+    double screenWidth = MediaQuery.of(context).size.width;
+    String selectedOption;
 
-      if (completed) {
-        for (var c in options) {
-          String _id = c['_id'];
-          if (selectedOptions.contains(_id)) {
-            selectedOption = _id;
-          }
-          int votes = c['votes'];
-          totalVotes += votes;
-          if (votes > highestVote) {
-            highestVote = votes;
-          }
+    if (completed) {
+      for (var c in options) {
+        String _id = c['_id'];
+        if (selectedOptions.contains(_id)) {
+          selectedOption = _id;
         }
       }
+    }
 
-      double screenWidth = MediaQuery.of(context).size.width;
-      int optionsLength = options.length;
-      bool lengthGreaterThanFour = optionsLength > 4;
-      double divider = lengthGreaterThanFour ? 3 : 2;
-      double size = screenWidth / divider;
-      double containerHeight;
+    ImageCarousel imageCarousel = new ImageCarousel(
+        options: options,
+        selectedOption: selectedOption,
+        vote: vote,
+        isCreator: isCreator,
+        completed: completed,
+        getImages: getImages);
 
-      if (lengthGreaterThanFour) {
-        containerHeight = optionsLength > 6 ? size * 3 : size * 2;
-      } else {
-        containerHeight = optionsLength > 2 ? size * 2 : size;
-      }
-
-      if (imageOptions == null) {
-        imageOptions = FutureBuilder<List>(
-            future: getImages(options),
-            builder: (context, AsyncSnapshot<List> imageBytes) {
-              if (imageBytes.hasData) {
-                List imageBytesList = imageBytes.data;
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1.0),
-                  child: Container(
-                    height: containerHeight,
-                    child: GridView.count(
-                        physics: new NeverScrollableScrollPhysics(),
-                        crossAxisCount: lengthGreaterThanFour ? 3 : 2,
-                        children: List.generate(optionsLength, (index) {
-                          var option = options[index];
-                          bool selected = selectedOption == option['_id'];
-                          int votes = option['votes'];
-                          double percent = votes > 0 ? votes / totalVotes : 0;
-                          String percentStr = (percent * 100.0).toStringAsFixed(0) + '%';
-
-                          Image image = Image.memory(imageBytesList[index]);
-
-                          return Padding(
-                            padding: const EdgeInsets.all(0.75),
-                            child: GestureDetector(
-                              onDoubleTap: () {
-                                if (!completed) {
-                                  HapticFeedback.mediumImpact();
-                                  vote(options[index]);
-                                }
-                              },
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    child: image,
-                                    width: size,
-                                    height: size,
-                                  ),
-                                  completed
-                                      ? Stack(children: [
-                                          Opacity(
-                                            opacity: 0.25,
-                                            child: Container(
-                                              decoration: new BoxDecoration(
-                                                color: Theme.of(context).backgroundColor,
-                                              ),
-                                              width: size,
-                                              height: size,
-                                            ),
-                                          ),
-                                          Center(
-                                            child: Text(
-                                              '$percentStr',
-                                              style: TextStyle(
-                                                  fontSize: lengthGreaterThanFour ? 18.0 : 24.0,
-                                                  fontWeight: selected
-                                                          ? FontWeight.w600
-                                                          : FontWeight.w200,
-                                                color: selected
-                                                          ? Colors.white
-                                                          : Colors.white),
-                                            ),
-                                          ),
-                                        ])
-                                      : Container(),
-                                ],
-                              ),
-                            ),
-                          );
-                        })),
-                  ),
-                );
-              } else {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0.75),
-                  child: new Container(
-                      height: containerHeight,
-                      child: GridView.count(
-                          physics: new NeverScrollableScrollPhysics(),
-                          crossAxisCount: lengthGreaterThanFour ? 3 : 2,
-                          children: List.generate(optionsLength, (index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(0.75),
-                              child: Container(
-                                  width: size,
-                                  height: size,
-                                  color: Theme.of(context).highlightColor),
-                            );
-                          }))),
-                );
-              }
-            });
-      }
-      children.add(imageOptions);
-
-      int commentCount = poll['comments'] != null ? poll['comments'].length : 0;
-
-      children.add(Padding(
-          padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 20.0),
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      '$totalVotes ',
-                      style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w300,
-                          color: Theme.of(context).hintColor),
-                    ),
-                    Text(
-                      totalVotes == 1 ? 'vote' : 'votes',
-                      style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w300,
-                          color: Theme.of(context).hintColor),
-                    ),
-                  ],
-                ),
-                GestureDetector(
-                  onTap: () {
-                    widget.viewPoll(widget, poll['_id']);
-                  },
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 0.5),
+      child: Container(
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            imageCarousel,
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 2.0),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        '$commentCount ',
-                        style: TextStyle(
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.w300,
-                            color: Theme.of(context).hintColor),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: screenWidth / 1.5,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Row(children: [
+                                  GestureDetector(
+                                      child: Text(
+                                        pollCreator['username'],
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                          color: Theme.of(context).backgroundColor,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        openProfile(context, pollCreator);
+                                      }),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 2.0, right: 1.0),
+                                    child: Text('•',
+                                        style: TextStyle(
+                                          color: Theme.of(context).backgroundColor,
+                                          fontWeight: FontWeight.w500,
+                                        )),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 1.5),
+                                    child: Text(
+                                      time,
+                                      style: TextStyle(
+                                        fontSize: 14.0,
+                                        color: Theme.of(context).backgroundColor,
+                                        wordSpacing: -3.5,
+                                      ),
+                                    ),
+                                  ),
+                                ]),
+                                selectedOption != null
+                                    ? Padding(
+                                        padding: const EdgeInsets.only(left: 5.0, top: 1.5),
+                                        child: Text(
+                                          'voted',
+                                          style: TextStyle(
+                                            fontSize: 14.0,
+                                            color: Colors.lightGreenAccent,
+                                          ),
+                                        ),
+                                      )
+                                    : Container(),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        poll['comments'].length == 1 ? 'comment' : 'comments',
-                        style: TextStyle(
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.w300,
-                            color: Theme.of(context).hintColor),
-                      ),
+                      user['_id'] == pollCreator['_id']
+                          ? GestureDetector(
+                              onTap: () async {
+                                bool isCreator = user['_id'] == pollCreator['_id'];
+                                String action = await showModalBottomSheet(
+                                    backgroundColor: Colors.transparent,
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        PollMenu(isCreator: isCreator));
+                                handleAction(action);
+                              },
+                              child: Icon(
+                                Icons.more_horiz,
+                                size: 20,
+                                color: Theme.of(context).backgroundColor,
+                              ),
+                            )
+                          : Container(),
                     ],
                   ),
                 ),
-              ])));
-    }
-
-    return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: children,
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
+                  child: Text(
+                    poll['prompt'],
+                    style: TextStyle(
+                      fontSize: 28.0,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).backgroundColor,
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CategoryButton(
+                        followingCategories: followingCategories,
+                        pollCategory: pollCategory,
+                        warning: warning,
+                        parentController: widget.parentController,
+                        updatedUserModel: widget.updatedUserModel),
+                    GestureDetector(
+                      onTap: () {
+                        widget.viewPoll(poll['_id']);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Transform(
+                            alignment: Alignment.center,
+                            transform: Matrix4.rotationY(math.pi),
+                            child: Icon(
+                              Icons.chat_bubble,
+                              color: Theme.of(context).backgroundColor,
+                              size: 19.0,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 3.0),
+                            child: Text(
+                              poll['comments'] != null ? poll['comments'].length.toString() : '0',
+                              style: TextStyle(
+                                  fontSize: 17.0,
+                                  color: Theme.of(context).backgroundColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              ]),
+            ),
+          ],
+        ),
       ),
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (options == null) {
-      return new Container();
-    }
-    return buildPoll();
   }
 }

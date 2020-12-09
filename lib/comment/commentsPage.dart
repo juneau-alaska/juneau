@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
@@ -10,6 +9,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
+import 'package:juneau/profile/profile.dart';
+import 'package:juneau/common/methods/numMethods.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/controllers/richTextController.dart';
 
@@ -168,6 +169,27 @@ Future getCreatedByUser(String createdById) async {
   }
 }
 
+Future getUser(String username) async {
+  String url = 'http://localhost:4000/user/username/' + username;
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('token');
+
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
+
+  var response = await http.get(url, headers: headers);
+
+  if (response.statusCode == 200) {
+    var jsonResponse = jsonDecode(response.body);
+    return jsonResponse;
+  } else {
+    return null;
+  }
+}
+
 Future<bool> updateUserLikedComments(String commentId, bool liked) async {
   String url = 'http://localhost:4000/user/';
 
@@ -276,23 +298,29 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
 
     if (regExp.hasMatch(text)) {
       textChildren.add(GestureDetector(
-        onTap: () {
-          print(text);
+        onTap: () async {
+          String username = text.substring(1);
+          var user = await getUser(username);
+          if (user != null) {
+            openProfile(context, user);
+          } else {
+            showAlert(context, "User doesn't exist");
+          }
         },
         child: Text(text + ' ',
             style: TextStyle(
-              color: Theme.of(context).accentColor,
-              fontSize: 16.0,
+              color: Theme.of(context).highlightColor,
+              fontSize: 15.0,
             )),
       ));
     } else {
-      textChildren.add(Text(text + ' ', style: TextStyle(fontSize: 16.0)));
+      textChildren.add(Text(text + ' ', style: TextStyle(fontSize: 15.0)));
     }
   }
 
   EdgeInsets padding = nested
-      ? EdgeInsets.fromLTRB(75.0, 10.0, 15.0, 10.0)
-      : EdgeInsets.fromLTRB(15.0, 20.0, 15.0, 5.0);
+      ? EdgeInsets.fromLTRB(50.0, 0.0, 15.0, 10.0)
+      : EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0);
 
   double mediaWidth = MediaQuery.of(context).size.width;
 
@@ -311,12 +339,12 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                     child: Text(
                       creator['username'],
                       style: TextStyle(
-                          color: Theme.of(context).hintColor,
+                          color: Theme.of(context).accentColor,
                           fontSize: 15.0,
-                          fontWeight: FontWeight.w300),
+                      ),
                     ),
                     onTap: () {
-                      print(creator['email']);
+                      openProfile(context, creator);
                     }),
                 Padding(
                   padding: const EdgeInsets.only(left: 3.0, right: 1.0),
@@ -324,14 +352,13 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                       style: TextStyle(
                           color: Theme.of(context).hintColor,
                           fontSize: 13.0,
-                          fontWeight: FontWeight.w700)),
+                          fontWeight: FontWeight.bold)),
                 ),
                 Text(
                   time,
                   style: TextStyle(
                     color: Theme.of(context).hintColor,
                     fontSize: 14,
-                    fontWeight: FontWeight.w300,
                     wordSpacing: -4.0,
                   ),
                 ),
@@ -340,7 +367,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                 height: 5.0,
               ),
               Container(
-                width: nested ? mediaWidth - 105 : mediaWidth - 45,
+                width: nested ? mediaWidth - 110 : mediaWidth - 75,
                 child: Wrap(
                   alignment: WrapAlignment.start,
                   children: textChildren,
@@ -374,13 +401,13 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                 child: Icon(
                   liked ? Icons.favorite : Icons.favorite_border,
                   size: 15.0,
-                  color: liked ? Colors.redAccent : Theme.of(context).hintColor,
+                  color: liked ? Theme.of(context).accentColor : Theme.of(context).hintColor,
                 ),
               ),
               SizedBox(height: 2.5),
-              Text(likes == 0 ? '' : '$likes',
+              Text(likes == 0 ? '' : numberMethods.shortenNum(likes),
                   style: TextStyle(
-                    fontSize: 13.0,
+                    fontSize: 12.0,
                     color: Theme.of(context).hintColor,
                   ))
             ],
@@ -413,7 +440,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                       comment['content'] = 'deleted';
                       rebuildStreamController.add({'list': commentList});
                     },
-                    color: Colors.redAccent,
+                    color: Colors.red,
                   ),
                 ],
                 child: commentContainer,
@@ -461,7 +488,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                         ),
                       )
                     : Padding(
-                        padding: const EdgeInsets.fromLTRB(75.0, 0.0, 15.0, 5.0),
+                        padding: const EdgeInsets.fromLTRB(50.0, 0.0, 15.0, 5.0),
                         child: GestureDetector(
                           onTap: () async {
                             commentRepliesOpened[id] = null;
@@ -644,7 +671,7 @@ class _BottomInputState extends State<BottomInput> {
           width: MediaQuery.of(context).size.width,
           color: Theme.of(context).backgroundColor,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+            padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 30.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -709,20 +736,19 @@ class _BottomInputState extends State<BottomInput> {
   }
 }
 
-class PollPage extends StatefulWidget {
+class CommentsPage extends StatefulWidget {
   final user;
-  final pollWidget;
   final pollId;
   final formKey;
 
-  PollPage({Key key, @required this.user, this.pollWidget, this.pollId, this.formKey})
+  CommentsPage({Key key, @required this.user, this.pollId, this.formKey})
       : super(key: key);
 
   @override
-  _PollPageState createState() => _PollPageState();
+  _CommentsPageState createState() => _CommentsPageState();
 }
 
-class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin {
+class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Animation<Offset> _animation;
 
@@ -795,7 +821,6 @@ class _PollPageState extends State<PollPage> with SingleTickerProviderStateMixin
                         ],
                       ),
                     ),
-                    widget.pollWidget,
                     Padding(
                       padding: const EdgeInsets.only(bottom: 60.0),
                       child: CommentsWidget(),
