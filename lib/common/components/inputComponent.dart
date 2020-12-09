@@ -5,6 +5,7 @@ class InputComponent extends StatefulWidget {
   final errorText;
   final obscureText;
   final maxLines;
+  final maxLength;
   final borderColor;
   final contentPadding;
   final fontSize;
@@ -19,6 +20,7 @@ class InputComponent extends StatefulWidget {
     this.errorText,
     this.obscureText,
     this.maxLines,
+    this.maxLength,
     this.borderColor,
     this.contentPadding,
     this.fontSize,
@@ -56,6 +58,7 @@ class _InputComponentState extends State<InputComponent> {
           obscuringCharacter: '•',
           obscureText: obscureText,
           maxLines: maxLines,
+          maxLength: widget.maxLength,
           autofocus: autoFocus,
           style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
           decoration: InputDecoration(

@@ -27,8 +27,27 @@ class _EditProfileModalState extends State<EditProfileModal> {
   InputComponent emailInput;
   TextEditingController emailController;
 
+  InputComponent descriptionInput;
+  TextEditingController descriptionController;
+
   bool _isEmailValid = false;
   bool _isUsernameValid = false;
+
+  Future updateUserInfo(updatedInfo) async {
+    String email = updatedInfo['email'];
+    String username = updatedInfo['username'];
+    String description = updatedInfo['description'];
+
+
+    // bool accountUpdated = await updateAccountInfo(email);
+    // if (!accountUpdated) {
+    //   // TODO: try again
+    // }
+  }
+
+  // Future<bool> updateAccountInfo(email) {
+  //
+  // }
 
   @override
   void initState() {
@@ -41,6 +60,13 @@ class _EditProfileModalState extends State<EditProfileModal> {
     emailInput = new InputComponent(hintText: 'Email');
     emailController = emailInput.controller;
     emailController.text = user['email'];
+
+    descriptionInput = new InputComponent(
+      hintText: 'Description',
+      maxLength: 150,
+    );
+    descriptionController = descriptionInput.controller;
+    descriptionController.text = user['description'];
 
     super.initState();
   }
@@ -73,28 +99,44 @@ class _EditProfileModalState extends State<EditProfileModal> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Username',
+              'USERNAME',
               style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
               ),
             ),
             usernameInput,
-            SizedBox(height: 15),
+            SizedBox(height: 18),
+
             Text(
-              'Email',
+              'EMAIL',
               style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
               ),
             ),
             emailInput,
-            SizedBox(height: 15),
+            SizedBox(height: 18),
+
+            Text(
+              'DESCRIPTION',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            descriptionInput,
+
             RawMaterialButton(
-              onPressed: () {
+              onPressed: () async {
+
+                if(user == null) {
+                  return;
+                }
+
                 String username = usernameController.text.trim();
                 String email = emailController.text.trim();
-
+                String description = descriptionController.text.trim();
 
                 var updatedInfo = {};
 
@@ -119,7 +161,10 @@ class _EditProfileModalState extends State<EditProfileModal> {
                   updatedInfo['email'] = email;
                 }
 
-                print(updatedInfo);
+                updatedInfo['description'] = description;
+
+                user = await updateUserInfo(updatedInfo);
+                Navigator.of(context).pop(user);
               },
               constraints: BoxConstraints(),
               padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
