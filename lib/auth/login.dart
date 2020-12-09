@@ -125,11 +125,11 @@ class _LoginPageState extends State<LoginPage> {
                     )
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 15.0, bottom: 5.0),
+                    padding: const EdgeInsets.only(top: 15.0, bottom: 10.0),
                     child: emailInput,
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 5.0, bottom: 20.0),
+                    padding: const EdgeInsets.only(top: 5.0, bottom: 10.0),
                     child: passwordInput,
                   ),
                 ],

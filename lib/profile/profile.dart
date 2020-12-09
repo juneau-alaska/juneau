@@ -10,6 +10,7 @@ import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/poll/pollPreview.dart';
 import 'package:juneau/poll/poll.dart';
 import 'package:juneau/comment/commentsPage.dart';
+import 'package:juneau/profile/accountSettings.dart';
 import 'package:juneau/profile/editProfile.dart';
 
 import 'package:http/http.dart' as http;
@@ -193,12 +194,6 @@ class _ProfilePageState extends State<ProfilePage> {
   RefreshController refreshController = RefreshController(initialRefresh: false);
   StreamController pollListController = StreamController.broadcast();
   var parentController;
-
-  void logout(context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs?.clear();
-    Navigator.of(context).pushNamedAndRemoveUntil('/loginSelect', (Route<dynamic> route) => false);
-  }
 
   Future<List> getPollsFromUser() async {
     const url = 'http://localhost:4000/polls';
@@ -442,7 +437,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         SizedBox(width: 5.0),
                         RawMaterialButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            String action = await showModalBottomSheet(
+                              backgroundColor: Colors.transparent,
+                              context: context,
+                              builder: (BuildContext context) =>
+                                AccountSettings(user: user)
+                            );
+                          },
                           constraints: BoxConstraints(),
                           padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
                           fillColor: Theme.of(context).backgroundColor,
@@ -483,27 +485,27 @@ class _ProfilePageState extends State<ProfilePage> {
                                   style: BorderStyle.solid),
                               borderRadius: BorderRadius.circular(5)),
                         ),
-                        SizedBox(width: 5.0),
-                        RawMaterialButton(
-                          onPressed: () {},
-                          constraints: BoxConstraints(),
-                          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                          fillColor: Theme.of(context).backgroundColor,
-                          elevation: 0.0,
-                          child: Text(
-                            'Message',
-                            style: TextStyle(
-                              color: Theme.of(context).buttonColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                  color: Theme.of(context).hintColor,
-                                  width: 1,
-                                  style: BorderStyle.solid),
-                              borderRadius: BorderRadius.circular(5)),
-                        ),
+                        // SizedBox(width: 5.0),
+                        // RawMaterialButton(
+                        //   onPressed: () {},
+                        //   constraints: BoxConstraints(),
+                        //   padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                        //   fillColor: Theme.of(context).backgroundColor,
+                        //   elevation: 0.0,
+                        //   child: Text(
+                        //     'Message',
+                        //     style: TextStyle(
+                        //       color: Theme.of(context).buttonColor,
+                        //       fontWeight: FontWeight.w500,
+                        //     ),
+                        //   ),
+                        //   shape: RoundedRectangleBorder(
+                        //       side: BorderSide(
+                        //           color: Theme.of(context).hintColor,
+                        //           width: 1,
+                        //           style: BorderStyle.solid),
+                        //       borderRadius: BorderRadius.circular(5)),
+                        // ),
                       ],
               ),
             ),
