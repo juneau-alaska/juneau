@@ -41,6 +41,13 @@ class _CategoryTabsState extends State<CategoryTabs> {
           });
       }
     });
+
+    categoryStreamController.stream.listen((category) async {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+
     super.initState();
   }
 
@@ -87,26 +94,26 @@ class _CategoryTabsState extends State<CategoryTabs> {
           constraints: BoxConstraints(),
           padding: EdgeInsets.symmetric(horizontal: 20.0),
           fillColor: currentCategory == 'following'
-            ? Theme.of(context).accentColor
-            : Theme.of(context).backgroundColor,
+              ? Theme.of(context).accentColor
+              : Theme.of(context).backgroundColor,
           elevation: 0.0,
           child: Text(
             'Following',
             style: TextStyle(
               color: currentCategory == 'following'
-                ? Theme.of(context).backgroundColor
-                : Theme.of(context).buttonColor,
+                  ? Theme.of(context).backgroundColor
+                  : Theme.of(context).buttonColor,
               fontWeight: FontWeight.w500,
             ),
           ),
           shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: currentCategory == 'following'
-                ? Theme.of(context).accentColor
-                : Theme.of(context).hintColor,
-              width: 1,
-              style: BorderStyle.solid),
-            borderRadius: BorderRadius.circular(50)),
+              side: BorderSide(
+                  color: currentCategory == 'following'
+                      ? Theme.of(context).accentColor
+                      : Theme.of(context).hintColor,
+                  width: 1,
+                  style: BorderStyle.solid),
+              borderRadius: BorderRadius.circular(50)),
         ),
       ),
     ];
@@ -165,10 +172,10 @@ class _CategoryTabsState extends State<CategoryTabs> {
 class HomePage extends StatefulWidget {
   final user;
 
-  HomePage({Key key,
+  HomePage({
+    Key key,
     @required this.user,
-  })
-    : super(key: key);
+  }) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -198,17 +205,20 @@ class _HomePageState extends State<HomePage> {
       HttpHeaders.authorizationHeader: token
     };
 
-    var categories;
+    var categories, followingUsers;
     if (currentCategory == null) {
       categories = null;
+      followingUsers = null;
     } else if (currentCategory == 'following') {
       categories = user['followingCategories'];
+      followingUsers = user['followingUsers'];
     } else {
       categories = [currentCategory];
+      followingUsers = null;
     }
 
-    var body = jsonEncode({'prevId': prevId, 'categories': categories});
-
+    var body =
+        jsonEncode({'prevId': prevId, 'categories': categories, 'followingUsers': followingUsers});
 
     var response = await http.post(url, headers: headers, body: body);
 
@@ -237,7 +247,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     user = widget.user;
     parentController = new StreamController.broadcast();
-    categoryStreamController = StreamController();
+    categoryStreamController = new StreamController.broadcast();
     categoryStreamController.stream.listen((category) async {
       prevId = null;
       preventReload = false;
@@ -311,14 +321,13 @@ class _HomePageState extends State<HomePage> {
         Container(
           key: UniqueKey(),
           child: PollWidget(
-            poll: poll,
-            user: user,
-            dismissPoll: dismissPoll,
-            viewPoll: viewPoll,
-            index: i,
-            updatedUserModel: updatedUserModel,
-            parentController: parentController
-          ),
+              poll: poll,
+              user: user,
+              dismissPoll: dismissPoll,
+              viewPoll: viewPoll,
+              index: i,
+              updatedUserModel: updatedUserModel,
+              parentController: parentController),
         ),
       );
     }
@@ -350,9 +359,7 @@ class _HomePageState extends State<HomePage> {
       return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         body: Center(
-          child: Container(
-            child: CircularProgressIndicator()
-          ),
+          child: Container(child: CircularProgressIndicator()),
         ),
       );
     }
@@ -367,14 +374,14 @@ class _HomePageState extends State<HomePage> {
       children: [
         categoryTabs,
         polls.length > 0
-          ? listViewBuilder
-          : Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Container(
-            height: MediaQuery.of(context).size.height / 1.4,
-            child: Center(child: Text('No polls found')),
-          ),
-        ),
+            ? listViewBuilder
+            : Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Container(
+                  height: MediaQuery.of(context).size.height / 1.4,
+                  child: Center(child: Text('No polls found')),
+                ),
+              ),
       ],
     );
   }

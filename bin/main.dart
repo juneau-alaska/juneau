@@ -87,7 +87,7 @@ class _MainScaffoldState extends State<MainScaffold> {
       user = await userMethods.getUser(userId);
       setState(() {
         homePage = HomePage(user: user);
-        profilePage = ProfilePage(user: user);
+        profilePage = ProfilePage(profileUser: user);
       });
     });
 

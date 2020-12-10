@@ -18,7 +18,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
-void openProfile(context, user) {
+void openProfile(context, profileUser, {user}) {
   Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
     return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
@@ -36,7 +36,7 @@ void openProfile(context, user) {
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
-        body: ProfilePage(user: user));
+        body: ProfilePage(profileUser: profileUser, user: user));
   }));
 }
 
@@ -169,11 +169,13 @@ class _PollListPopoverState extends State<PollListPopover> {
 }
 
 class ProfilePage extends StatefulWidget {
+  final profileUser;
   final user;
 
   ProfilePage({
     Key key,
-    @required this.user,
+    @required this.profileUser,
+    this.user,
   }) : super(key: key);
 
   @override
@@ -181,7 +183,9 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  var profileUser;
   var user;
+  String userId;
   String prevId;
   Widget gridListView;
   List pollObjects;
@@ -189,7 +193,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool pollOpen = false;
   bool preventReload = false;
+  bool following = false;
   bool isUser;
+
+  bool alreadyPressed = false;
 
   RefreshController refreshController = RefreshController(initialRefresh: false);
   StreamController pollListController = StreamController.broadcast();
@@ -206,7 +213,7 @@ class _ProfilePageState extends State<ProfilePage> {
       HttpHeaders.authorizationHeader: token
     };
 
-    var body = jsonEncode({'prevId': prevId, 'createdBy': user['_id']});
+    var body = jsonEncode({'prevId': prevId, 'createdBy': profileUser['_id']});
 
     var response = await http.post(url, headers: headers, body: body);
 
@@ -248,14 +255,22 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   void initState() {
+    profileUser = widget.profileUser;
     user = widget.user;
     prevId = null;
     parentController = new StreamController.broadcast();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String userId = prefs.getString('userId');
-      isUser = userId == user['_id'];
+      String profileUserId = profileUser['_id'];
+
+      if (user != null) {
+        userId = user['_id'];
+        following = user['followingUsers'].contains(profileUserId);
+      } else {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        userId = prefs.getString('userId');
+      }
+      isUser = userId == profileUserId;
 
       await fetchPollData(false);
     });
@@ -303,8 +318,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void updatedUserModel(updatedUser) {
-    user = updatedUser;
-    parentController.add({'dataType': 'user', 'data': user});
+    profileUser = updatedUser;
+    parentController.add({'dataType': 'user', 'data': profileUser});
   }
 
   void dismissPoll(index) {
@@ -323,7 +338,7 @@ class _ProfilePageState extends State<ProfilePage> {
       final _formKey = GlobalKey<FormState>();
 
       Navigator.of(profileContext).push(TransparentRoute(builder: (BuildContext context) {
-        return CommentsPage(user: user, pollId: pollId, formKey: _formKey);
+        return CommentsPage(user: profileUser, pollId: pollId, formKey: _formKey);
       }));
 
       pollOpen = false;
@@ -337,7 +352,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _onLoading() async {
-    if (pollObjects.length == user['createdPolls'].length) return;
+    if (pollObjects.length == profileUser['createdPolls'].length) return;
     await fetchPollData(true);
     refreshController.loadComplete();
   }
@@ -346,7 +361,7 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
       return PollListPopover(
           selectedIndex: index,
-          user: user,
+          user: profileUser,
           pollObjects: pollObjects,
           pollListController: pollListController,
           dismissPoll: dismissPoll,
@@ -355,6 +370,33 @@ class _ProfilePageState extends State<ProfilePage> {
           parentController: parentController,
           tag: tag);
     }));
+  }
+
+  Future updateUser(followingUsers) async {
+    String url = 'http://localhost:4000/user/' + userId;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    var body = jsonEncode({'followingUsers': followingUsers});
+
+    var response = await http.put(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      var jsonResponse = jsonDecode(response.body), msg = jsonResponse['msg'];
+      if (msg == null) {
+        msg = 'Something went wrong, please try again';
+      }
+      showAlert(profileContext, msg);
+      return null;
+    }
   }
 
   @override
@@ -382,7 +424,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 0.0),
               child: Text(
-                user['username'],
+                profileUser['username'],
                 style: TextStyle(
                   fontSize: 24.0,
                   fontWeight: FontWeight.bold,
@@ -393,7 +435,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
               child: Text(
-                user['description'],
+                profileUser['description'],
               ),
             ),
             Padding(
@@ -409,12 +451,12 @@ class _ProfilePageState extends State<ProfilePage> {
                               context: context,
                               builder: (BuildContext context) {
                                 return new EditProfileModal(
-                                  user: user,
+                                  user: profileUser,
                                 );
                               });
 
                             setState(() {
-                              user = update['user'];
+                              profileUser = update['user'];
                             });
                           },
                           constraints: BoxConstraints(),
@@ -442,7 +484,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               backgroundColor: Colors.transparent,
                               context: context,
                               builder: (BuildContext context) =>
-                                AccountSettings(user: user)
+                                AccountSettings(user: profileUser)
                             );
                           },
                           constraints: BoxConstraints(),
@@ -466,21 +508,46 @@ class _ProfilePageState extends State<ProfilePage> {
                       ]
                     : [
                         RawMaterialButton(
-                          onPressed: () {},
+                          onPressed: () async {
+
+                            if (!alreadyPressed) {
+                              alreadyPressed = true;
+                            } else {
+                              return showAlert(profileContext, 'Going too fast.');
+                            }
+
+                            List followingUsers = user['followingUsers'] != null ? user['followingUsers'] : [];
+                            String profileUserId = profileUser['_id'];
+
+                            if (following) {
+                              followingUsers.remove(profileUserId);
+                            } else {
+                              followingUsers.add(profileUserId);
+                            }
+
+                            var updatedUser = await updateUser(followingUsers);
+                            if (updatedUser != null) {
+                              setState(() {
+                                user = updatedUser;
+                                following = followingUsers.contains(profileUserId);
+                                alreadyPressed = false;
+                              });
+                            }
+                          },
                           constraints: BoxConstraints(),
                           padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                          fillColor: Theme.of(context).backgroundColor,
+                          fillColor: following ? Theme.of(context).accentColor : Theme.of(context).backgroundColor,
                           elevation: 0.0,
                           child: Text(
-                            'Follow',
+                            following ? 'Unfollow' : 'Follow',
                             style: TextStyle(
-                              color: Theme.of(context).buttonColor,
+                              color: following ? Theme.of(context).backgroundColor : Theme.of(context).buttonColor,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           shape: RoundedRectangleBorder(
                               side: BorderSide(
-                                  color: Theme.of(context).hintColor,
+                                  color: following ? Theme.of(context).accentColor : Theme.of(context).hintColor,
                                   width: 1,
                                   style: BorderStyle.solid),
                               borderRadius: BorderRadius.circular(5)),

@@ -887,7 +887,7 @@ class _PollWidgetState extends State<PollWidget> {
                                         ),
                                       ),
                                       onTap: () {
-                                        openProfile(context, pollCreator);
+                                        openProfile(context, pollCreator, user: user);
                                       }),
                                   Padding(
                                     padding: const EdgeInsets.only(left: 2.0, right: 1.0),

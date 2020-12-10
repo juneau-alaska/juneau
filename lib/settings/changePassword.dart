@@ -173,7 +173,7 @@ class _ChangePasswordModalState extends State<ChangePasswordModal> {
                 }
 
                 if (currentPassword == newPassword) {
-                  return showAlert(context, 'New password cannot be the same as the current password.');
+                  return showAlert(context, 'New password and current password must be different.');
                 }
 
                 if (newPassword.length < 6) {
