@@ -10,7 +10,7 @@ import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/poll/pollPreview.dart';
 import 'package:juneau/poll/poll.dart';
 import 'package:juneau/comment/commentsPage.dart';
-import 'package:juneau/profile/accountSettings.dart';
+import 'package:juneau/settings/accountSettings.dart';
 import 'package:juneau/profile/editProfile.dart';
 
 import 'package:http/http.dart' as http;
@@ -384,7 +384,7 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Text(
                 user['username'],
                 style: TextStyle(
-                  fontSize: 28.0,
+                  fontSize: 24.0,
                   fontWeight: FontWeight.bold,
                   letterSpacing: -1.3,
                 ),
@@ -437,8 +437,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         SizedBox(width: 5.0),
                         RawMaterialButton(
-                          onPressed: () async {
-                            String action = await showModalBottomSheet(
+                          onPressed: () {
+                            showModalBottomSheet(
                               backgroundColor: Colors.transparent,
                               context: context,
                               builder: (BuildContext context) =>

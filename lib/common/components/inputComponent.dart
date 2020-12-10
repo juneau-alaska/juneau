@@ -53,27 +53,25 @@ class _InputComponentState extends State<InputComponent> {
 
     return Container(
       color: Colors.transparent,
-      child: Container(
-        child: TextField(
-          obscuringCharacter: '•',
-          obscureText: obscureText,
-          maxLines: maxLines,
-          maxLength: widget.maxLength,
-          autofocus: autoFocus,
-          style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
-          decoration: InputDecoration(
-              prefixIcon: widget.prefixIcon,
-              isDense: true,
-              contentPadding: contentPadding,
-              hintText: widget.hintText,
-              hintStyle: TextStyle(color: Theme.of(context).hintColor, fontWeight: fontWeight),
-              filled: false,
-              errorText: widget.errorText,
-              focusedBorder: borderOutline,
-              enabledBorder: borderOutline,
-          ),
-          controller: widget.controller,
+      child: TextField(
+        obscuringCharacter: '•',
+        obscureText: obscureText,
+        maxLines: maxLines,
+        maxLength: widget.maxLength,
+        autofocus: autoFocus,
+        style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
+        decoration: InputDecoration(
+            prefixIcon: widget.prefixIcon,
+            isDense: true,
+            contentPadding: contentPadding,
+            hintText: widget.hintText,
+            hintStyle: TextStyle(color: Theme.of(context).hintColor, fontWeight: fontWeight),
+            filled: false,
+            errorText: widget.errorText,
+            focusedBorder: borderOutline,
+            enabledBorder: borderOutline,
         ),
+        controller: widget.controller,
       ),
     );
   }

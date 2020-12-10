@@ -110,7 +110,7 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         FlatButton(
           onPressed: () {
-            String email = emailController.text;
+            String email = emailController.text.trim();
             _isEmailValid = EmailValidator.validate(email);
 
             if (!_isEmailValid) {
@@ -162,7 +162,7 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         FlatButton(
           onPressed: () {
-            String password = passwordController.text;
+            String password = passwordController.text.trim();
             _isPasswordValid = validator.validatePassword(password);
 
             if (password.length < 6) {
@@ -216,7 +216,7 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         FlatButton(
           onPressed: () {
-            String username = usernameController.text;
+            String username = usernameController.text.trim();
             _isUsernameValid = validator.validateUsername(username);
 
             if (!_isUsernameValid) {

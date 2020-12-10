@@ -87,6 +87,14 @@ class _EditProfileModalState extends State<EditProfileModal> {
   }
 
   @override
+  void dispose() {
+    emailController.dispose();
+    usernameController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     editProfileContext = context;
 

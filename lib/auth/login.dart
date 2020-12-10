@@ -150,8 +150,8 @@ class _LoginPageState extends State<LoginPage> {
             ),
             FlatButton(
               onPressed: () {
-                String email = emailController.text;
-                String password = passwordController.text;
+                String email = emailController.text.trim();
+                String password = passwordController.text.trim();
 
                 _isPasswordValid = validator.validatePassword(password);
                 _isEmailValid = EmailValidator.validate(email);
