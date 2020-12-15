@@ -432,12 +432,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-              child: Text(
-                profileUser['description'],
-              ),
-            ),
+            profileUser['description'] != null
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+                    child: Text(
+                      profileUser['description'],
+                    ),
+                  )
+                : Container(),
             Padding(
               padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 10.0),
               child: Row(
@@ -447,13 +449,13 @@ class _ProfilePageState extends State<ProfilePage> {
                         RawMaterialButton(
                           onPressed: () async {
                             var update = await showModalBottomSheet(
-                              isScrollControlled: true,
-                              context: context,
-                              builder: (BuildContext context) {
-                                return new EditProfileModal(
-                                  user: profileUser,
-                                );
-                              });
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return new EditProfileModal(
+                                    user: profileUser,
+                                  );
+                                });
 
                             setState(() {
                               profileUser = update['user'];
@@ -481,11 +483,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         RawMaterialButton(
                           onPressed: () {
                             showModalBottomSheet(
-                              backgroundColor: Colors.transparent,
-                              context: context,
-                              builder: (BuildContext context) =>
-                                AccountSettings(user: profileUser)
-                            );
+                                backgroundColor: Colors.transparent,
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    AccountSettings(user: profileUser));
                           },
                           constraints: BoxConstraints(),
                           padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
@@ -509,14 +510,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     : [
                         RawMaterialButton(
                           onPressed: () async {
-
                             if (!alreadyPressed) {
                               alreadyPressed = true;
                             } else {
                               return showAlert(profileContext, 'Going too fast.');
                             }
 
-                            List followingUsers = user['followingUsers'] != null ? user['followingUsers'] : [];
+                            List followingUsers =
+                                user['followingUsers'] != null ? user['followingUsers'] : [];
                             String profileUserId = profileUser['_id'];
 
                             if (following) {
@@ -536,18 +537,24 @@ class _ProfilePageState extends State<ProfilePage> {
                           },
                           constraints: BoxConstraints(),
                           padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                          fillColor: following ? Theme.of(context).accentColor : Theme.of(context).backgroundColor,
+                          fillColor: following
+                              ? Theme.of(context).accentColor
+                              : Theme.of(context).backgroundColor,
                           elevation: 0.0,
                           child: Text(
                             following ? 'Unfollow' : 'Follow',
                             style: TextStyle(
-                              color: following ? Theme.of(context).backgroundColor : Theme.of(context).buttonColor,
+                              color: following
+                                  ? Theme.of(context).backgroundColor
+                                  : Theme.of(context).buttonColor,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           shape: RoundedRectangleBorder(
                               side: BorderSide(
-                                  color: following ? Theme.of(context).accentColor : Theme.of(context).hintColor,
+                                  color: following
+                                      ? Theme.of(context).accentColor
+                                      : Theme.of(context).hintColor,
                                   width: 1,
                                   style: BorderStyle.solid),
                               borderRadius: BorderRadius.circular(5)),

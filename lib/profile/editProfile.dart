@@ -181,6 +181,9 @@ class _EditProfileModalState extends State<EditProfileModal> {
                     updatedInfo['email'] = email;
                   }
 
+                  if (description == '') {
+                    description = null;
+                  }
                   updatedInfo['description'] = description;
 
                   user = await updateUserInfo(updatedInfo);
