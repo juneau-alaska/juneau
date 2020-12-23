@@ -14,6 +14,7 @@ import 'package:juneau/auth/signUpSelect.dart';
 import 'package:juneau/auth/signUp.dart';
 import 'package:juneau/home/home.dart';
 import 'package:juneau/profile/profile.dart';
+import 'package:juneau/inbox/inbox.dart';
 
 void main() => runApp(new MyApp());
 
@@ -74,6 +75,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   Widget navBar;
   Widget homePage;
   Widget profilePage;
+  Widget inboxPage;
 
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final PageController _pageController = PageController();
@@ -87,6 +89,7 @@ class _MainScaffoldState extends State<MainScaffold> {
       user = await userMethods.getUser(userId);
       setState(() {
         homePage = HomePage(user: user);
+        inboxPage = InboxPage();
         profilePage = ProfilePage(profileUser: user);
       });
     });
@@ -118,6 +121,7 @@ class _MainScaffoldState extends State<MainScaffold> {
         physics:new NeverScrollableScrollPhysics(),
         children:[
           homePage,
+          inboxPage,
           profilePage,
         ],
         controller: _pageController,

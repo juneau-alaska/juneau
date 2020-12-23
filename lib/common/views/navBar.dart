@@ -31,6 +31,7 @@ class _NavBarState extends State<NavBar> {
       child: Padding(
         padding: const EdgeInsets.only(top: 5.0),
         child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
           elevation: 0.0,
           backgroundColor: Theme
             .of(context)
@@ -54,6 +55,10 @@ class _NavBarState extends State<NavBar> {
                   widget.navController.add(0);
                   break;
                 case 1:
+                case 0:
+                  _previousIndex = _selectedIndex;
+                  break;
+                case 2:
                   showModalBottomSheet(
                     isScrollControlled: true,
                     context: context,
@@ -62,9 +67,13 @@ class _NavBarState extends State<NavBar> {
                     });
                   _selectedIndex = _previousIndex;
                   break;
-                case 2:
+                case 3:
                   _previousIndex = _selectedIndex;
                   widget.navController.add(1);
+                  break;
+                case 4:
+                  _previousIndex = _selectedIndex;
+                  widget.navController.add(2);
                   break;
                 default:
                   break;
@@ -77,12 +86,17 @@ class _NavBarState extends State<NavBar> {
                 Icons.home_outlined,
                 size: 28.0
               ),
-              activeIcon: new Icon(
-                Icons.home,
+              title: Text(''),
+            ),
+
+            BottomNavigationBarItem(
+              icon: new Icon(
+                Icons.search,
                 size: 28.0
               ),
               title: Text(''),
             ),
+
             BottomNavigationBarItem(
               icon: new Icon(
                 Icons.add_circle_outline,
@@ -90,13 +104,18 @@ class _NavBarState extends State<NavBar> {
               ),
               title: Text(''),
             ),
+
+            BottomNavigationBarItem(
+              icon: new Icon(
+                Icons.mail_outline,
+                size: 28.0
+              ),
+              title: Text(''),
+            ),
+
             BottomNavigationBarItem(
               icon: new Icon(
                 Icons.account_circle_outlined,
-                size: 28.0
-              ),
-              activeIcon: new Icon(
-                Icons.account_circle,
                 size: 28.0
               ),
               title: Text(''),
