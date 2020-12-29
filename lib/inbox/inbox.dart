@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:juneau/common/components/pageRoutes.dart';
+import 'package:juneau/inbox/convo/createConvo.dart';
 
 class InboxPage extends StatefulWidget {
   @override
@@ -36,11 +37,7 @@ class _InboxPageState extends State<InboxPage> {
                           onPressed: () => Navigator.of(context).pop(),
                         ),
                       ),
-                      body: Container(
-                        height: 100,
-                        width: 100,
-                        color: Colors.red,
-                      ),
+                      body: CreateConvoPage(),
                     );
                   }));
                 },

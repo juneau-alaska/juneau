@@ -41,7 +41,7 @@ class _NavBarState extends State<NavBar> {
             .buttonColor,
           selectedItemColor: Theme
             .of(context)
-            .accentColor,
+            .buttonColor,
           selectedFontSize: 0,
           showSelectedLabels: false,
           showUnselectedLabels: false,
@@ -86,6 +86,10 @@ class _NavBarState extends State<NavBar> {
                 Icons.home_outlined,
                 size: 28.0
               ),
+              activeIcon: new Icon(
+                Icons.home,
+                size: 28.0
+              ),
               title: Text(''),
             ),
 
@@ -93,6 +97,10 @@ class _NavBarState extends State<NavBar> {
               icon: new Icon(
                 Icons.search,
                 size: 28.0
+              ),
+              activeIcon: new Icon(
+                Icons.search_rounded,
+                size: 30.0
               ),
               title: Text(''),
             ),
@@ -110,12 +118,20 @@ class _NavBarState extends State<NavBar> {
                 Icons.mail_outline,
                 size: 28.0
               ),
+              activeIcon: new Icon(
+                Icons.mail,
+                size: 28.0
+              ),
               title: Text(''),
             ),
 
             BottomNavigationBarItem(
               icon: new Icon(
                 Icons.account_circle_outlined,
+                size: 28.0
+              ),
+              activeIcon: new Icon(
+                Icons.account_circle,
                 size: 28.0
               ),
               title: Text(''),
