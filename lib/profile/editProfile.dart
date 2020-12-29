@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'dart:convert';
 import 'dart:io';
@@ -68,7 +69,12 @@ class _EditProfileModalState extends State<EditProfileModal> {
   void initState() {
     user = widget.user;
 
-    usernameInput = new InputComponent(hintText: 'Username');
+    usernameInput = new InputComponent(
+      hintText: 'Username',
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(new RegExp("[0-9A-Za-z_.]"))
+      ],
+    );
     usernameController = usernameInput.controller;
     usernameController.text = user['username'];
 

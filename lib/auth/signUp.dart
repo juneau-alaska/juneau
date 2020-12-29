@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:juneau/common/components/inputComponent.dart';
@@ -66,7 +67,12 @@ class _SignUpPageState extends State<SignUpPage> {
     emailInput = new InputComponent(hintText: 'Email address');
     emailController = emailInput.controller;
 
-    usernameInput = new InputComponent(hintText: 'Username');
+    usernameInput = new InputComponent(
+      hintText: 'Username',
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(new RegExp("[0-9A-Za-z_.]"))
+      ],
+    );
     usernameController = usernameInput.controller;
 
     passwordInput = new InputComponent(hintText: 'Password', obscureText: true);
@@ -216,7 +222,7 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         FlatButton(
           onPressed: () {
-            String username = usernameController.text.trim();
+            String username = usernameController.text.trim().toLowerCase();
             _isUsernameValid = validator.validateUsername(username);
 
             if (!_isUsernameValid) {

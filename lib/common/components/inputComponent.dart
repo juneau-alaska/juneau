@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class InputComponent extends StatefulWidget {
   final hintText;
@@ -12,6 +13,7 @@ class InputComponent extends StatefulWidget {
   final fontWeight;
   final autoFocus;
   final prefixIcon;
+  final inputFormatters;
   final controller = TextEditingController();
 
   InputComponent({
@@ -27,6 +29,7 @@ class InputComponent extends StatefulWidget {
     this.fontWeight,
     this.autoFocus,
     this.prefixIcon,
+    this.inputFormatters,
   }) : super(key: key);
 
   @override
@@ -43,6 +46,7 @@ class _InputComponentState extends State<InputComponent> {
     Color borderColor = widget.borderColor == null ? Theme.of(context).hintColor : widget.borderColor;
     FontWeight fontWeight = widget.fontWeight == null ? FontWeight.w300 : widget.fontWeight;
     bool autoFocus = widget.autoFocus == null ? false : widget.autoFocus;
+    List<TextInputFormatter> inputFormatters = widget.inputFormatters == null ? [] : widget.inputFormatters;
 
     UnderlineInputBorder borderOutline = UnderlineInputBorder(
       borderSide: BorderSide(
@@ -72,6 +76,7 @@ class _InputComponentState extends State<InputComponent> {
             enabledBorder: borderOutline,
         ),
         controller: widget.controller,
+        inputFormatters: inputFormatters,
       ),
     );
   }

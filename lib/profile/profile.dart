@@ -441,7 +441,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   )
                 : Container(),
             Padding(
-              padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 10.0),
+              padding: const EdgeInsets.fromLTRB(15.0, 5.0, 15.0, 10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: isUser != null && isUser
