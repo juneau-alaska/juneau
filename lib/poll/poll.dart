@@ -106,7 +106,7 @@ class _PositionalDotsState extends State<PositionalDots> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Icon(Icons.favorite,
-                      color: selected ? Theme.of(context).accentColor : Colors.white, size: 20.0),
+                      color: selected ? Colors.redAccent : Colors.white, size: 20.0),
                   Padding(
                     padding: const EdgeInsets.only(left: 3.0),
                     child: Text(
@@ -129,9 +129,9 @@ class _PositionalDotsState extends State<PositionalDots> {
             dotsCount: widget.numImages,
             position: currentPosition,
             decorator: DotsDecorator(
-              size: Size.square(6.0),
+              size: Size.square(5.0),
               color: Colors.white,
-              activeColor: Theme.of(context).accentColor,
+              activeColor: Colors.redAccent,
               activeSize: Size.square(6.0),
               spacing: const EdgeInsets.symmetric(horizontal: 2.5),
             ),
