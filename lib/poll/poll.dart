@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:juneau/poll/pollMenu.dart';
+import 'package:juneau/common/colors.dart';
 import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/methods/userMethods.dart';
@@ -19,6 +20,7 @@ import 'package:juneau/profile/profile.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:rxdart/rxdart.dart';
+
 
 class PositionalDots extends StatefulWidget {
   final pageController;
@@ -129,9 +131,9 @@ class _PositionalDotsState extends State<PositionalDots> {
             dotsCount: widget.numImages,
             position: currentPosition,
             decorator: DotsDecorator(
-              size: Size.square(5.0),
-              color: Colors.white,
-              activeColor: Colors.redAccent,
+              size: Size.square(6.0),
+              color: customColors.grey,
+              activeColor: Theme.of(context).highlightColor,
               activeSize: Size.square(6.0),
               spacing: const EdgeInsets.symmetric(horizontal: 2.5),
             ),
@@ -302,7 +304,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
             );
           } else {
             return new Container(
-              color: Theme.of(context).hintColor,
+              color: customColors.grey,
               width: screenWidth,
               height: screenHeight,
             );
@@ -457,7 +459,7 @@ class _CategoryButtonState extends State<CategoryButton> {
       constraints: BoxConstraints(maxWidth: 120),
       decoration: new BoxDecoration(
           color: followingCategories.contains(pollCategory)
-              ? Theme.of(context).accentColor
+              ? Theme.of(context).buttonColor
               : Theme.of(context).backgroundColor,
           borderRadius: new BorderRadius.all(const Radius.circular(4.0))),
       child: GestureDetector(
@@ -881,30 +883,23 @@ class _PollWidgetState extends State<PollWidget> {
                                       child: Text(
                                         pollCreator['username'],
                                         style: TextStyle(
-                                          fontSize: 16.0,
+                                          fontSize: 15.0,
                                           color: Theme.of(context).backgroundColor,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                       onTap: () {
                                         openProfile(context, pollCreator, user: user);
                                       }),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 2.0, right: 1.0),
-                                    child: Text('•',
-                                        style: TextStyle(
-                                          color: Theme.of(context).backgroundColor,
-                                          fontWeight: FontWeight.w500,
-                                        )),
-                                  ),
+                                  SizedBox(width: 3.0),
                                   Padding(
                                     padding: const EdgeInsets.only(top: 1.5),
                                     child: Text(
                                       time,
                                       style: TextStyle(
-                                        fontSize: 14.0,
+                                        fontSize: 13.0,
                                         color: Theme.of(context).backgroundColor,
-                                        wordSpacing: -3.5,
+                                        wordSpacing: -3.0,
                                       ),
                                     ),
                                   ),

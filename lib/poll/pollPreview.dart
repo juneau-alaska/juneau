@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
+import 'package:juneau/common/colors.dart';
+
 class PollPreview extends StatefulWidget {
   final pollObject;
   final openListView;
@@ -126,24 +128,21 @@ class _PollPreviewState extends State<PollPreview> {
       onTap: () {
         widget.openListView(index, poll['_id']);
       },
-      child: Padding(
-        padding: const EdgeInsets.all(0.25),
-        child: preview == null
-            ? FutureBuilder<Widget>(
-                future: buildPreview(size),
-                builder: (context, AsyncSnapshot<Widget> pollPreview) {
-                  if (pollPreview.hasData) {
-                    return Container(color: Theme.of(context).hintColor, child: pollPreview.data);
-                  } else {
-                    return Container(
-                      width: size,
-                      height: size,
-                      color: Theme.of(context).hintColor,
-                    );
-                  }
-                })
-            : preview,
-      ),
+      child: preview == null
+          ? FutureBuilder<Widget>(
+              future: buildPreview(size),
+              builder: (context, AsyncSnapshot<Widget> pollPreview) {
+                if (pollPreview.hasData) {
+                  return Container(color: customColors.grey, child: pollPreview.data);
+                } else {
+                  return Container(
+                    width: size,
+                    height: size,
+                    color: customColors.grey,
+                  );
+                }
+              })
+          : preview,
     );
   }
 }

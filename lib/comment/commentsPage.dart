@@ -334,32 +334,26 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
                 GestureDetector(
                     child: Text(
                       creator['username'],
                       style: TextStyle(
-                          color: Theme.of(context).accentColor,
                           fontSize: 15.0,
+                          fontWeight: FontWeight.w500,
                       ),
                     ),
                     onTap: () {
                       openProfile(context, creator);
                     }),
-                Padding(
-                  padding: const EdgeInsets.only(left: 3.0, right: 1.0),
-                  child: Text('•',
-                      style: TextStyle(
-                          color: Theme.of(context).hintColor,
-                          fontSize: 13.0,
-                          fontWeight: FontWeight.bold)),
-                ),
+                SizedBox(width: 3.0),
                 Text(
                   time,
                   style: TextStyle(
-                    color: Theme.of(context).hintColor,
-                    fontSize: 14,
-                    wordSpacing: -4.0,
+                    fontSize: 13,
+                    wordSpacing: -3.0,
                   ),
                 ),
               ]),
@@ -727,7 +721,7 @@ class _BottomInputState extends State<BottomInput> {
                     child: Text(
                       'COMMENT',
                       style: TextStyle(
-                          fontSize: 15.0, color: Theme.of(context).accentColor, fontWeight: FontWeight.w700),
+                          fontSize: 15.0, color: Theme.of(context).highlightColor, fontWeight: FontWeight.w700),
                     ))
               ],
             ),

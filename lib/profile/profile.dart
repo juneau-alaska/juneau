@@ -284,12 +284,22 @@ class _ProfilePageState extends State<ProfilePage> {
 
     for (int i = 0; i < pollObjects.length; i++) {
       var pollObject = pollObjects[i];
+      var padding = const EdgeInsets.all(0.0);
+
+      if (i % 3 == 0) {
+        padding = const EdgeInsets.only(right: 1.0);
+      } else if (i % 3 == 2) {
+        padding = const EdgeInsets.only(left: 1.0);
+      }
 
       gridRow.add(Hero(
         tag: pollObject['poll']['_id'],
-        child: PollPreview(
-          pollObject: pollObject,
-          openListView: openListView,
+        child: Padding(
+          padding: padding,
+          child: PollPreview(
+            pollObject: pollObject,
+            openListView: openListView,
+          ),
         ),
       ));
 
@@ -475,7 +485,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           shape: RoundedRectangleBorder(
                               side: BorderSide(
                                   color: Theme.of(context).hintColor,
-                                  width: 1,
+                                  width: 0.5,
                                   style: BorderStyle.solid),
                               borderRadius: BorderRadius.circular(5)),
                         ),
@@ -502,7 +512,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           shape: RoundedRectangleBorder(
                               side: BorderSide(
                                   color: Theme.of(context).hintColor,
-                                  width: 1,
+                                  width: 0.5,
                                   style: BorderStyle.solid),
                               borderRadius: BorderRadius.circular(5)),
                         ),
@@ -538,7 +548,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           constraints: BoxConstraints(),
                           padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
                           fillColor: following
-                              ? Theme.of(context).accentColor
+                              ? Theme.of(context).buttonColor
                               : Theme.of(context).backgroundColor,
                           elevation: 0.0,
                           child: Text(
@@ -552,34 +562,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           shape: RoundedRectangleBorder(
                               side: BorderSide(
-                                  color: following
-                                      ? Theme.of(context).accentColor
-                                      : Theme.of(context).hintColor,
-                                  width: 1,
+                                  color: Theme.of(context).buttonColor,
+                                  width: 0.5,
                                   style: BorderStyle.solid),
                               borderRadius: BorderRadius.circular(5)),
                         ),
-                        // SizedBox(width: 5.0),
-                        // RawMaterialButton(
-                        //   onPressed: () {},
-                        //   constraints: BoxConstraints(),
-                        //   padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                        //   fillColor: Theme.of(context).backgroundColor,
-                        //   elevation: 0.0,
-                        //   child: Text(
-                        //     'Message',
-                        //     style: TextStyle(
-                        //       color: Theme.of(context).buttonColor,
-                        //       fontWeight: FontWeight.w500,
-                        //     ),
-                        //   ),
-                        //   shape: RoundedRectangleBorder(
-                        //       side: BorderSide(
-                        //           color: Theme.of(context).hintColor,
-                        //           width: 1,
-                        //           style: BorderStyle.solid),
-                        //       borderRadius: BorderRadius.circular(5)),
-                        // ),
                       ],
               ),
             ),

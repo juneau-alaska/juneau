@@ -25,16 +25,21 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
 
-    Color black = const Color(0xFF020202);
+    Color black = const Color(0xFF101619);
+    Color background = const Color(0xFFFBFEF9);
+    Color hint = const Color(0xFF6b6b6b);
+    Color highlight = const Color(0xFF2589BD);
+    Color accent = const Color(0xFF53DD6C);
+    Color button = black;
 
     return MaterialApp(
       theme: ThemeData(
         brightness: Brightness.light,
-        backgroundColor: const Color(0xFFFEFEFE),
-        hintColor: const Color(0xFF9c9e9f),
-        highlightColor: const Color(0xff1f64ef),
-        accentColor: black,
-        buttonColor: black,
+        backgroundColor: background,
+        hintColor: hint,
+        highlightColor: highlight,
+        accentColor: accent,
+        buttonColor: button,
         textTheme: TextTheme(
           headline1: TextStyle(
             color: black,

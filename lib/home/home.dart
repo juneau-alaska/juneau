@@ -61,9 +61,9 @@ class _CategoryTabsState extends State<CategoryTabs> {
             categoryStreamController.add(null);
           },
           constraints: BoxConstraints(),
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          padding: EdgeInsets.symmetric(horizontal: 18.0),
           fillColor: currentCategory == null
-              ? Theme.of(context).accentColor
+              ? Theme.of(context).buttonColor
               : Theme.of(context).backgroundColor,
           elevation: 0.0,
           child: Text(
@@ -77,12 +77,10 @@ class _CategoryTabsState extends State<CategoryTabs> {
           ),
           shape: RoundedRectangleBorder(
               side: BorderSide(
-                  color: currentCategory == null
-                      ? Theme.of(context).accentColor
-                      : Theme.of(context).hintColor,
-                  width: 1,
+                  color: Theme.of(context).buttonColor,
+                  width: 0.5,
                   style: BorderStyle.solid),
-              borderRadius: BorderRadius.circular(50)),
+              borderRadius: BorderRadius.circular(20)),
         ),
       ),
       Padding(
@@ -92,9 +90,9 @@ class _CategoryTabsState extends State<CategoryTabs> {
             categoryStreamController.add('following');
           },
           constraints: BoxConstraints(),
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          padding: EdgeInsets.symmetric(horizontal: 18.0),
           fillColor: currentCategory == 'following'
-              ? Theme.of(context).accentColor
+              ? Theme.of(context).buttonColor
               : Theme.of(context).backgroundColor,
           elevation: 0.0,
           child: Text(
@@ -108,12 +106,10 @@ class _CategoryTabsState extends State<CategoryTabs> {
           ),
           shape: RoundedRectangleBorder(
               side: BorderSide(
-                  color: currentCategory == 'following'
-                      ? Theme.of(context).accentColor
-                      : Theme.of(context).hintColor,
-                  width: 1,
+                  color: Theme.of(context).buttonColor,
+                  width: 0.5,
                   style: BorderStyle.solid),
-              borderRadius: BorderRadius.circular(50)),
+              borderRadius: BorderRadius.circular(20)),
         ),
       ),
     ];
@@ -128,9 +124,9 @@ class _CategoryTabsState extends State<CategoryTabs> {
               categoryStreamController.add(category);
             },
             constraints: BoxConstraints(),
-            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            padding: EdgeInsets.symmetric(horizontal: 18.0),
             fillColor: currentCategory == category
-                ? Theme.of(context).accentColor
+                ? Theme.of(context).buttonColor
                 : Theme.of(context).backgroundColor,
             elevation: 0.0,
             child: Text(
@@ -144,12 +140,10 @@ class _CategoryTabsState extends State<CategoryTabs> {
             ),
             shape: RoundedRectangleBorder(
                 side: BorderSide(
-                    color: currentCategory == category
-                        ? Theme.of(context).accentColor
-                        : Theme.of(context).hintColor,
-                    width: 1,
+                    color: Theme.of(context).buttonColor,
+                    width: 0.5,
                     style: BorderStyle.solid),
-                borderRadius: BorderRadius.circular(50)),
+                borderRadius: BorderRadius.circular(20)),
           ),
         ),
       );

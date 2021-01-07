@@ -27,7 +27,7 @@ class _NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 75.0,
+      height: 90.0,
       child: Padding(
         padding: const EdgeInsets.only(top: 5.0),
         child: BottomNavigationBar(
@@ -38,7 +38,7 @@ class _NavBarState extends State<NavBar> {
             .backgroundColor,
           unselectedItemColor: Theme
             .of(context)
-            .buttonColor,
+            .hintColor,
           selectedItemColor: Theme
             .of(context)
             .buttonColor,
@@ -78,10 +78,6 @@ class _NavBarState extends State<NavBar> {
           items: [
             BottomNavigationBarItem(
               icon: new Icon(
-                Icons.home_outlined,
-                size: 28.0
-              ),
-              activeIcon: new Icon(
                 Icons.home,
                 size: 28.0
               ),
@@ -93,42 +89,24 @@ class _NavBarState extends State<NavBar> {
                 Icons.search,
                 size: 28.0
               ),
-              activeIcon: new Icon(
-                Icons.search_rounded,
-                size: 30.0
+
+              title: Text(''),
+            ),
+
+            BottomNavigationBarItem(
+              icon: new Icon(
+                Icons.add,
+                size: 28.0
               ),
               title: Text(''),
             ),
 
             BottomNavigationBarItem(
               icon: new Icon(
-                Icons.add_circle_outline,
-                size: 28.0
-              ),
-              title: Text(''),
-            ),
-
-            // BottomNavigationBarItem(
-            //   icon: new Icon(
-            //     Icons.mail_outline,
-            //     size: 28.0
-            //   ),
-            //   activeIcon: new Icon(
-            //     Icons.mail,
-            //     size: 28.0
-            //   ),
-            //   title: Text(''),
-            // ),
-
-            BottomNavigationBarItem(
-              icon: new Icon(
-                Icons.account_circle_outlined,
-                size: 28.0
-              ),
-              activeIcon: new Icon(
                 Icons.account_circle,
                 size: 28.0
               ),
+
               title: Text(''),
             ),
           ],
