@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:juneau/common/colors.dart';
 import 'package:juneau/common/views/appBar.dart';
 import 'package:juneau/common/views/navBar.dart';
 
@@ -25,12 +26,11 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
 
-    Color black = const Color(0xFF101619);
-    Color background = const Color(0xFFFBFEF9);
-    Color hint = const Color(0xFF6b6b6b);
-    Color highlight = const Color(0xFF2589BD);
-    Color accent = const Color(0xFF53DD6C);
-    Color button = black;
+    Color background = customColors.white;
+    Color hint = customColors.darkGrey;
+    Color highlight = customColors.blue;
+    Color button = customColors.black;
+    Color textColor = customColors.black;
 
     return MaterialApp(
       theme: ThemeData(
@@ -38,19 +38,18 @@ class MyApp extends StatelessWidget {
         backgroundColor: background,
         hintColor: hint,
         highlightColor: highlight,
-        accentColor: accent,
         buttonColor: button,
         textTheme: TextTheme(
           headline1: TextStyle(
-            color: black,
+            color: textColor,
             letterSpacing: -0.25,
           ),
           headline6: TextStyle(
-            color: black,
+            color: textColor,
             letterSpacing: -0.25,
           ),
           bodyText2: TextStyle(
-            color: black,
+            color: textColor,
             letterSpacing: -0.25,
           ),
         ),

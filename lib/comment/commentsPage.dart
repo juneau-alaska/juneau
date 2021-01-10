@@ -348,7 +348,12 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                     onTap: () {
                       openProfile(context, creator);
                     }),
-                SizedBox(width: 3.0),
+                Text(
+                  '•',
+                  style: TextStyle(
+                    fontSize: 13.0,
+                  ),
+                ),
                 Text(
                   time,
                   style: TextStyle(
