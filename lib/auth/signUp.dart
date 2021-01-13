@@ -69,13 +69,18 @@ class _SignUpPageState extends State<SignUpPage> {
 
     usernameInput = new InputComponent(
       hintText: 'Username',
+      maxLength: 30,
       inputFormatters: [
         FilteringTextInputFormatter.allow(new RegExp("[0-9A-Za-z_.]"))
       ],
     );
     usernameController = usernameInput.controller;
 
-    passwordInput = new InputComponent(hintText: 'Password', obscureText: true);
+    passwordInput = new InputComponent(
+      hintText: 'Password',
+      obscureText: true,
+      maxLength: 40,
+    );
     passwordController = passwordInput.controller;
     super.initState();
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -128,12 +129,17 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
     searchBar = new InputComponent(
       hintText: "Search",
       contentPadding: EdgeInsets.fromLTRB(35.0, 7.0, 12.0, 15.0),
+      maxLength: 30,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(new RegExp("[0-9A-Za-z]"))
+      ],
     );
     searchBarController = searchBar.controller;
     searchBarController.addListener(() => streamController.add(searchBarController.text.trim()));
     streamController.stream.debounceTime(Duration(milliseconds: 250)).listen((String text) {
       if (mounted) {
-        if (text.toLowerCase() == 'following') {
+        text = text.toLowerCase();
+        if (text == 'following') {
           text = '';
         }
         buildCategoryOptions(text, context);

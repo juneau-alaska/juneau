@@ -66,6 +66,7 @@ class _InputComponentState extends State<InputComponent> {
         style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
         decoration: InputDecoration(
             prefixIcon: widget.prefixIcon,
+            counterText: "",
             isDense: true,
             contentPadding: contentPadding,
             hintText: widget.hintText,
