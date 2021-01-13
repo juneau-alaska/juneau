@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'package:juneau/common/components/pageRoutes.dart';
@@ -198,7 +198,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool alreadyPressed = false;
 
-  RefreshController refreshController = RefreshController(initialRefresh: false);
+  // RefreshController refreshController = RefreshController(initialRefresh: false);
   StreamController pollListController = StreamController.broadcast();
   var parentController;
 
@@ -321,7 +321,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   void dispose() {
-    refreshController.dispose();
+    // refreshController.dispose();
     pollListController.close();
     parentController.close();
     super.dispose();
@@ -355,16 +355,14 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  void _onRefresh() async {
+  Future<void> _onRefresh() async {
     prevId = null;
     await fetchPollData(false);
-    refreshController.refreshCompleted();
   }
 
-  void _onLoading() async {
+  Future<void> _onLoading() async {
     if (pollObjects.length == profileUser['createdPolls'].length) return;
     await fetchPollData(true);
-    refreshController.loadComplete();
   }
 
   void openListView(index, tag) async {
@@ -418,16 +416,9 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     return KeepAlivePage(
-      child: SmartRefresher(
-        enablePullDown: true,
-        enablePullUp: true,
-        header: ClassicHeader(),
-        footer: ClassicFooter(
-          loadStyle: LoadStyle.ShowWhenLoading,
-        ),
-        controller: refreshController,
+      child: EasyRefresh(
         onRefresh: _onRefresh,
-        onLoading: _onLoading,
+        onLoad: _onLoading,
         child: ListView(
           shrinkWrap: true,
           children: [
@@ -443,151 +434,324 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             profileUser['description'] != null
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-                    child: Text(
-                      profileUser['description'],
-                    ),
-                  )
-                : Container(),
+              ? Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+              child: Text(
+                profileUser['description'],
+              ),
+            )
+              : Container(),
             Padding(
               padding: const EdgeInsets.fromLTRB(15.0, 5.0, 15.0, 10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: isUser != null && isUser
-                    ? [
-                        RawMaterialButton(
-                          onPressed: () async {
-                            var update = await showModalBottomSheet(
-                                isScrollControlled: true,
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return new EditProfileModal(
-                                    user: profileUser,
-                                  );
-                                });
+                  ? [
+                  RawMaterialButton(
+                    onPressed: () async {
+                      var update = await showModalBottomSheet(
+                        isScrollControlled: true,
+                        context: context,
+                        builder: (BuildContext context) {
+                          return new EditProfileModal(
+                            user: profileUser,
+                          );
+                        });
 
-                            setState(() {
-                              profileUser = update['user'];
-                            });
-                          },
-                          constraints: BoxConstraints(),
-                          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                          fillColor: Theme.of(context).backgroundColor,
-                          elevation: 0.0,
-                          child: Text(
-                            'Edit Profile',
-                            style: TextStyle(
-                              color: Theme.of(context).buttonColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                  color: Theme.of(context).hintColor,
-                                  width: 0.5,
-                                  style: BorderStyle.solid),
-                              borderRadius: BorderRadius.circular(5)),
-                        ),
-                        SizedBox(width: 5.0),
-                        RawMaterialButton(
-                          onPressed: () {
-                            showModalBottomSheet(
-                                backgroundColor: Colors.transparent,
-                                context: context,
-                                builder: (BuildContext context) =>
-                                    AccountSettings(user: profileUser));
-                          },
-                          constraints: BoxConstraints(),
-                          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                          fillColor: Theme.of(context).backgroundColor,
-                          elevation: 0.0,
-                          child: Text(
-                            'Settings',
-                            style: TextStyle(
-                              color: Theme.of(context).buttonColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                  color: Theme.of(context).hintColor,
-                                  width: 0.5,
-                                  style: BorderStyle.solid),
-                              borderRadius: BorderRadius.circular(5)),
-                        ),
-                      ]
-                    : [
-                        RawMaterialButton(
-                          onPressed: () async {
-                            if (!alreadyPressed) {
-                              alreadyPressed = true;
-                            } else {
-                              return showAlert(profileContext, 'Going too fast.');
-                            }
+                      setState(() {
+                        profileUser = update['user'];
+                      });
+                    },
+                    constraints: BoxConstraints(),
+                    padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                    fillColor: Theme.of(context).backgroundColor,
+                    elevation: 0.0,
+                    child: Text(
+                      'Edit Profile',
+                      style: TextStyle(
+                        color: Theme.of(context).buttonColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        color: Theme.of(context).hintColor,
+                        width: 0.5,
+                        style: BorderStyle.solid),
+                      borderRadius: BorderRadius.circular(5)),
+                  ),
+                  SizedBox(width: 5.0),
+                  RawMaterialButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        backgroundColor: Colors.transparent,
+                        context: context,
+                        builder: (BuildContext context) =>
+                          AccountSettings(user: profileUser));
+                    },
+                    constraints: BoxConstraints(),
+                    padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                    fillColor: Theme.of(context).backgroundColor,
+                    elevation: 0.0,
+                    child: Text(
+                      'Settings',
+                      style: TextStyle(
+                        color: Theme.of(context).buttonColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        color: Theme.of(context).hintColor,
+                        width: 0.5,
+                        style: BorderStyle.solid),
+                      borderRadius: BorderRadius.circular(5)),
+                  ),
+                ]
+                  : [
+                  RawMaterialButton(
+                    onPressed: () async {
+                      if (!alreadyPressed) {
+                        alreadyPressed = true;
+                      } else {
+                        return showAlert(profileContext, 'Going too fast.');
+                      }
 
-                            List followingUsers =
-                                user['followingUsers'] != null ? user['followingUsers'] : [];
-                            String profileUserId = profileUser['_id'];
+                      List followingUsers =
+                      user['followingUsers'] != null ? user['followingUsers'] : [];
+                      String profileUserId = profileUser['_id'];
 
-                            if (following) {
-                              followingUsers.remove(profileUserId);
-                            } else {
-                              followingUsers.add(profileUserId);
-                            }
+                      if (following) {
+                        followingUsers.remove(profileUserId);
+                      } else {
+                        followingUsers.add(profileUserId);
+                      }
 
-                            var updatedUser = await updateUser(followingUsers);
-                            if (updatedUser != null) {
-                              setState(() {
-                                user = updatedUser;
-                                following = followingUsers.contains(profileUserId);
-                                alreadyPressed = false;
-                              });
-                            }
-                          },
-                          constraints: BoxConstraints(),
-                          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                          fillColor: following
-                              ? Theme.of(context).buttonColor
-                              : Theme.of(context).backgroundColor,
-                          elevation: 0.0,
-                          child: Text(
-                            following ? 'Unfollow' : 'Follow',
-                            style: TextStyle(
-                              color: following
-                                  ? Theme.of(context).backgroundColor
-                                  : Theme.of(context).buttonColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                  color: Theme.of(context).buttonColor,
-                                  width: 0.5,
-                                  style: BorderStyle.solid),
-                              borderRadius: BorderRadius.circular(5)),
-                        ),
-                      ],
+                      var updatedUser = await updateUser(followingUsers);
+                      if (updatedUser != null) {
+                        setState(() {
+                          user = updatedUser;
+                          following = followingUsers.contains(profileUserId);
+                          alreadyPressed = false;
+                        });
+                      }
+                    },
+                    constraints: BoxConstraints(),
+                    padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                    fillColor: following
+                      ? Theme.of(context).buttonColor
+                      : Theme.of(context).backgroundColor,
+                    elevation: 0.0,
+                    child: Text(
+                      following ? 'Unfollow' : 'Follow',
+                      style: TextStyle(
+                        color: following
+                          ? Theme.of(context).backgroundColor
+                          : Theme.of(context).buttonColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        color: Theme.of(context).buttonColor,
+                        width: 0.5,
+                        style: BorderStyle.solid),
+                      borderRadius: BorderRadius.circular(5)),
+                  ),
+                ],
               ),
             ),
             pollObjects != null
-                ? pollObjects.length > 0
-                    ? gridListView
-                    : Padding(
-                        padding: const EdgeInsets.only(top: 100.0),
-                        child: Center(
-                          child: Container(child: Text('No created polls found')),
-                        ),
-                      )
-                : Padding(
-                    padding: const EdgeInsets.only(top: 50.0),
-                    child: Center(
-                      child: Container(child: CircularProgressIndicator()),
-                    ),
-                  ),
+              ? pollObjects.length > 0
+              ? gridListView
+              : Padding(
+              padding: const EdgeInsets.only(top: 100.0),
+              child: Center(
+                child: Container(child: Text('No created polls found')),
+              ),
+            )
+              : Padding(
+              padding: const EdgeInsets.only(top: 50.0),
+              child: Center(
+                child: Container(child: CircularProgressIndicator()),
+              ),
+            ),
           ],
         ),
       ),
     );
+
+    // return KeepAlivePage(
+    //   child: SmartRefresher(
+    //     enablePullDown: true,
+    //     enablePullUp: true,
+    //     header: ClassicHeader(),
+    //     footer: ClassicFooter(
+    //       loadStyle: LoadStyle.ShowWhenLoading,
+    //     ),
+    //     controller: refreshController,
+    //     onRefresh: _onRefresh,
+    //     onLoading: _onLoading,
+    //     child: ListView(
+    //       shrinkWrap: true,
+    //       children: [
+    //         Padding(
+    //           padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 0.0),
+    //           child: Text(
+    //             profileUser['username'],
+    //             style: TextStyle(
+    //               fontSize: 24.0,
+    //               fontWeight: FontWeight.bold,
+    //               letterSpacing: -1.3,
+    //             ),
+    //           ),
+    //         ),
+    //         profileUser['description'] != null
+    //             ? Padding(
+    //                 padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+    //                 child: Text(
+    //                   profileUser['description'],
+    //                 ),
+    //               )
+    //             : Container(),
+    //         Padding(
+    //           padding: const EdgeInsets.fromLTRB(15.0, 5.0, 15.0, 10.0),
+    //           child: Row(
+    //             mainAxisAlignment: MainAxisAlignment.start,
+    //             children: isUser != null && isUser
+    //                 ? [
+    //                     RawMaterialButton(
+    //                       onPressed: () async {
+    //                         var update = await showModalBottomSheet(
+    //                             isScrollControlled: true,
+    //                             context: context,
+    //                             builder: (BuildContext context) {
+    //                               return new EditProfileModal(
+    //                                 user: profileUser,
+    //                               );
+    //                             });
+    //
+    //                         setState(() {
+    //                           profileUser = update['user'];
+    //                         });
+    //                       },
+    //                       constraints: BoxConstraints(),
+    //                       padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+    //                       fillColor: Theme.of(context).backgroundColor,
+    //                       elevation: 0.0,
+    //                       child: Text(
+    //                         'Edit Profile',
+    //                         style: TextStyle(
+    //                           color: Theme.of(context).buttonColor,
+    //                           fontWeight: FontWeight.w500,
+    //                         ),
+    //                       ),
+    //                       shape: RoundedRectangleBorder(
+    //                           side: BorderSide(
+    //                               color: Theme.of(context).hintColor,
+    //                               width: 0.5,
+    //                               style: BorderStyle.solid),
+    //                           borderRadius: BorderRadius.circular(5)),
+    //                     ),
+    //                     SizedBox(width: 5.0),
+    //                     RawMaterialButton(
+    //                       onPressed: () {
+    //                         showModalBottomSheet(
+    //                             backgroundColor: Colors.transparent,
+    //                             context: context,
+    //                             builder: (BuildContext context) =>
+    //                                 AccountSettings(user: profileUser));
+    //                       },
+    //                       constraints: BoxConstraints(),
+    //                       padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+    //                       fillColor: Theme.of(context).backgroundColor,
+    //                       elevation: 0.0,
+    //                       child: Text(
+    //                         'Settings',
+    //                         style: TextStyle(
+    //                           color: Theme.of(context).buttonColor,
+    //                           fontWeight: FontWeight.w500,
+    //                         ),
+    //                       ),
+    //                       shape: RoundedRectangleBorder(
+    //                           side: BorderSide(
+    //                               color: Theme.of(context).hintColor,
+    //                               width: 0.5,
+    //                               style: BorderStyle.solid),
+    //                           borderRadius: BorderRadius.circular(5)),
+    //                     ),
+    //                   ]
+    //                 : [
+    //                     RawMaterialButton(
+    //                       onPressed: () async {
+    //                         if (!alreadyPressed) {
+    //                           alreadyPressed = true;
+    //                         } else {
+    //                           return showAlert(profileContext, 'Going too fast.');
+    //                         }
+    //
+    //                         List followingUsers =
+    //                             user['followingUsers'] != null ? user['followingUsers'] : [];
+    //                         String profileUserId = profileUser['_id'];
+    //
+    //                         if (following) {
+    //                           followingUsers.remove(profileUserId);
+    //                         } else {
+    //                           followingUsers.add(profileUserId);
+    //                         }
+    //
+    //                         var updatedUser = await updateUser(followingUsers);
+    //                         if (updatedUser != null) {
+    //                           setState(() {
+    //                             user = updatedUser;
+    //                             following = followingUsers.contains(profileUserId);
+    //                             alreadyPressed = false;
+    //                           });
+    //                         }
+    //                       },
+    //                       constraints: BoxConstraints(),
+    //                       padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+    //                       fillColor: following
+    //                           ? Theme.of(context).buttonColor
+    //                           : Theme.of(context).backgroundColor,
+    //                       elevation: 0.0,
+    //                       child: Text(
+    //                         following ? 'Unfollow' : 'Follow',
+    //                         style: TextStyle(
+    //                           color: following
+    //                               ? Theme.of(context).backgroundColor
+    //                               : Theme.of(context).buttonColor,
+    //                           fontWeight: FontWeight.w500,
+    //                         ),
+    //                       ),
+    //                       shape: RoundedRectangleBorder(
+    //                           side: BorderSide(
+    //                               color: Theme.of(context).buttonColor,
+    //                               width: 0.5,
+    //                               style: BorderStyle.solid),
+    //                           borderRadius: BorderRadius.circular(5)),
+    //                     ),
+    //                   ],
+    //           ),
+    //         ),
+    //         pollObjects != null
+    //             ? pollObjects.length > 0
+    //                 ? gridListView
+    //                 : Padding(
+    //                     padding: const EdgeInsets.only(top: 100.0),
+    //                     child: Center(
+    //                       child: Container(child: Text('No created polls found')),
+    //                     ),
+    //                   )
+    //             : Padding(
+    //                 padding: const EdgeInsets.only(top: 50.0),
+    //                 child: Center(
+    //                   child: Container(child: CircularProgressIndicator()),
+    //                 ),
+    //               ),
+    //       ],
+    //     ),
+    //   ),
+    // );
   }
 }
