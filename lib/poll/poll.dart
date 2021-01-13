@@ -862,7 +862,7 @@ class _PollWidgetState extends State<PollWidget> {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(15.0),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -950,7 +950,7 @@ class _PollWidgetState extends State<PollWidget> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 5.0),
+                padding: const EdgeInsets.only(top: 8.0),
                 child: CategoryButton(
                     followingCategories: followingCategories,
                     pollCategory: pollCategory,
@@ -962,10 +962,10 @@ class _PollWidgetState extends State<PollWidget> {
           ),
           imageCarousel,
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(15.0),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   GestureDetector(
@@ -974,16 +974,13 @@ class _PollWidgetState extends State<PollWidget> {
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Container(
-                          width: 100.0,
-                        ),
                         Transform(
                           alignment: Alignment.center,
                           transform: Matrix4.rotationY(math.pi),
                           child: Icon(
-                            Icons.chat_bubble,
+                            Icons.messenger_outline,
                             size: 19.0,
                           ),
                         ),
@@ -991,7 +988,7 @@ class _PollWidgetState extends State<PollWidget> {
                           padding: const EdgeInsets.only(left: 3.0),
                           child: Text(
                             poll['comments'] != null ? poll['comments'].length.toString() : '0',
-                            style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],

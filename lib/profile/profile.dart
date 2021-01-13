@@ -423,159 +423,197 @@ class _ProfilePageState extends State<ProfilePage> {
           shrinkWrap: true,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 0.0),
-              child: Text(
-                profileUser['username'],
-                style: TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -1.3,
-                ),
-              ),
-            ),
-            profileUser['description'] != null
-              ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-              child: Text(
-                profileUser['description'],
-              ),
-            )
-              : Container(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(15.0, 5.0, 15.0, 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: isUser != null && isUser
-                  ? [
-                  RawMaterialButton(
-                    onPressed: () async {
-                      var update = await showModalBottomSheet(
-                        isScrollControlled: true,
-                        context: context,
-                        builder: (BuildContext context) {
-                          return new EditProfileModal(
-                            user: profileUser,
-                          );
-                        });
-
-                      setState(() {
-                        profileUser = update['user'];
-                      });
-                    },
-                    constraints: BoxConstraints(),
-                    padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                    fillColor: Theme.of(context).backgroundColor,
-                    elevation: 0.0,
-                    child: Text(
-                      'Edit Profile',
-                      style: TextStyle(
-                        color: Theme.of(context).buttonColor,
-                        fontWeight: FontWeight.w500,
-                      ),
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 5.0),
+                          child: Container(
+                            width: 45,
+                            height: 40,
+                            child: Stack(
+                              children: [
+                                CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: Colors.transparent,
+                                  backgroundImage: AssetImage('images/profile.png'),
+                                ),
+                                Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: CircleAvatar(
+                                    radius: 8,
+                                    backgroundColor: Theme.of(context).backgroundColor,
+                                    child: Icon(
+                                      Icons.add_circle,
+                                      color: Theme.of(context).highlightColor,
+                                      size: 16.0,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Text(
+                          profileUser['username'],
+                          style: TextStyle(
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -1.3,
+                          ),
+                        ),
+                      ],
                     ),
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        color: Theme.of(context).hintColor,
-                        width: 0.5,
-                        style: BorderStyle.solid),
-                      borderRadius: BorderRadius.circular(5)),
                   ),
-                  SizedBox(width: 5.0),
-                  RawMaterialButton(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        backgroundColor: Colors.transparent,
-                        context: context,
-                        builder: (BuildContext context) =>
-                          AccountSettings(user: profileUser));
-                    },
-                    constraints: BoxConstraints(),
-                    padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                    fillColor: Theme.of(context).backgroundColor,
-                    elevation: 0.0,
-                    child: Text(
-                      'Settings',
-                      style: TextStyle(
-                        color: Theme.of(context).buttonColor,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  profileUser['description'] != null
+                      ? Text(
+                          profileUser['description'],
+                        )
+                      : Container(),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5.0, bottom: 10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: isUser != null && isUser
+                          ? [
+                              RawMaterialButton(
+                                onPressed: () async {
+                                  var update = await showModalBottomSheet(
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return new EditProfileModal(
+                                          user: profileUser,
+                                        );
+                                      });
+
+                                  setState(() {
+                                    profileUser = update['user'];
+                                  });
+                                },
+                                constraints: BoxConstraints(),
+                                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                                fillColor: Theme.of(context).backgroundColor,
+                                elevation: 0.0,
+                                child: Text(
+                                  'Edit Profile',
+                                  style: TextStyle(
+                                    color: Theme.of(context).buttonColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: Theme.of(context).hintColor,
+                                        width: 0.5,
+                                        style: BorderStyle.solid),
+                                    borderRadius: BorderRadius.circular(5)),
+                              ),
+                              SizedBox(width: 5.0),
+                              RawMaterialButton(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                      backgroundColor: Colors.transparent,
+                                      context: context,
+                                      builder: (BuildContext context) =>
+                                          AccountSettings(user: profileUser));
+                                },
+                                constraints: BoxConstraints(),
+                                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                                fillColor: Theme.of(context).backgroundColor,
+                                elevation: 0.0,
+                                child: Text(
+                                  'Settings',
+                                  style: TextStyle(
+                                    color: Theme.of(context).buttonColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: Theme.of(context).hintColor,
+                                        width: 0.5,
+                                        style: BorderStyle.solid),
+                                    borderRadius: BorderRadius.circular(5)),
+                              ),
+                            ]
+                          : [
+                              RawMaterialButton(
+                                onPressed: () async {
+                                  if (!alreadyPressed) {
+                                    alreadyPressed = true;
+                                  } else {
+                                    return showAlert(profileContext, 'Going too fast.');
+                                  }
+
+                                  List followingUsers =
+                                      user['followingUsers'] != null ? user['followingUsers'] : [];
+                                  String profileUserId = profileUser['_id'];
+
+                                  if (following) {
+                                    followingUsers.remove(profileUserId);
+                                  } else {
+                                    followingUsers.add(profileUserId);
+                                  }
+
+                                  var updatedUser = await updateUser(followingUsers);
+                                  if (updatedUser != null) {
+                                    setState(() {
+                                      user = updatedUser;
+                                      following = followingUsers.contains(profileUserId);
+                                      alreadyPressed = false;
+                                    });
+                                  }
+                                },
+                                constraints: BoxConstraints(),
+                                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                                fillColor: following
+                                    ? Theme.of(context).buttonColor
+                                    : Theme.of(context).backgroundColor,
+                                elevation: 0.0,
+                                child: Text(
+                                  following ? 'Unfollow' : 'Follow',
+                                  style: TextStyle(
+                                    color: following
+                                        ? Theme.of(context).backgroundColor
+                                        : Theme.of(context).buttonColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: Theme.of(context).buttonColor,
+                                        width: 0.5,
+                                        style: BorderStyle.solid),
+                                    borderRadius: BorderRadius.circular(5)),
+                              ),
+                            ],
                     ),
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        color: Theme.of(context).hintColor,
-                        width: 0.5,
-                        style: BorderStyle.solid),
-                      borderRadius: BorderRadius.circular(5)),
-                  ),
-                ]
-                  : [
-                  RawMaterialButton(
-                    onPressed: () async {
-                      if (!alreadyPressed) {
-                        alreadyPressed = true;
-                      } else {
-                        return showAlert(profileContext, 'Going too fast.');
-                      }
-
-                      List followingUsers =
-                      user['followingUsers'] != null ? user['followingUsers'] : [];
-                      String profileUserId = profileUser['_id'];
-
-                      if (following) {
-                        followingUsers.remove(profileUserId);
-                      } else {
-                        followingUsers.add(profileUserId);
-                      }
-
-                      var updatedUser = await updateUser(followingUsers);
-                      if (updatedUser != null) {
-                        setState(() {
-                          user = updatedUser;
-                          following = followingUsers.contains(profileUserId);
-                          alreadyPressed = false;
-                        });
-                      }
-                    },
-                    constraints: BoxConstraints(),
-                    padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                    fillColor: following
-                      ? Theme.of(context).buttonColor
-                      : Theme.of(context).backgroundColor,
-                    elevation: 0.0,
-                    child: Text(
-                      following ? 'Unfollow' : 'Follow',
-                      style: TextStyle(
-                        color: following
-                          ? Theme.of(context).backgroundColor
-                          : Theme.of(context).buttonColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        color: Theme.of(context).buttonColor,
-                        width: 0.5,
-                        style: BorderStyle.solid),
-                      borderRadius: BorderRadius.circular(5)),
                   ),
                 ],
               ),
             ),
             pollObjects != null
-              ? pollObjects.length > 0
-              ? gridListView
-              : Padding(
-              padding: const EdgeInsets.only(top: 100.0),
-              child: Center(
-                child: Container(child: Text('No created polls found')),
-              ),
-            )
-              : Padding(
-              padding: const EdgeInsets.only(top: 50.0),
-              child: Center(
-                child: Container(child: CircularProgressIndicator()),
-              ),
-            ),
+                ? pollObjects.length > 0
+                    ? gridListView
+                    : Padding(
+                        padding: const EdgeInsets.only(top: 100.0),
+                        child: Center(
+                          child: Container(child: Text('No created polls found')),
+                        ),
+                      )
+                : Padding(
+                    padding: const EdgeInsets.only(top: 50.0),
+                    child: Center(
+                      child: Container(child: CircularProgressIndicator()),
+                    ),
+                  ),
           ],
         ),
       ),

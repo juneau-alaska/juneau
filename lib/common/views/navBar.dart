@@ -38,7 +38,7 @@ class _NavBarState extends State<NavBar> {
             .backgroundColor,
           unselectedItemColor: Theme
             .of(context)
-            .hintColor,
+            .buttonColor,
           selectedItemColor: Theme
             .of(context)
             .buttonColor,
@@ -78,6 +78,10 @@ class _NavBarState extends State<NavBar> {
           items: [
             BottomNavigationBarItem(
               icon: new Icon(
+                Icons.home_outlined,
+                size: 28.0
+              ),
+              activeIcon: new Icon(
                 Icons.home,
                 size: 28.0
               ),
@@ -89,7 +93,6 @@ class _NavBarState extends State<NavBar> {
                 Icons.search,
                 size: 28.0
               ),
-
               title: Text(''),
             ),
 
@@ -102,11 +105,24 @@ class _NavBarState extends State<NavBar> {
             ),
 
             BottomNavigationBarItem(
-              icon: new Icon(
-                Icons.account_circle,
-                size: 28.0
+              icon: CircleAvatar(
+                radius: 13,
+                backgroundColor: Colors.transparent,
+                child: CircleAvatar(
+                  radius: 11,
+                  backgroundImage: AssetImage('images/profile.png'),
+                ),
               ),
-
+              activeIcon: CircleAvatar(
+                radius: 13,
+                backgroundColor: Theme
+                  .of(context)
+                  .buttonColor,
+                child: CircleAvatar(
+                  radius: 11,
+                  backgroundImage: AssetImage('images/profile.png'),
+                ),
+              ),
               title: Text(''),
             ),
           ],
