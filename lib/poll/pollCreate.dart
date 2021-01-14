@@ -224,6 +224,7 @@ class _PollCreateState extends State<PollCreate> {
                 padding: const EdgeInsets.fromLTRB(15.0, 50.0, 15.0, 20.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
@@ -232,13 +233,12 @@ class _PollCreateState extends State<PollCreate> {
                       child: Text(
                         "Cancel",
                         style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 16,
+                          fontSize: 15,
                         ),
                       ),
                     ),
                     Text(
-                      "Image Poll",
+                      "New Poll",
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
@@ -295,10 +295,10 @@ class _PollCreateState extends State<PollCreate> {
                       child: Text(
                         "Create",
                         style: TextStyle(
-                          color: Theme.of(context).accentColor,
+                          color: Theme.of(context).highlightColor,
                           fontWeight: FontWeight.w600
                           ,
-                          fontSize: 16,
+                          fontSize: 15,
                         ),
                       ),
                     ),
@@ -332,7 +332,7 @@ class _PollCreateState extends State<PollCreate> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Select a Category",
+                            "Select Category",
                             style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600),
                           ),
                           Icon(
@@ -357,32 +357,26 @@ class _PollCreateState extends State<PollCreate> {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 18.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text(
-                      "Add Images",
-                      style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600),
-                    ),
-                    Container(
-                      child: GestureDetector(
-                        onTap: loadAssets,
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.photo_library,
-                              size: 18.0,
-                            ),
-                            SizedBox(width: 5.0),
-                            Text(
-                              "SELECT IMAGES",
-                              style: TextStyle(fontSize: 13.0, fontWeight: FontWeight.w600),
-                            ),
-                          ],
+                child: Container(
+                  child: GestureDetector(
+                    onTap: loadAssets,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Add Images",
+                          style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600),
                         ),
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 1.0, left: 5.0),
+                          child: Icon(
+                            Icons.add_photo_alternate_outlined,
+                            size: 20.0,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
               Expanded(

@@ -27,15 +27,19 @@ class PositionalDots extends StatefulWidget {
   final totalVotes;
   final options;
   final selectedOption;
+  final completed;
+  final isCreator;
 
-  PositionalDots(
-      {Key key,
-      @required this.pageController,
-      this.numImages,
-      this.totalVotes,
-      this.options,
-      this.selectedOption})
-      : super(key: key);
+  PositionalDots({
+    Key key,
+    @required this.pageController,
+    this.numImages,
+    this.totalVotes,
+    this.options,
+    this.selectedOption,
+    this.completed,
+    this.isCreator,
+  }) : super(key: key);
 
   @override
   _PositionalDotsState createState() => _PositionalDotsState();
@@ -77,55 +81,50 @@ class _PositionalDotsState extends State<PositionalDots> {
 
     selected = widget.selectedOption == options[index]['_id'];
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Stack(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Icon(Icons.equalizer, color: Colors.white, size: 20.0),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 3.0),
-                    child: Text('$votePercent%',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 17.0,
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Icon(Icons.favorite,
-                      color: selected ? Colors.redAccent : Colors.white, size: 20.0),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 3.0),
-                    child: Text(
-                      numberMethods.shortenNum(votes),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 17.0,
-                        fontWeight: FontWeight.bold,
+        widget.completed || widget.isCreator
+            ? Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child: Icon(Icons.equalizer, color: Colors.white, size: 20.0),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 1.0),
+                            child: Text(
+                              '$votePercent%',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+                      selected
+                          ? Padding(
+                              padding: const EdgeInsets.only(bottom: 3.0),
+                              child: Icon(Icons.check, color: Colors.white, size: 18.0),
+                            )
+                          : Container(width: 0, height: 0),
+                    ],
                   ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 25.0),
+                ),
+              )
+            : Container(width: 0, height: 0),
+        Align(
+          alignment: Alignment.bottomCenter,
           child: DotsIndicator(
             dotsCount: widget.numImages,
             position: currentPosition,
@@ -242,28 +241,31 @@ class _ImageCarouselState extends State<ImageCarousel> {
                       onPanUpdate: (details) {},
                       onLongPress: () async {
                         HapticFeedback.heavyImpact();
-                        Navigator.of(context)
-                            .push(TransparentRoute(builder: (BuildContext context) {
-                          return Scaffold(
-                            backgroundColor: Colors.transparent,
-                            body: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Center(
-                                child: PhotoHero(
-                                  tag: options[i]['_id'],
-                                  photo: image,
-                                  width: screenWidth,
-                                  onPanUpdate: (details) {
-                                    if (details.delta.dy > 0) {
-                                      Navigator.of(context).pop();
-                                    }
-                                  },
-                                  onLongPress: () {},
+                        Navigator.of(context).push(
+                          TransparentRoute(
+                            builder: (BuildContext context) {
+                              return Scaffold(
+                                backgroundColor: Colors.transparent,
+                                body: BackdropFilter(
+                                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                  child: Center(
+                                    child: PhotoHero(
+                                      tag: options[i]['_id'],
+                                      photo: image,
+                                      width: screenWidth,
+                                      onPanUpdate: (details) {
+                                        if (details.delta.dy > 0) {
+                                          Navigator.of(context).pop();
+                                        }
+                                      },
+                                      onLongPress: () {},
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          );
-                        }));
+                              );
+                            },
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -273,12 +275,15 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
             return Container(
               width: screenWidth,
-              height: screenHeight,
+              height: screenHeight + 22,
               child: Stack(
                 children: [
-                  PageView(
-                    children: imageWidgets,
-                    controller: pageController,
+                  Container(
+                    height: screenHeight,
+                    child: PageView(
+                      children: imageWidgets,
+                      controller: pageController,
+                    ),
                   ),
                   IgnorePointer(
                     child: Opacity(
@@ -292,11 +297,14 @@ class _ImageCarouselState extends State<ImageCarousel> {
                   ),
                   Positioned.fill(
                     child: PositionalDots(
-                        pageController: pageController,
-                        numImages: imageWidgets.length,
-                        totalVotes: totalVotes,
-                        options: options,
-                        selectedOption: widget.selectedOption),
+                      pageController: pageController,
+                      numImages: imageWidgets.length,
+                      totalVotes: totalVotes,
+                      options: options,
+                      selectedOption: widget.selectedOption,
+                      completed: widget.completed,
+                      isCreator: widget.isCreator,
+                    ),
                   ),
                 ],
               ),
@@ -839,14 +847,18 @@ class _PollWidgetState extends State<PollWidget> {
     bool isCreator = user['_id'] == pollCreator['_id'];
     bool completed = completedPolls.indexOf(poll['_id']) >= 0;
     double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = screenWidth / 1.3;
+    int totalVotes = 0;
     String selectedOption;
 
-    if (completed) {
-      for (var c in options) {
-        String _id = c['_id'];
-        if (selectedOptions.contains(_id)) {
-          selectedOption = _id;
-        }
+    for (var c in options) {
+      String _id = c['_id'];
+      int votes = c['votes'];
+
+      totalVotes += votes;
+
+      if (completed && selectedOptions.contains(_id)) {
+        selectedOption = _id;
       }
     }
 
@@ -862,7 +874,7 @@ class _PollWidgetState extends State<PollWidget> {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(15.0),
+            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -930,8 +942,7 @@ class _PollWidgetState extends State<PollWidget> {
                             String action = await showModalBottomSheet(
                                 backgroundColor: Colors.transparent,
                                 context: context,
-                                builder: (BuildContext context) =>
-                                    PollMenu(isCreator: isCreator));
+                                builder: (BuildContext context) => PollMenu(isCreator: isCreator));
                             handleAction(action);
                           },
                           child: Icon(
@@ -950,7 +961,7 @@ class _PollWidgetState extends State<PollWidget> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 8.0),
+                padding: const EdgeInsets.only(top: 5.0),
                 child: CategoryButton(
                     followingCategories: followingCategories,
                     pollCategory: pollCategory,
@@ -960,43 +971,77 @@ class _PollWidgetState extends State<PollWidget> {
               ),
             ]),
           ),
-          imageCarousel,
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      widget.viewPoll(poll['_id']);
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+          Container(
+            height: screenHeight + 35,
+            child: Stack(
+              children: [
+                imageCarousel,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Wrap(
                       children: [
-                        Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.rotationY(math.pi),
-                          child: Icon(
-                            Icons.messenger_outline,
-                            size: 19.0,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 3.0),
-                          child: Text(
-                            poll['comments'] != null ? poll['comments'].length.toString() : '0',
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.how_to_vote,
+                                        color: Theme.of(context).buttonColor, size: 20.0),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 1.0),
+                                      child: Text(
+                                        numberMethods.shortenNum(totalVotes),
+                                        style: TextStyle(fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    widget.viewPoll(poll['_id']);
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Transform(
+                                        alignment: Alignment.center,
+                                        transform: Matrix4.rotationY(math.pi),
+                                        child: Icon(
+                                          Icons.messenger_outline,
+                                          size: 20.0,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 1.0),
+                                        child: Text(
+                                          poll['comments'] != null
+                                              ? poll['comments'].length.toString()
+                                              : '0',
+                                          style: TextStyle(fontWeight: FontWeight.w600),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ]),
+                ),
+              ],
+            ),
           ),
         ],
       ),

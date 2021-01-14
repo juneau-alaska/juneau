@@ -44,7 +44,7 @@ class _InputComponentState extends State<InputComponent> {
     double fontSize = widget.fontSize == null ? 15.0 : widget.fontSize;
     bool obscureText = widget.obscureText == null ? false : widget.obscureText;
     Color borderColor = widget.borderColor == null ? Theme.of(context).hintColor : widget.borderColor;
-    FontWeight fontWeight = widget.fontWeight == null ? FontWeight.w300 : widget.fontWeight;
+    FontWeight fontWeight = widget.fontWeight == null ? FontWeight.w400 : widget.fontWeight;
     bool autoFocus = widget.autoFocus == null ? false : widget.autoFocus;
     List<TextInputFormatter> inputFormatters = widget.inputFormatters == null ? [] : widget.inputFormatters;
 

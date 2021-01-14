@@ -428,7 +428,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 10.0, bottom: 5.0),
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -477,7 +477,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         )
                       : Container(),
                   Padding(
-                    padding: const EdgeInsets.only(top: 5.0, bottom: 10.0),
+                    padding: const EdgeInsets.only(bottom: 10.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: isUser != null && isUser
@@ -494,7 +494,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                       });
 
                                   setState(() {
-                                    profileUser = update['user'];
+                                    if (update != null) {
+                                      profileUser = update['user'];
+                                    }
                                   });
                                 },
                                 constraints: BoxConstraints(),
