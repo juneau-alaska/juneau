@@ -286,7 +286,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
   bool repliesOpened = commentRepliesOpened[id] != null ? commentRepliesOpened[id] : false;
 
   DateTime createdAt = DateTime.parse(comment['createdAt']);
-  String time = timeago.format(createdAt, locale: 'en_short');
+  String time = timeago.format(createdAt, locale: 'en_short').replaceAll(new RegExp(r'~'), '');
 
   List<String> contentSplit = comment['content'].split(' ');
   List<Widget> textChildren = [];
@@ -335,33 +335,53 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                GestureDetector(
-                    child: Text(
-                      creator['username'],
-                      style: TextStyle(
-                          fontSize: 15.0,
-                          fontWeight: FontWeight.w500,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 5.0),
+                    child: GestureDetector(
+                      child: CircleAvatar(
+                        radius: 10,
+                        backgroundColor: Colors.transparent,
+                        backgroundImage: AssetImage('images/profile.png'),
                       ),
+                      onTap: () {
+                        openProfile(context, creator);
+                      },
                     ),
-                    onTap: () {
-                      openProfile(context, creator);
-                    }),
-                Text(
-                  '•',
-                  style: TextStyle(
-                    fontSize: 13.0,
                   ),
-                ),
-                Text(
-                  time,
-                  style: TextStyle(
-                    fontSize: 13,
-                    wordSpacing: -3.0,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        child: Text(
+                          creator['username'],
+                          style: TextStyle(
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onTap: () {
+                          openProfile(context, creator);
+                        },
+                      ),
+                      Text(
+                        '•',
+                        style: TextStyle(
+                          fontSize: 13.0,
+                        ),
+                      ),
+                      Text(
+                        time,
+                        style: TextStyle(
+                          fontSize: 13,
+                          wordSpacing: -3.0,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ]),
+                ],
+              ),
               SizedBox(
                 height: 5.0,
               ),
@@ -726,7 +746,9 @@ class _BottomInputState extends State<BottomInput> {
                     child: Text(
                       'COMMENT',
                       style: TextStyle(
-                          fontSize: 15.0, color: Theme.of(context).highlightColor, fontWeight: FontWeight.w700),
+                          fontSize: 15.0,
+                          color: Theme.of(context).highlightColor,
+                          fontWeight: FontWeight.w700),
                     ))
               ],
             ),
@@ -740,8 +762,7 @@ class CommentsPage extends StatefulWidget {
   final pollId;
   final formKey;
 
-  CommentsPage({Key key, @required this.user, this.pollId, this.formKey})
-      : super(key: key);
+  CommentsPage({Key key, @required this.user, this.pollId, this.formKey}) : super(key: key);
 
   @override
   _CommentsPageState createState() => _CommentsPageState();

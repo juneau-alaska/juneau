@@ -845,10 +845,11 @@ class _PollWidgetState extends State<PollWidget> {
     var selectedOptions = user['selectedOptions'];
 
     bool isCreator = user['_id'] == pollCreator['_id'];
-    bool completed = completedPolls.indexOf(poll['_id']) >= 0;
+    bool completed = completedPolls != null ? completedPolls.indexOf(poll['_id']) >= 0 : false;
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = screenWidth / 1.3;
     int totalVotes = 0;
+    String prompt = poll['prompt'];
     String selectedOption;
 
     for (var c in options) {
@@ -890,6 +891,19 @@ class _PollWidgetState extends State<PollWidget> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
                             Row(children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: GestureDetector(
+                                  child: CircleAvatar(
+                                    radius: 13,
+                                    backgroundColor: Colors.transparent,
+                                    backgroundImage: AssetImage('images/profile.png'),
+                                  ),
+                                  onTap: () {
+                                    openProfile(context, pollCreator, user: user);
+                                  },
+                                ),
+                              ),
                               GestureDetector(
                                   child: Text(
                                     pollCreator['username'],
@@ -918,18 +932,6 @@ class _PollWidgetState extends State<PollWidget> {
                                 ),
                               ),
                             ]),
-                            // selectedOption != null
-                            //   ? Padding(
-                            //   padding: const EdgeInsets.only(left: 5.0, top: 1.5),
-                            //   child: Text(
-                            //     'voted',
-                            //     style: TextStyle(
-                            //       fontSize: 14.0,
-                            //       color: Colors.lightGreenAccent,
-                            //     ),
-                            //   ),
-                            // )
-                            //   : Container(),
                           ],
                         ),
                       ),
@@ -953,13 +955,15 @@ class _PollWidgetState extends State<PollWidget> {
                       : Container(),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 2.0),
-                child: Text(
-                  poll['prompt'],
-                  style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-                ),
-              ),
+              prompt.trim() != ''
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 5.0),
+                  child: Text(
+                    prompt,
+                    style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                  ),
+                )
+              : SizedBox(height: 2.0),
               Padding(
                 padding: const EdgeInsets.only(top: 5.0),
                 child: CategoryButton(

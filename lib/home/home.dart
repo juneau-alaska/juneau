@@ -114,39 +114,41 @@ class _CategoryTabsState extends State<CategoryTabs> {
       ),
     ];
 
-    for (var i = 0; i < followingCategories.length; i++) {
-      String category = followingCategories[i];
-      categoryTabs.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 3.0),
-          child: RawMaterialButton(
-            onPressed: () {
-              categoryStreamController.add(category);
-            },
-            constraints: BoxConstraints(),
-            padding: EdgeInsets.symmetric(horizontal: 18.0),
-            fillColor: currentCategory == category
-                ? Theme.of(context).buttonColor
-                : Theme.of(context).backgroundColor,
-            elevation: 0.0,
-            child: Text(
-              category,
-              style: TextStyle(
-                color: currentCategory == category
-                    ? Theme.of(context).backgroundColor
-                    : Theme.of(context).buttonColor,
-                fontWeight: FontWeight.w500,
+    if (followingCategories != null) {
+      for (var i = 0; i < followingCategories.length; i++) {
+        String category = followingCategories[i];
+        categoryTabs.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 3.0),
+            child: RawMaterialButton(
+              onPressed: () {
+                categoryStreamController.add(category);
+              },
+              constraints: BoxConstraints(),
+              padding: EdgeInsets.symmetric(horizontal: 18.0),
+              fillColor: currentCategory == category
+                  ? Theme.of(context).buttonColor
+                  : Theme.of(context).backgroundColor,
+              elevation: 0.0,
+              child: Text(
+                category,
+                style: TextStyle(
+                  color: currentCategory == category
+                      ? Theme.of(context).backgroundColor
+                      : Theme.of(context).buttonColor,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
+              shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                      color: Theme.of(context).buttonColor,
+                      width: 0.5,
+                      style: BorderStyle.solid),
+                  borderRadius: BorderRadius.circular(20)),
             ),
-            shape: RoundedRectangleBorder(
-                side: BorderSide(
-                    color: Theme.of(context).buttonColor,
-                    width: 0.5,
-                    style: BorderStyle.solid),
-                borderRadius: BorderRadius.circular(20)),
           ),
-        ),
-      );
+        );
+      }
     }
 
     return Padding(

@@ -444,18 +444,20 @@ class _ProfilePageState extends State<ProfilePage> {
                                   backgroundColor: Colors.transparent,
                                   backgroundImage: AssetImage('images/profile.png'),
                                 ),
-                                Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: CircleAvatar(
-                                    radius: 8,
-                                    backgroundColor: Theme.of(context).backgroundColor,
-                                    child: Icon(
-                                      Icons.add_circle,
-                                      color: Theme.of(context).highlightColor,
-                                      size: 16.0,
+                                isUser != null && isUser
+                                ? Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: CircleAvatar(
+                                      radius: 8,
+                                      backgroundColor: Theme.of(context).backgroundColor,
+                                      child: Icon(
+                                        Icons.add_circle,
+                                        color: Theme.of(context).highlightColor,
+                                        size: 16.0,
+                                      ),
                                     ),
-                                  ),
-                                ),
+                                  )
+                                : Container(),
                               ],
                             ),
                           ),
@@ -477,7 +479,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         )
                       : Container(),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
+                    padding: const EdgeInsets.only(bottom: 5.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: isUser != null && isUser

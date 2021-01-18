@@ -16,8 +16,8 @@ import 'package:juneau/common/components/alertComponent.dart';
 
 import 'package:juneau/category/categorySearchSelect.dart';
 
-Future generatePreAssignedUrl(String fileType) async {
-  const url = 'http://localhost:4000/option/generatePreAssignedUrl';
+Future getImageUrl(String fileType) async {
+  const url = 'http://localhost:4000/image/create_url';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
@@ -26,7 +26,7 @@ Future generatePreAssignedUrl(String fileType) async {
 
   var body, response;
 
-  body = jsonEncode({'fileType': fileType});
+  body = jsonEncode({'fileType': fileType, 'bucket': 'poll-option'});
 
   response = await http.post(url, headers: headers, body: body);
 
@@ -78,7 +78,7 @@ Future<bool> createOptions(prompt, options, category, context) async {
     futures.add(future());
   }
 
-  bool success = false;
+  bool success;
 
   await Future.wait(futures).then((results) async {
     success = await createPoll(prompt, results, category, context);
@@ -123,14 +123,21 @@ Future<bool> updateUserCreatedPolls(pollId, context) async {
   var response = await http.get(url + userId, headers: headers), body;
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body), createdPolls = jsonResponse['createdPolls'];
+    var jsonResponse = jsonDecode(response.body),
+        createdPolls = jsonResponse['createdPolls'];
 
     createdPolls.add(pollId);
     body = jsonEncode({'createdPolls': createdPolls});
 
     response = await http.put(url + userId, headers: headers, body: body);
-    Navigator.pop(context);
-    return true;
+
+    if (response.statusCode == 200) {
+      jsonResponse = jsonDecode(response.body);
+      Navigator.pop(context);
+      return true;
+    } else {
+      return false;
+    }
   } else {
     showAlert(context, 'Something went wrong, please try again');
     return false;
@@ -144,13 +151,13 @@ class PollCreate extends StatefulWidget {
 
 class _PollCreateState extends State<PollCreate> {
   InputComponent questionInput = new InputComponent(
-    hintText: 'Provide a title',
+    hintText: 'Create a title (Optional)',
     borderColor: Colors.transparent,
     contentPadding: EdgeInsets.symmetric(vertical: 10.0),
     autoFocus: true,
   );
 
-  List<Asset> images = List<Asset>();
+  List<Asset> images = [];
   bool isLoading = false;
   String selectedCategory;
   double categoryContainerHeight = 0.0;
@@ -250,9 +257,7 @@ class _PollCreateState extends State<PollCreate> {
                         List options = [];
                         setState(() {});
 
-                        if (prompt == null || prompt.replaceAll(new RegExp(r"\s+"), "").length == 0) {
-                          showAlert(context, 'Please provide a title');
-                        } else if (images.length >= 2) {
+                        if (images.length >= 2) {
                           isLoading = true;
                           for (int i = 0; i < images.length; i++) {
                             String path = await FlutterAbsolutePath.getAbsolutePath(images[i].identifier);
@@ -263,13 +268,13 @@ class _PollCreateState extends State<PollCreate> {
                             }
 
                             String fileExtension = p.extension(file.path);
-                            var preAssignedUrl = await generatePreAssignedUrl(fileExtension).catchError((err) {
+                            var imageUrl = await getImageUrl(fileExtension).catchError((err) {
                               showAlert(context, 'Something went wrong, please try again');
                             });
 
-                            if (preAssignedUrl != null) {
-                              String uploadUrl = preAssignedUrl['uploadUrl'];
-                              String downloadUrl = preAssignedUrl['downloadUrl'];
+                            if (imageUrl != null) {
+                              String uploadUrl = imageUrl['uploadUrl'];
+                              String downloadUrl = imageUrl['downloadUrl'];
 
                               await uploadFile(uploadUrl, images[i]).then((result) {
                                 options.add(downloadUrl);
