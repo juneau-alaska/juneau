@@ -13,6 +13,7 @@ import 'package:juneau/poll/pollMenu.dart';
 import 'package:juneau/common/colors.dart';
 import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/common/methods/numMethods.dart';
 import 'package:juneau/profile/profile.dart';
@@ -751,17 +752,30 @@ class _PollWidgetState extends State<PollWidget> {
     String url = 'http://localhost:4000/options/delete';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token');
+    String token = prefs.getString('token');
     var headers = {
       HttpHeaders.contentTypeHeader: 'application/json',
       HttpHeaders.authorizationHeader: token
     };
+
+    List keys = [];
+
+    for (var i = 0; i < options.length; i++) {
+      var url = options[i]['content'],
+          split = url.split('/'),
+          key = split[split.length - 1];
+
+      keys.add({
+        'Key': key
+      });
+    }
 
     var body = jsonEncode({'optionsList': options});
     var response = await http.post(url, headers: headers, body: body);
 
     if (response.statusCode == 200) {
       showAlert(context, 'Successfully deleted poll', true);
+      imageMethods.deleteFiles(keys, 'poll-option');
       widget.dismissPoll(widget.index);
     } else {
       showAlert(context, 'Something went wrong, please try again');
@@ -956,14 +970,14 @@ class _PollWidgetState extends State<PollWidget> {
                 ],
               ),
               prompt.trim() != ''
-              ? Padding(
-                  padding: const EdgeInsets.only(top: 5.0),
-                  child: Text(
-                    prompt,
-                    style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                  ),
-                )
-              : SizedBox(height: 2.0),
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 5.0),
+                      child: Text(
+                        prompt,
+                        style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  : SizedBox(height: 2.0),
               Padding(
                 padding: const EdgeInsets.only(top: 5.0),
                 child: CategoryButton(

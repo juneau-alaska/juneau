@@ -15,7 +15,6 @@ class AccountSettings extends StatefulWidget {
 }
 
 class _AccountSettingsState extends State<AccountSettings> {
-
   void logout(context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs?.clear();
@@ -61,28 +60,25 @@ class _AccountSettingsState extends State<AccountSettings> {
                 onTap: () {
                   Navigator.pop(context);
                   showModalBottomSheet(
-                    isScrollControlled: true,
-                    context: context,
-                    builder: (BuildContext context) {
-                      return new ChangePasswordModal(
-                        user: widget.user,
-                      );
-                    });
+                      isScrollControlled: true,
+                      context: context,
+                      builder: (BuildContext context) {
+                        return new ChangePasswordModal(
+                          user: widget.user,
+                        );
+                      });
                 },
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Container(
-                    child: Row(children: [
-                      Icon(Icons.vpn_key, size: 25.0),
-                      SizedBox(
-                        width: 13.0,
-                      ),
-                      Text(
-                        'Change Password',
-                        style: TextStyle(fontSize: 15.0)
-                      )
-                    ])),
+                      child: Row(children: [
+                    Icon(Icons.vpn_key, size: 25.0),
+                    SizedBox(
+                      width: 13.0,
+                    ),
+                    Text('Change Password', style: TextStyle(fontSize: 15.0))
+                  ])),
                 ),
               ),
               // GestureDetector(
@@ -112,12 +108,12 @@ class _AccountSettingsState extends State<AccountSettings> {
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
-                  child: Text('Log out ' + widget.user['username'],
-                      style: TextStyle(
+                  child: Text(
+                    'Log out ' + widget.user['username'],
+                    style: TextStyle(
                         fontSize: 16.0,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).highlightColor
-                      ),
+                        color: Theme.of(context).highlightColor),
                   ),
                 ),
               ),

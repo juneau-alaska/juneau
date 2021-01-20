@@ -1,17 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:email_validator/email_validator.dart';
-import 'package:juneau/common/methods/validator.dart';
-
-import 'package:juneau/common/components/inputComponent.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/components/inputComponent.dart';
+import 'package:juneau/common/methods/validator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfileModal extends StatefulWidget {
   final user;
@@ -71,9 +69,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
 
     usernameInput = new InputComponent(
       hintText: 'Username',
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(new RegExp("[0-9A-Za-z_.]"))
-      ],
+      inputFormatters: [FilteringTextInputFormatter.allow(new RegExp("[0-9A-Za-z_.]"))],
     );
     usernameController = usernameInput.controller;
     usernameController.text = user['username'];

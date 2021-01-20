@@ -1,18 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:timeago/timeago.dart' as timeago;
-import 'package:keyboard_visibility/keyboard_visibility.dart';
-import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
-
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
 
-import 'package:juneau/profile/profile.dart';
-import 'package:juneau/common/methods/numMethods.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
+import 'package:http/http.dart' as http;
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/controllers/richTextController.dart';
+import 'package:juneau/common/methods/numMethods.dart';
+import 'package:juneau/profile/profile.dart';
+import 'package:keyboard_visibility/keyboard_visibility.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 var currentUser;
 List<Widget> commentWidgets;

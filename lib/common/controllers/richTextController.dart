@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 
 class RichTextController extends TextEditingController {
   final Map<RegExp, TextStyle> patternMap;
+
   RichTextController(this.patternMap) : assert(patternMap != null);
 
   @override

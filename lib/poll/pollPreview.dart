@@ -1,12 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:http/http.dart' as http;
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:juneau/common/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PollPreview extends StatefulWidget {
   final pollObject;

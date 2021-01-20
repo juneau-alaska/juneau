@@ -1,18 +1,17 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
-
-import 'package:juneau/common/components/pageRoutes.dart';
-import 'package:juneau/poll/poll.dart';
-import 'package:juneau/comment/commentsPage.dart';
-import 'package:juneau/common/components/keepAlivePage.dart';
-import 'package:juneau/common/components/alertComponent.dart';
-
-import 'package:http/http.dart' as http;
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:juneau/comment/commentsPage.dart';
+import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/components/keepAlivePage.dart';
+import 'package:juneau/common/components/pageRoutes.dart';
+import 'package:juneau/poll/poll.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 var user;
 var parentController;
@@ -77,9 +76,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
           ),
           shape: RoundedRectangleBorder(
               side: BorderSide(
-                  color: Theme.of(context).buttonColor,
-                  width: 0.5,
-                  style: BorderStyle.solid),
+                  color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
               borderRadius: BorderRadius.circular(20)),
         ),
       ),
@@ -106,9 +103,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
           ),
           shape: RoundedRectangleBorder(
               side: BorderSide(
-                  color: Theme.of(context).buttonColor,
-                  width: 0.5,
-                  style: BorderStyle.solid),
+                  color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
               borderRadius: BorderRadius.circular(20)),
         ),
       ),
@@ -141,9 +136,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
               ),
               shape: RoundedRectangleBorder(
                   side: BorderSide(
-                      color: Theme.of(context).buttonColor,
-                      width: 0.5,
-                      style: BorderStyle.solid),
+                      color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
                   borderRadius: BorderRadius.circular(20)),
             ),
           ),
@@ -328,24 +321,9 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    return Flexible(
-      child: KeepAlivePage(
-        child: SmartRefresher(
-          enablePullDown: true,
-          enablePullUp: true,
-          header: ClassicHeader(),
-          footer: ClassicFooter(
-            loadStyle: LoadStyle.ShowWhenLoading,
-          ),
-          controller: refreshController,
-          onRefresh: _onRefresh,
-          onLoading: _onLoading,
-          child: ListView(
-            physics: ClampingScrollPhysics(),
-            children: pollsList,
-          ),
-        ),
-      ),
+    return ListView(
+      physics: ClampingScrollPhysics(),
+      children: pollsList,
     );
   }
 
@@ -369,15 +347,31 @@ class _HomePageState extends State<HomePage> {
     return Column(
       children: [
         categoryTabs,
-        polls.length > 0
-            ? listViewBuilder
-            : Padding(
+
+        Flexible(
+          child: KeepAlivePage(
+            child: SmartRefresher(
+              enablePullDown: true,
+              enablePullUp: true,
+              header: ClassicHeader(),
+              footer: ClassicFooter(
+                loadStyle: LoadStyle.ShowWhenLoading,
+              ),
+              controller: refreshController,
+              onRefresh: _onRefresh,
+              onLoading: _onLoading,
+              child: polls.length > 0
+                ? listViewBuilder
+                : Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Container(
                   height: MediaQuery.of(context).size.height / 1.4,
                   child: Center(child: Text('No polls found')),
                 ),
               ),
+            ),
+          ),
+        ),
       ],
     );
   }

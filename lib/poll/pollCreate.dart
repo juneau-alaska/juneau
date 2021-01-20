@@ -1,20 +1,17 @@
-import 'package:flutter/material.dart';
-
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
 
-import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
-import 'package:path/path.dart' as p;
-
-import 'package:juneau/common/components/inputComponent.dart';
-import 'package:juneau/common/components/alertComponent.dart';
-import 'package:juneau/common/methods/imageMethods.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:juneau/category/categorySearchSelect.dart';
+import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/components/inputComponent.dart';
+import 'package:juneau/common/methods/imageMethods.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:path/path.dart' as p;
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<bool> createOptions(prompt, options, category, context) async {
   const url = 'http://localhost:4000/option';
@@ -22,7 +19,10 @@ Future<bool> createOptions(prompt, options, category, context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
 
-  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
 
   var body, response;
 
@@ -63,9 +63,13 @@ Future<bool> createPoll(prompt, optionIds, category, context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token'), userId = prefs.getString('userId');
 
-  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
 
-  var body = jsonEncode({'prompt': prompt, 'options': optionIds, 'category': category, 'createdBy': userId});
+  var body = jsonEncode(
+      {'prompt': prompt, 'options': optionIds, 'category': category, 'createdBy': userId});
 
   var response = await http.post(url, headers: headers, body: body);
 
@@ -85,13 +89,15 @@ Future<bool> updateUserCreatedPolls(pollId, context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token'), userId = prefs.getString('userId');
 
-  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
 
   var response = await http.get(url + userId, headers: headers), body;
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body),
-        createdPolls = jsonResponse['createdPolls'];
+    var jsonResponse = jsonDecode(response.body), createdPolls = jsonResponse['createdPolls'];
 
     createdPolls.add(pollId);
     body = jsonEncode({'createdPolls': createdPolls});
@@ -218,7 +224,8 @@ class _PollCreateState extends State<PollCreate> {
                         if (images.length >= 2) {
                           isLoading = true;
                           for (int i = 0; i < images.length; i++) {
-                            String path = await FlutterAbsolutePath.getAbsolutePath(images[i].identifier);
+                            String path =
+                                await FlutterAbsolutePath.getAbsolutePath(images[i].identifier);
 
                             final file = File(path);
                             if (!file.existsSync()) {
@@ -226,7 +233,8 @@ class _PollCreateState extends State<PollCreate> {
                             }
 
                             String fileExtension = p.extension(file.path);
-                            var imageUrl = await imageMethods.getImageUrl(fileExtension).catchError((err) {
+                            var imageUrl =
+                                await imageMethods.getImageUrl(fileExtension).catchError((err) {
                               showAlert(context, 'Something went wrong, please try again');
                             });
 
@@ -248,7 +256,8 @@ class _PollCreateState extends State<PollCreate> {
                         }
 
                         if (options.length >= 2) {
-                          isLoading = await createOptions(prompt, options, selectedCategory, context);
+                          isLoading =
+                              await createOptions(prompt, options, selectedCategory, context);
                         } else {
                           isLoading = false;
                           showAlert(context, 'Something went wrong, please try again');
@@ -259,8 +268,7 @@ class _PollCreateState extends State<PollCreate> {
                         "Create",
                         style: TextStyle(
                           color: Theme.of(context).highlightColor,
-                          fontWeight: FontWeight.w600
-                          ,
+                          fontWeight: FontWeight.w600,
                           fontSize: 15,
                         ),
                       ),
@@ -278,7 +286,9 @@ class _PollCreateState extends State<PollCreate> {
               GestureDetector(
                 onTap: () async {
                   String selected = await showModalBottomSheet(
-                      isScrollControlled: true, context: context, builder: (BuildContext context) => CategorySearchSelect());
+                      isScrollControlled: true,
+                      context: context,
+                      builder: (BuildContext context) => CategorySearchSelect());
 
                   if (selected != null) {
                     setState(() {
@@ -309,11 +319,11 @@ class _PollCreateState extends State<PollCreate> {
               Padding(
                 padding: categoryContainerPadding,
                 child: selectedCategory != null
-                  ? Padding(
-                    padding: const EdgeInsets.fromLTRB(15.0, 5.0, 15.0, 0.0),
-                    child: Text(selectedCategory),
-                  )
-                  : Container(),
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(15.0, 5.0, 15.0, 0.0),
+                        child: Text(selectedCategory),
+                      )
+                    : Container(),
               ),
               Divider(
                 thickness: 1.0,

@@ -1,11 +1,10 @@
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/services.dart';
-
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ImageMethods {
   Future getImageUrl(String fileType) async {
@@ -14,7 +13,10 @@ class ImageMethods {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
 
-    var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
 
     var body, response;
 
@@ -41,8 +43,41 @@ class ImageMethods {
     }
   }
 
-  Future deleteFile(String url) async {
+  Future deleteFile(String imgUrl, String bucket) async {
+    String url = 'http://localhost:4000/image/delete';
 
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    List keys = [];
+
+    var split = imgUrl.split('/'),
+        key = split[split.length - 1];
+
+    keys.add({
+      'Key': key
+    });
+
+    var body = jsonEncode({'keys': keys, 'bucket': bucket});
+    await http.post(url, headers: headers, body: body);
+  }
+
+  Future deleteFiles(List keys, String bucket) async {
+    String url = 'http://localhost:4000/image/delete';
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    var body = jsonEncode({'keys': keys, 'bucket': bucket});
+    await http.post(url, headers: headers, body: body);
   }
 }
 

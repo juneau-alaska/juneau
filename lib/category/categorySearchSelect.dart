@@ -1,15 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:rxdart/rxdart.dart';
-
-import 'package:http/http.dart' as http;
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
 
-import 'package:juneau/common/components/inputComponent.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/components/inputComponent.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<List> getCategories(String partialText, context) async {
   const url = 'http://localhost:4000/categories';
@@ -17,7 +16,10 @@ Future<List> getCategories(String partialText, context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
 
-  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
 
   var body = jsonEncode({'partialText': partialText});
   var response = await http.post(url, headers: headers, body: body);
@@ -38,7 +40,10 @@ void createCategory(name, context) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
 
-  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
+  var headers = {
+    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.authorizationHeader: token
+  };
 
   var body = jsonEncode({'name': name});
 
@@ -130,9 +135,7 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
       hintText: "Search",
       contentPadding: EdgeInsets.fromLTRB(35.0, 7.0, 12.0, 15.0),
       maxLength: 30,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(new RegExp("[0-9A-Za-z]"))
-      ],
+      inputFormatters: [FilteringTextInputFormatter.allow(new RegExp("[0-9A-Za-z]"))],
     );
     searchBarController = searchBar.controller;
     searchBarController.addListener(() => streamController.add(searchBarController.text.trim()));

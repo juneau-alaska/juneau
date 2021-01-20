@@ -118,19 +118,19 @@ class _MainScaffoldState extends State<MainScaffold> {
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: appBar,
       body: user != null
-      ? PageView(
-        physics:new NeverScrollableScrollPhysics(),
-        children:[
-          homePage,
-          profilePage,
-        ],
-        controller: _pageController,
-      ) : Container(),
+          ? PageView(
+              physics: new NeverScrollableScrollPhysics(),
+              children: [
+                homePage,
+                profilePage,
+              ],
+              controller: _pageController,
+            )
+          : Container(),
       bottomNavigationBar: navBar,
     );
   }
 }
-
 
 class SplashScreen extends StatefulWidget {
   @override
