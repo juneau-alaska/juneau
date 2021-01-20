@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/poll/poll.dart';
@@ -188,7 +188,7 @@ class _HomePageState extends State<HomePage> {
   bool pollOpen = false;
   bool preventReload = false;
 
-  // RefreshController refreshController = RefreshController(initialRefresh: false);
+  RefreshController refreshController = RefreshController(initialRefresh: false);
 
   Future<List> getPolls() async {
     const url = 'http://localhost:4000/polls';
@@ -261,7 +261,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     parentController.close();
-    // refreshController.dispose();
+    refreshController.dispose();
     categoryStreamController.close();
     super.dispose();
   }
@@ -275,7 +275,7 @@ class _HomePageState extends State<HomePage> {
     preventReload = false;
     prevId = null;
     await _fetchData();
-    // refreshController.refreshCompleted();
+    refreshController.refreshCompleted();
   }
 
   Future<void> _onLoading() async {
@@ -287,7 +287,7 @@ class _HomePageState extends State<HomePage> {
           polls += nextPolls;
         });
     }
-    // refreshController.loadComplete();
+    refreshController.loadComplete();
   }
 
   void dismissPoll(index) {
@@ -330,9 +330,16 @@ class _HomePageState extends State<HomePage> {
 
     return Flexible(
       child: KeepAlivePage(
-        child: EasyRefresh(
+        child: SmartRefresher(
+          enablePullDown: true,
+          enablePullUp: true,
+          header: ClassicHeader(),
+          footer: ClassicFooter(
+            loadStyle: LoadStyle.ShowWhenLoading,
+          ),
+          controller: refreshController,
           onRefresh: _onRefresh,
-          onLoad: _onLoading,
+          onLoading: _onLoading,
           child: ListView(
             physics: ClampingScrollPhysics(),
             children: pollsList,
@@ -340,26 +347,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-
-    // return Flexible(
-    //   child: KeepAlivePage(
-    //     child: SmartRefresher(
-    //       enablePullDown: true,
-    //       enablePullUp: true,
-    //       header: ClassicHeader(),
-    //       footer: ClassicFooter(
-    //         loadStyle: LoadStyle.ShowWhenLoading,
-    //       ),
-    //       controller: refreshController,
-    //       onRefresh: _onRefresh,
-    //       onLoading: _onLoading,
-    //       child: ListView(
-    //         physics: ClampingScrollPhysics(),
-    //         children: pollsList,
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 
   @override

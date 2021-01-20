@@ -13,12 +13,12 @@ dependencies:
   edge_alert: ^0.0.1
   email_validator: ^1.0.0
   flutter_absolute_path: ^1.0.6
-  flutter_easyrefresh: ^2.1.8
   flutter_swipe_action_cell: ^1.2.2
   http: ^0.12.0+4
   keyboard_visibility: ^0.5.6
   multi_image_picker: ^4.7.10
   path: ^1.7.0
+  pull_to_refresh: ^1.6.4
   rxdart: ^0.25.0
   scrollable_positioned_list: ^0.1.8
   shared_preferences: ^0.5.8
