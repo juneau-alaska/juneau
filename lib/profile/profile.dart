@@ -189,6 +189,8 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   var profileUser;
   var user;
+  var profilePhoto;
+  String profilePhotoUrl;
   String userId;
   String prevId;
   Widget gridListView;
@@ -264,6 +266,8 @@ class _ProfilePageState extends State<ProfilePage> {
     prevId = null;
     parentController = new StreamController.broadcast();
 
+    profilePhotoUrl = profileUser['profilePhoto'];
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       String profileUserId = profileUser['_id'];
 
@@ -275,6 +279,10 @@ class _ProfilePageState extends State<ProfilePage> {
         userId = prefs.getString('userId');
       }
       isUser = userId == profileUserId;
+
+      if (profilePhotoUrl != null) {
+        profilePhoto = await imageMethods.getImage(profilePhotoUrl);
+      }
 
       await fetchPollData(false);
     });
@@ -446,21 +454,34 @@ class _ProfilePageState extends State<ProfilePage> {
                         Padding(
                           padding: const EdgeInsets.only(right: 5.0),
                           child: Container(
-                            width: 45,
-                            height: 40,
+                            width: 55,
+                            height: 50,
                             child: Stack(
                               children: [
-                                CircleAvatar(
-                                  radius: 20,
-                                  backgroundColor: Colors.transparent,
-                                  backgroundImage: AssetImage('images/profile.png'),
-                                ),
+                                profilePhotoUrl != null
+                                    ? Container(
+                                      width: 50,
+                                      height: 50,
+                                      child: ClipOval(
+                                          child: Image.memory(
+                                            profilePhoto,
+                                            fit: BoxFit.cover,
+                                            width: 50.0,
+                                            height: 50.0,
+                                          ),
+                                        ),
+                                    )
+                                    : CircleAvatar(
+                                        radius: 25,
+                                        backgroundColor: Colors.transparent,
+                                        backgroundImage: AssetImage('images/profile.png'),
+                                      ),
                                 isUser != null && isUser
                                     ? Align(
                                         alignment: Alignment.bottomRight,
                                         child: GestureDetector(
                                           onTap: () async {
-                                            // TODO: OPEN MULTI SELECT
+                                            // OPEN MULTI SELECT
                                             List selectedImages = await MultiImagePicker.pickImages(
                                               maxImages: 1,
                                               enableCamera: true,
@@ -469,7 +490,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                                             var selectedImage = selectedImages[0];
 
-                                            // TODO: CREATE URLS
+                                            // CREATE URLS
                                             String path = await FlutterAbsolutePath.getAbsolutePath(
                                                 selectedImage.identifier);
 
@@ -480,37 +501,38 @@ class _ProfilePageState extends State<ProfilePage> {
 
                                             String fileExtension = p.extension(file.path);
                                             var imageUrl = await imageMethods
-                                                .getImageUrl(fileExtension)
+                                                .getImageUrl(fileExtension, 'user-profile')
                                                 .catchError((err) {
                                               showAlert(context,
                                                   'Something went wrong, please try again');
                                             });
 
-                                            // TODO: UPLOAD IMAGE
+                                            // UPLOAD IMAGE
                                             if (imageUrl != null) {
                                               String uploadUrl = imageUrl['uploadUrl'];
                                               String downloadUrl = imageUrl['downloadUrl'];
 
                                               await imageMethods
                                                   .uploadFile(uploadUrl, selectedImage)
-                                                  .then((result) {
-                                                String prevUrl = profileUser['profileImg'];
-                                                // TODO: SAVE LINK TO USER
-                                                profileUser['profileImg'] = downloadUrl;
-                                                var updatedUser =
-                                                    userMethods.updateUser(profileUser);
+                                                  .then((result) async {
+                                                String prevUrl = profilePhotoUrl;
+                                                // SAVE LINK TO USER
+                                                var updatedUser = await userMethods
+                                                    .updateUser(profileUser['_id'], {
+                                                  'profilePhoto': downloadUrl,
+                                                });
 
-                                                if (updatedUser != null) {
-                                                  profileUser = updatedUser;
-                                                } else {
+                                                if (updatedUser == null) {
                                                   showAlert(context,
                                                       'Something went wrong, please try again');
                                                   return;
                                                 }
 
-                                                // TODO: DELETE PREVIOUS IMAGE?
-                                                if (prevUrl != null || prevUrl != '') {
+                                                // DELETE PREVIOUS IMAGE
+                                                if (prevUrl != null && prevUrl != '') {
                                                   imageMethods.deleteFile(prevUrl, 'user-profile');
+                                                  profileUser = updatedUser;
+                                                  profilePhotoUrl = updatedUser['profilePhoto'];
                                                 }
                                               }).catchError((err) {
                                                 showAlert(context,
@@ -518,16 +540,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                               });
                                             }
 
-                                            // TODO: SHOW NEW PROFILE IMAGE
+                                            // SHOW NEW PROFILE IMAGE
                                             setState(() {});
                                           },
                                           child: CircleAvatar(
-                                            radius: 8,
+                                            radius: 9,
                                             backgroundColor: Theme.of(context).backgroundColor,
                                             child: Icon(
                                               Icons.add_circle,
                                               color: Theme.of(context).highlightColor,
-                                              size: 16.0,
+                                              size: 18.0,
                                             ),
                                           ),
                                         ),

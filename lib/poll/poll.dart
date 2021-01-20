@@ -184,7 +184,8 @@ class ImageCarousel extends StatefulWidget {
       this.vote,
       this.isCreator,
       this.completed,
-      this.getImages})
+      this.getImages,
+      })
       : super(key: key);
 
   @override
@@ -547,10 +548,8 @@ class _PollWidgetState extends State<PollWidget> {
       images = [];
       for (var option in options) {
         String url = option['content'];
-        var response = await http.get(url);
-        if (response.statusCode == 200) {
-          images.add(response.bodyBytes);
-        }
+        var bodyBytes = await imageMethods.getImage(url);
+        images.add(bodyBytes);
       }
     }
     if (imageBytes == null) {
@@ -883,7 +882,8 @@ class _PollWidgetState extends State<PollWidget> {
         vote: vote,
         isCreator: isCreator,
         completed: completed,
-        getImages: getImages);
+        getImages: getImages,
+    );
 
     return Container(
       child: Column(

@@ -60,8 +60,8 @@ class UserMethods {
     }
   }
 
-  Future updateUser(user) async {
-    String url = 'http://localhost:4000/user/' + user['_id'];
+  Future updateUser(String userId, attrs) async {
+    String url = 'http://localhost:4000/user/' + userId;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
@@ -71,7 +71,7 @@ class UserMethods {
       HttpHeaders.authorizationHeader: token
     };
 
-    var body = jsonEncode(user);
+    var body = jsonEncode(attrs);
 
     var response = await http.put(
       url,
@@ -80,9 +80,10 @@ class UserMethods {
     );
 
     if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body);
+      var jsonResponse = jsonDecode(response.body),
+          user = jsonResponse['user'];
 
-      return jsonResponse;
+      return user;
     } else {
       print('Request failed with status: ${response.statusCode}.');
       return null;

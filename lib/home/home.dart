@@ -316,7 +316,8 @@ class _HomePageState extends State<HomePage> {
               viewPoll: viewPoll,
               index: i,
               updatedUserModel: updatedUserModel,
-              parentController: parentController),
+              parentController: parentController,
+          ),
         ),
       );
     }

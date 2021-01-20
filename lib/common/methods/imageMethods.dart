@@ -7,7 +7,14 @@ import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ImageMethods {
-  Future getImageUrl(String fileType) async {
+  Future getImage(String url) async {
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    }
+  }
+
+  Future getImageUrl(String fileType, String bucket) async {
     const url = 'http://localhost:4000/image/create_url';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -20,7 +27,7 @@ class ImageMethods {
 
     var body, response;
 
-    body = jsonEncode({'fileType': fileType, 'bucket': 'poll-option'});
+    body = jsonEncode({'fileType': fileType, 'bucket': bucket});
 
     response = await http.post(url, headers: headers, body: body);
 
@@ -33,7 +40,7 @@ class ImageMethods {
 
   Future<void> uploadFile(String url, Asset asset) async {
     try {
-      ByteData byteData = await asset.getByteData(quality: 1);
+      ByteData byteData = await asset.getByteData(quality: 0);
       var response = await http.put(url, body: byteData.buffer.asUint8List());
       if (response.statusCode == 200) {
         print('Successfully uploaded photo');
