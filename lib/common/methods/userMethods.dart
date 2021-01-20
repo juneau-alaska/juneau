@@ -53,6 +53,10 @@ class UserMethods {
       return null;
     }
   }
+
+  Future updateUser(Object user) async {
+    print(user);
+  }
 }
 
 UserMethods userMethods = new UserMethods();

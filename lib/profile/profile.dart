@@ -4,9 +4,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:flutter_absolute_path/flutter_absolute_path.dart';
+import 'package:path/path.dart' as p;
+
 import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/components/keepAlivePage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/methods/userMethods.dart';
+import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/poll/pollPreview.dart';
 import 'package:juneau/poll/poll.dart';
 import 'package:juneau/comment/commentsPage.dart';
@@ -447,13 +453,59 @@ class _ProfilePageState extends State<ProfilePage> {
                                 isUser != null && isUser
                                 ? Align(
                                     alignment: Alignment.bottomRight,
-                                    child: CircleAvatar(
-                                      radius: 8,
-                                      backgroundColor: Theme.of(context).backgroundColor,
-                                      child: Icon(
-                                        Icons.add_circle,
-                                        color: Theme.of(context).highlightColor,
-                                        size: 16.0,
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        // TODO: OPEN MULTI SELECT
+                                        List selectedImages = await MultiImagePicker.pickImages(
+                                          maxImages: 1,
+                                          enableCamera: true,
+                                          selectedAssets: [],
+                                        );
+
+                                        var selectedImage = selectedImages[0];
+
+                                        // TODO: CREATE URLS
+                                        String path = await FlutterAbsolutePath.getAbsolutePath(selectedImage.identifier);
+
+                                        final file = File(path);
+                                        if (!file.existsSync()) {
+                                          file.createSync(recursive: true);
+                                        }
+
+                                        String fileExtension = p.extension(file.path);
+                                        var imageUrl = await imageMethods.getImageUrl(fileExtension).catchError((err) {
+                                          showAlert(context, 'Something went wrong, please try again');
+                                        });
+
+
+                                        // TODO: UPLOAD IMAGE
+                                        if (imageUrl != null) {
+                                          String uploadUrl = imageUrl['uploadUrl'];
+                                          String downloadUrl = imageUrl['downloadUrl'];
+
+                                          await imageMethods.uploadFile(uploadUrl, selectedImage).then((result) {
+                                            String prevUrl = user['profileImg'];
+                                            // TODO: SAVE LINK TO USER
+                                            user['profileImg'] = downloadUrl;
+                                            userMethods.updateUser(profileUser);
+
+                                            // TODO: DELETE PREVIOUS IMAGE?
+                                            imageMethods.deleteFile(prevUrl);
+                                          }).catchError((err) {
+                                            showAlert(context, 'Something went wrong, please try again');
+                                          });
+                                        }
+
+                                        // TODO: SHOW NEW PROFILE IMAGE
+                                      },
+                                      child: CircleAvatar(
+                                        radius: 8,
+                                        backgroundColor: Theme.of(context).backgroundColor,
+                                        child: Icon(
+                                          Icons.add_circle,
+                                          color: Theme.of(context).highlightColor,
+                                          size: 16.0,
+                                        ),
                                       ),
                                     ),
                                   )

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -13,41 +12,9 @@ import 'package:path/path.dart' as p;
 
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/methods/imageMethods.dart';
 
 import 'package:juneau/category/categorySearchSelect.dart';
-
-Future getImageUrl(String fileType) async {
-  const url = 'http://localhost:4000/image/create_url';
-
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var token = prefs.getString('token');
-
-  var headers = {HttpHeaders.contentTypeHeader: 'application/json', HttpHeaders.authorizationHeader: token};
-
-  var body, response;
-
-  body = jsonEncode({'fileType': fileType, 'bucket': 'poll-option'});
-
-  response = await http.post(url, headers: headers, body: body);
-
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body);
-  } else {
-    return null;
-  }
-}
-
-Future<void> uploadFile(String url, Asset asset) async {
-  try {
-    ByteData byteData = await asset.getByteData(quality: 1);
-    var response = await http.put(url, body: byteData.buffer.asUint8List());
-    if (response.statusCode == 200) {
-      print('Successfully uploaded photo');
-    }
-  } catch (e) {
-    throw ('Error uploading photo');
-  }
-}
 
 Future<bool> createOptions(prompt, options, category, context) async {
   const url = 'http://localhost:4000/option';
@@ -194,16 +161,7 @@ class _PollCreateState extends State<PollCreate> {
     try {
       resultList = await MultiImagePicker.pickImages(
         maxImages: 9,
-        enableCamera: true,
         selectedAssets: images,
-        cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
-        materialOptions: MaterialOptions(
-          actionBarColor: "#58E0C0",
-          actionBarTitle: "",
-          allViewTitle: "All Photos",
-          useDetailsView: false,
-          selectCircleStrokeColor: "#58E0C0",
-        ),
       );
     } on Exception catch (e) {
       print(e.toString());
@@ -268,7 +226,7 @@ class _PollCreateState extends State<PollCreate> {
                             }
 
                             String fileExtension = p.extension(file.path);
-                            var imageUrl = await getImageUrl(fileExtension).catchError((err) {
+                            var imageUrl = await imageMethods.getImageUrl(fileExtension).catchError((err) {
                               showAlert(context, 'Something went wrong, please try again');
                             });
 
@@ -276,7 +234,7 @@ class _PollCreateState extends State<PollCreate> {
                               String uploadUrl = imageUrl['uploadUrl'];
                               String downloadUrl = imageUrl['downloadUrl'];
 
-                              await uploadFile(uploadUrl, images[i]).then((result) {
+                              await imageMethods.uploadFile(uploadUrl, images[i]).then((result) {
                                 options.add(downloadUrl);
                               }).catchError((err) {
                                 isLoading = false;
