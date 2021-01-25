@@ -175,11 +175,13 @@ class _PollListPopoverState extends State<PollListPopover> {
 class ProfilePage extends StatefulWidget {
   final profileUser;
   final user;
+  final profilePhoto;
 
   ProfilePage({
     Key key,
     @required this.profileUser,
     this.user,
+    this.profilePhoto,
   }) : super(key: key);
 
   @override
@@ -267,6 +269,7 @@ class _ProfilePageState extends State<ProfilePage> {
     parentController = new StreamController.broadcast();
 
     profilePhotoUrl = profileUser['profilePhoto'];
+    profilePhoto = widget.profilePhoto;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       String profileUserId = profileUser['_id'];
@@ -280,7 +283,7 @@ class _ProfilePageState extends State<ProfilePage> {
       }
       isUser = userId == profileUserId;
 
-      if (profilePhotoUrl != null) {
+      if (profilePhoto == null && profilePhotoUrl != null) {
         profilePhoto = await imageMethods.getImage(profilePhotoUrl);
       }
 
@@ -447,136 +450,132 @@ class _ProfilePageState extends State<ProfilePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    padding: isUser != null && isUser
+                        ? const EdgeInsets.symmetric(vertical: 10.0)
+                        : const EdgeInsets.only(top: 5.0, bottom: 10.0),
+                    child: Text(
+                      profileUser['username'],
+                      style: TextStyle(
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -1.3,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: 85,
+                    height: 80,
+                    child: Stack(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 5.0),
-                          child: Container(
-                            width: 55,
-                            height: 50,
-                            child: Stack(
-                              children: [
-                                profilePhotoUrl != null
-                                    ? Container(
-                                      width: 50,
-                                      height: 50,
-                                      child: ClipOval(
-                                          child: Image.memory(
-                                            profilePhoto,
-                                            fit: BoxFit.cover,
-                                            width: 50.0,
-                                            height: 50.0,
-                                          ),
-                                        ),
-                                    )
-                                    : CircleAvatar(
-                                        radius: 25,
-                                        backgroundColor: Colors.transparent,
-                                        backgroundImage: AssetImage('images/profile.png'),
-                                      ),
-                                isUser != null && isUser
-                                    ? Align(
-                                        alignment: Alignment.bottomRight,
-                                        child: GestureDetector(
-                                          onTap: () async {
-                                            // OPEN MULTI SELECT
-                                            List selectedImages = await MultiImagePicker.pickImages(
-                                              maxImages: 1,
-                                              enableCamera: true,
-                                              selectedAssets: [],
-                                            );
+                        profilePhoto != null
+                            ? Container(
+                                width: 80,
+                                height: 80,
+                                child: ClipOval(
+                                  child: Image.memory(
+                                    profilePhoto,
+                                    fit: BoxFit.cover,
+                                    width: 80.0,
+                                    height: 80.0,
+                                  ),
+                                ),
+                              )
+                            : CircleAvatar(
+                                radius: 40,
+                                backgroundColor: Colors.transparent,
+                                backgroundImage: AssetImage('images/profile.png'),
+                              ),
+                        isUser != null && isUser
+                            ? Align(
+                                alignment: Alignment.bottomRight,
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    // OPEN MULTI SELECT
+                                    List selectedImages = await MultiImagePicker.pickImages(
+                                      maxImages: 1,
+                                      enableCamera: true,
+                                      selectedAssets: [],
+                                    );
 
-                                            var selectedImage = selectedImages[0];
+                                    var selectedImage = selectedImages[0];
 
-                                            // CREATE URLS
-                                            String path = await FlutterAbsolutePath.getAbsolutePath(
-                                                selectedImage.identifier);
+                                    // CREATE URLS
+                                    String path = await FlutterAbsolutePath.getAbsolutePath(
+                                        selectedImage.identifier);
 
-                                            final file = File(path);
-                                            if (!file.existsSync()) {
-                                              file.createSync(recursive: true);
-                                            }
+                                    final file = File(path);
+                                    if (!file.existsSync()) {
+                                      file.createSync(recursive: true);
+                                    }
 
-                                            String fileExtension = p.extension(file.path);
-                                            var imageUrl = await imageMethods
-                                                .getImageUrl(fileExtension, 'user-profile')
-                                                .catchError((err) {
-                                              showAlert(context,
-                                                  'Something went wrong, please try again');
-                                            });
+                                    String fileExtension = p.extension(file.path);
+                                    var imageUrl = await imageMethods
+                                        .getImageUrl(fileExtension, 'user-profile')
+                                        .catchError((err) {
+                                      showAlert(context, 'Something went wrong, please try again');
+                                    });
 
-                                            // UPLOAD IMAGE
-                                            if (imageUrl != null) {
-                                              String uploadUrl = imageUrl['uploadUrl'];
-                                              String downloadUrl = imageUrl['downloadUrl'];
+                                    // UPLOAD IMAGE
+                                    if (imageUrl != null) {
+                                      String uploadUrl = imageUrl['uploadUrl'];
+                                      String downloadUrl = imageUrl['downloadUrl'];
 
-                                              await imageMethods
-                                                  .uploadFile(uploadUrl, selectedImage)
-                                                  .then((result) async {
-                                                String prevUrl = profilePhotoUrl;
-                                                // SAVE LINK TO USER
-                                                var updatedUser = await userMethods
-                                                    .updateUser(profileUser['_id'], {
-                                                  'profilePhoto': downloadUrl,
-                                                });
+                                      await imageMethods
+                                          .uploadFile(uploadUrl, selectedImage)
+                                          .then((result) async {
+                                        String prevUrl = profilePhotoUrl;
+                                        // SAVE LINK TO USER
+                                        var updatedUser =
+                                            await userMethods.updateUser(profileUser['_id'], {
+                                          'profilePhoto': downloadUrl,
+                                        });
 
-                                                if (updatedUser == null) {
-                                                  showAlert(context,
-                                                      'Something went wrong, please try again');
-                                                  return;
-                                                }
+                                        if (updatedUser == null) {
+                                          showAlert(
+                                              context, 'Something went wrong, please try again');
+                                          return;
+                                        }
 
-                                                // DELETE PREVIOUS IMAGE
-                                                if (prevUrl != null && prevUrl != '') {
-                                                  imageMethods.deleteFile(prevUrl, 'user-profile');
-                                                  profileUser = updatedUser;
-                                                  profilePhotoUrl = updatedUser['profilePhoto'];
-                                                }
-                                              }).catchError((err) {
-                                                showAlert(context,
-                                                    'Something went wrong, please try again');
-                                              });
-                                            }
+                                        // DELETE PREVIOUS IMAGE
+                                        if (prevUrl != null && prevUrl != '') {
+                                          imageMethods.deleteFile(prevUrl, 'user-profile');
+                                          profileUser = updatedUser;
+                                          profilePhotoUrl = updatedUser['profilePhoto'];
+                                        }
+                                      }).catchError((err) {
+                                        showAlert(
+                                            context, 'Something went wrong, please try again');
+                                      });
+                                    }
 
-                                            // SHOW NEW PROFILE IMAGE
-                                            setState(() {});
-                                          },
-                                          child: CircleAvatar(
-                                            radius: 9,
-                                            backgroundColor: Theme.of(context).backgroundColor,
-                                            child: Icon(
-                                              Icons.add_circle,
-                                              color: Theme.of(context).highlightColor,
-                                              size: 18.0,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    : Container(),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Text(
-                          profileUser['username'],
-                          style: TextStyle(
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -1.3,
-                          ),
-                        ),
+                                    // SHOW NEW PROFILE IMAGE
+                                    setState(() {});
+                                  },
+                                  child: CircleAvatar(
+                                    radius: 9,
+                                    backgroundColor: Theme.of(context).backgroundColor,
+                                    child: Icon(
+                                      Icons.add_circle,
+                                      color: Theme.of(context).highlightColor,
+                                      size: 18.0,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Container(),
                       ],
                     ),
                   ),
                   profileUser['description'] != null
-                      ? Text(
-                          profileUser['description'],
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 15.0),
+                          child: Text(
+                            profileUser['description'],
+                          ),
                         )
                       : Container(),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 5.0),
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: isUser != null && isUser

@@ -534,6 +534,8 @@ class PollWidget extends StatefulWidget {
 
 class _PollWidgetState extends State<PollWidget> {
   var user, poll, pollCreator;
+  var profilePhoto;
+  String profilePhotoUrl;
 
   List options;
   List images;
@@ -609,9 +611,15 @@ class _PollWidgetState extends State<PollWidget> {
 
     followingCategories = user['followingCategories'];
 
-    userMethods.getUser(poll['createdBy']).then((pollUser) {
+    userMethods.getUser(poll['createdBy']).then((pollUser) async {
       if (pollUser != null) {
         pollCreator = pollUser;
+      }
+
+      profilePhotoUrl = pollCreator['profilePhoto'];
+
+      if (profilePhoto == null && profilePhotoUrl != null) {
+        profilePhoto = await imageMethods.getImage(profilePhotoUrl);
       }
 
       if (options == null) {
@@ -906,9 +914,22 @@ class _PollWidgetState extends State<PollWidget> {
                           children: <Widget>[
                             Row(children: [
                               Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
+                                padding: const EdgeInsets.only(right: 5.0),
                                 child: GestureDetector(
-                                  child: CircleAvatar(
+                                  child: profilePhoto != null
+                                    ? Container(
+                                    width: 26,
+                                    height: 26,
+                                    child: ClipOval(
+                                      child: Image.memory(
+                                        profilePhoto,
+                                        fit: BoxFit.cover,
+                                        width: 26.0,
+                                        height: 26.0,
+                                      ),
+                                    ),
+                                  )
+                                    : CircleAvatar(
                                     radius: 13,
                                     backgroundColor: Colors.transparent,
                                     backgroundImage: AssetImage('images/profile.png'),
@@ -977,7 +998,7 @@ class _PollWidgetState extends State<PollWidget> {
                         style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                       ),
                     )
-                  : SizedBox(height: 2.0),
+                  : SizedBox(height: 3.0),
               Padding(
                 padding: const EdgeInsets.only(top: 5.0),
                 child: CategoryButton(

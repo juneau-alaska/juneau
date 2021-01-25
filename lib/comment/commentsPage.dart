@@ -7,6 +7,7 @@ import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 import 'package:http/http.dart' as http;
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/controllers/richTextController.dart';
+import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/common/methods/numMethods.dart';
 import 'package:juneau/profile/profile.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
@@ -323,6 +324,12 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
 
   double mediaWidth = MediaQuery.of(context).size.width;
 
+  var profilePhoto;
+  String profilePhotoUrl = creator['profilePhoto'];
+  if (profilePhotoUrl != null) {
+    profilePhoto = await imageMethods.getImage(profilePhotoUrl);
+  }
+
   Widget commentContainer = Container(
     color: Theme.of(context).backgroundColor,
     child: Padding(
@@ -339,7 +346,20 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                   Padding(
                     padding: const EdgeInsets.only(right: 5.0),
                     child: GestureDetector(
-                      child: CircleAvatar(
+                      child: profilePhoto != null
+                        ? Container(
+                        width: 20,
+                        height: 20,
+                        child: ClipOval(
+                          child: Image.memory(
+                            profilePhoto,
+                            fit: BoxFit.cover,
+                            width: 20.0,
+                            height: 20.0,
+                          ),
+                        ),
+                      )
+                        : CircleAvatar(
                         radius: 10,
                         backgroundColor: Colors.transparent,
                         backgroundImage: AssetImage('images/profile.png'),

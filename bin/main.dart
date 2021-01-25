@@ -7,6 +7,7 @@ import 'package:juneau/common/colors.dart';
 import 'package:juneau/common/views/appBar.dart';
 import 'package:juneau/common/views/navBar.dart';
 
+import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 
 import 'package:juneau/auth/loginSelect.dart';
@@ -89,17 +90,23 @@ class _MainScaffoldState extends State<MainScaffold> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String userId = prefs.getString('userId');
       user = await userMethods.getUser(userId);
-      setState(() {
-        homePage = HomePage(user: user);
-        profilePage = ProfilePage(profileUser: user);
+
+      String profilePhotoUrl = user['profilePhoto'];
+      var profilePhoto;
+      if (profilePhotoUrl != null) {
+        profilePhoto = await imageMethods.getImage(profilePhotoUrl);
+      }
+
+      homePage = HomePage(user: user);
+      profilePage = ProfilePage(profileUser: user, profilePhoto: profilePhoto);
+      navBar = NavBar(navigatorKey: _navigatorKey, navController: _navController, profilePhoto: profilePhoto);
+      appBar = ApplicationBar(height: 0.0);
+
+      _navController.stream.listen((index) async {
+        _pageController.jumpToPage(index);
       });
-    });
 
-    appBar = ApplicationBar(height: 0.0);
-    navBar = NavBar(navigatorKey: _navigatorKey, navController: _navController);
-
-    _navController.stream.listen((index) async {
-      _pageController.jumpToPage(index);
+      setState(() {});
     });
 
     super.initState();
