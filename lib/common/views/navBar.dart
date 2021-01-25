@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/poll/pollCreate.dart';
 
 class NavBar extends StatefulWidget {
   final navigatorKey;
   final navController;
+  final profilePhoto;
 
-  NavBar({Key key,
+  NavBar({
+    Key key,
     @required this.navigatorKey,
     this.navController,
-  })
-    : super(key: key);
+    this.profilePhoto,
+  }) : super(key: key);
 
   @override
   _NavBarState createState() => _NavBarState();
@@ -18,9 +21,11 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   int _previousIndex = 0;
   int _selectedIndex = 0;
+  var profilePhoto;
 
   @override
   void initState() {
+    profilePhoto = widget.profilePhoto;
     super.initState();
   }
 
@@ -33,15 +38,9 @@ class _NavBarState extends State<NavBar> {
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           elevation: 0.0,
-          backgroundColor: Theme
-            .of(context)
-            .backgroundColor,
-          unselectedItemColor: Theme
-            .of(context)
-            .hintColor,
-          selectedItemColor: Theme
-            .of(context)
-            .buttonColor,
+          backgroundColor: Theme.of(context).backgroundColor,
+          unselectedItemColor: Theme.of(context).buttonColor,
+          selectedItemColor: Theme.of(context).buttonColor,
           selectedFontSize: 0,
           showSelectedLabels: false,
           showUnselectedLabels: false,
@@ -59,11 +58,11 @@ class _NavBarState extends State<NavBar> {
                   break;
                 case 2:
                   showModalBottomSheet(
-                    isScrollControlled: true,
-                    context: context,
-                    builder: (BuildContext context) {
-                      return new PollCreate();
-                    });
+                      isScrollControlled: true,
+                      context: context,
+                      builder: (BuildContext context) {
+                        return new PollCreate();
+                      });
                   _selectedIndex = _previousIndex;
                   break;
                 case 3:
@@ -77,36 +76,63 @@ class _NavBarState extends State<NavBar> {
           },
           items: [
             BottomNavigationBarItem(
-              icon: new Icon(
-                Icons.home,
-                size: 28.0
-              ),
+              icon: new Icon(Icons.home_outlined, size: 28.0),
+              activeIcon: new Icon(Icons.home, size: 28.0),
               title: Text(''),
             ),
-
             BottomNavigationBarItem(
-              icon: new Icon(
-                Icons.search,
-                size: 28.0
-              ),
-
+              icon: new Icon(Icons.search, size: 28.0),
               title: Text(''),
             ),
-
             BottomNavigationBarItem(
-              icon: new Icon(
-                Icons.add,
-                size: 28.0
-              ),
+              icon: new Icon(Icons.add, size: 28.0),
               title: Text(''),
             ),
-
             BottomNavigationBarItem(
-              icon: new Icon(
-                Icons.account_circle,
-                size: 28.0
+              icon: CircleAvatar(
+                radius: 13,
+                backgroundColor: Colors.transparent,
+                child: profilePhoto != null
+                  ? Container(
+                  width: 22,
+                  height: 22,
+                  child: ClipOval(
+                    child: Image.memory(
+                      profilePhoto,
+                      fit: BoxFit.cover,
+                      width: 22.0,
+                      height: 22.0,
+                    ),
+                  ),
+                )
+                  : CircleAvatar(
+                  radius: 11,
+                  backgroundColor: Colors.transparent,
+                  backgroundImage: AssetImage('images/profile.png'),
+                ),
               ),
-
+              activeIcon: CircleAvatar(
+                radius: 13,
+                backgroundColor: Theme.of(context).buttonColor,
+                child: profilePhoto != null
+                    ? Container(
+                        width: 22,
+                        height: 22,
+                        child: ClipOval(
+                          child: Image.memory(
+                            profilePhoto,
+                            fit: BoxFit.cover,
+                            width: 22.0,
+                            height: 22.0,
+                          ),
+                        ),
+                      )
+                    : CircleAvatar(
+                        radius: 11,
+                        backgroundColor: Colors.transparent,
+                        backgroundImage: AssetImage('images/profile.png'),
+                      ),
+              ),
               title: Text(''),
             ),
           ],

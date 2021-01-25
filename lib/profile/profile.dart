@@ -1,22 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-
-import 'package:juneau/common/components/pageRoutes.dart';
-import 'package:juneau/common/components/keepAlivePage.dart';
-import 'package:juneau/common/components/alertComponent.dart';
-import 'package:juneau/poll/pollPreview.dart';
-import 'package:juneau/poll/poll.dart';
-import 'package:juneau/comment/commentsPage.dart';
-import 'package:juneau/settings/accountSettings.dart';
-import 'package:juneau/profile/editProfile.dart';
-
-import 'package:http/http.dart' as http;
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:http/http.dart' as http;
+import 'package:juneau/comment/commentsPage.dart';
+import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/components/keepAlivePage.dart';
+import 'package:juneau/common/components/pageRoutes.dart';
+import 'package:juneau/common/methods/imageMethods.dart';
+import 'package:juneau/poll/poll.dart';
+import 'package:juneau/poll/pollPreview.dart';
+import 'package:juneau/profile/editProfile.dart';
+import 'package:juneau/settings/accountSettings.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void openProfile(context, profileUser, {user}) {
   Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
@@ -171,11 +171,13 @@ class _PollListPopoverState extends State<PollListPopover> {
 class ProfilePage extends StatefulWidget {
   final profileUser;
   final user;
+  final profilePhoto;
 
   ProfilePage({
     Key key,
     @required this.profileUser,
     this.user,
+    this.profilePhoto,
   }) : super(key: key);
 
   @override
@@ -185,6 +187,8 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   var profileUser;
   var user;
+  var profilePhoto;
+  String profilePhotoUrl;
   String userId;
   String prevId;
   Widget gridListView;
@@ -195,6 +199,7 @@ class _ProfilePageState extends State<ProfilePage> {
   bool preventReload = false;
   bool following = false;
   bool isUser;
+  bool profileFetched;
 
   bool alreadyPressed = false;
 
@@ -260,6 +265,9 @@ class _ProfilePageState extends State<ProfilePage> {
     prevId = null;
     parentController = new StreamController.broadcast();
 
+    profilePhotoUrl = profileUser['profilePhoto'];
+    profilePhoto = widget.profilePhoto;
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       String profileUserId = profileUser['_id'];
 
@@ -271,6 +279,11 @@ class _ProfilePageState extends State<ProfilePage> {
         userId = prefs.getString('userId');
       }
       isUser = userId == profileUserId;
+
+      if (profilePhoto == null && profilePhotoUrl != null) {
+        profilePhoto = await imageMethods.getImage(profilePhotoUrl);
+      }
+      profileFetched = true;
 
       await fetchPollData(false);
     });
@@ -355,16 +368,14 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  void _onRefresh() async {
+  Future<void> _onRefresh() async {
     prevId = null;
     await fetchPollData(false);
-    refreshController.refreshCompleted();
   }
 
-  void _onLoading() async {
+  Future<void> _onLoading() async {
     if (pollObjects.length == profileUser['createdPolls'].length) return;
     await fetchPollData(true);
-    refreshController.loadComplete();
   }
 
   void openListView(index, tag) async {
@@ -432,142 +443,180 @@ class _ProfilePageState extends State<ProfilePage> {
           shrinkWrap: true,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 0.0),
-              child: Text(
-                profileUser['username'],
-                style: TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -1.3,
-                ),
-              ),
-            ),
-            profileUser['description'] != null
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
-                    child: Text(
-                      profileUser['description'],
-                    ),
-                  )
-                : Container(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(15.0, 5.0, 15.0, 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: isUser != null && isUser
-                    ? [
-                        RawMaterialButton(
-                          onPressed: () async {
-                            var update = await showModalBottomSheet(
-                                isScrollControlled: true,
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return new EditProfileModal(
-                                    user: profileUser,
-                                  );
-                                });
-
-                            setState(() {
-                              profileUser = update['user'];
-                            });
-                          },
-                          constraints: BoxConstraints(),
-                          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                          fillColor: Theme.of(context).backgroundColor,
-                          elevation: 0.0,
-                          child: Text(
-                            'Edit Profile',
-                            style: TextStyle(
-                              color: Theme.of(context).buttonColor,
-                              fontWeight: FontWeight.w500,
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: isUser != null && isUser
+                        ? const EdgeInsets.symmetric(vertical: 10.0)
+                        : const EdgeInsets.only(top: 5.0, bottom: 10.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        profilePhoto != null
+                          ? Container(
+                          width: 40,
+                          height: 40,
+                          child: ClipOval(
+                            child: Image.memory(
+                              profilePhoto,
+                              fit: BoxFit.cover,
+                              width: 40.0,
+                              height: 40.0,
                             ),
                           ),
-                          shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                  color: Theme.of(context).hintColor,
-                                  width: 0.5,
-                                  style: BorderStyle.solid),
-                              borderRadius: BorderRadius.circular(5)),
+                        )
+                          : CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.transparent,
+                          backgroundImage: profileFetched ? AssetImage('images/profile.png') : null,
                         ),
-                        SizedBox(width: 5.0),
-                        RawMaterialButton(
-                          onPressed: () {
-                            showModalBottomSheet(
-                                backgroundColor: Colors.transparent,
-                                context: context,
-                                builder: (BuildContext context) =>
-                                    AccountSettings(user: profileUser));
-                          },
-                          constraints: BoxConstraints(),
-                          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                          fillColor: Theme.of(context).backgroundColor,
-                          elevation: 0.0,
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10.0),
                           child: Text(
-                            'Settings',
+                            profileUser['username'],
                             style: TextStyle(
-                              color: Theme.of(context).buttonColor,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 24.0,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: -1.3,
                             ),
                           ),
-                          shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                  color: Theme.of(context).hintColor,
-                                  width: 0.5,
-                                  style: BorderStyle.solid),
-                              borderRadius: BorderRadius.circular(5)),
-                        ),
-                      ]
-                    : [
-                        RawMaterialButton(
-                          onPressed: () async {
-                            if (!alreadyPressed) {
-                              alreadyPressed = true;
-                            } else {
-                              return showAlert(profileContext, 'Going too fast.');
-                            }
-
-                            List followingUsers =
-                                user['followingUsers'] != null ? user['followingUsers'] : [];
-                            String profileUserId = profileUser['_id'];
-
-                            if (following) {
-                              followingUsers.remove(profileUserId);
-                            } else {
-                              followingUsers.add(profileUserId);
-                            }
-
-                            var updatedUser = await updateUser(followingUsers);
-                            if (updatedUser != null) {
-                              setState(() {
-                                user = updatedUser;
-                                following = followingUsers.contains(profileUserId);
-                                alreadyPressed = false;
-                              });
-                            }
-                          },
-                          constraints: BoxConstraints(),
-                          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-                          fillColor: following
-                              ? Theme.of(context).buttonColor
-                              : Theme.of(context).backgroundColor,
-                          elevation: 0.0,
-                          child: Text(
-                            following ? 'Unfollow' : 'Follow',
-                            style: TextStyle(
-                              color: following
-                                  ? Theme.of(context).backgroundColor
-                                  : Theme.of(context).buttonColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                  color: Theme.of(context).buttonColor,
-                                  width: 0.5,
-                                  style: BorderStyle.solid),
-                              borderRadius: BorderRadius.circular(5)),
                         ),
                       ],
+                    ),
+                  ),
+                  profileUser['description'] != null
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 15.0),
+                          child: Text(
+                            profileUser['description'],
+                          ),
+                        )
+                      : Container(),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5.0, bottom: 7.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: isUser != null && isUser
+                          ? [
+                              RawMaterialButton(
+                                onPressed: () async {
+                                  var update = await showModalBottomSheet(
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return new EditProfileModal(
+                                          user: profileUser,
+                                        );
+                                      });
+
+                                  setState(() {
+                                    if (update != null) {
+                                      profileUser = update['user'];
+                                    }
+                                  });
+                                },
+                                constraints: BoxConstraints(),
+                                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                                fillColor: Theme.of(context).backgroundColor,
+                                elevation: 0.0,
+                                child: Text(
+                                  'Edit Profile',
+                                  style: TextStyle(
+                                    color: Theme.of(context).buttonColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: Theme.of(context).hintColor,
+                                        width: 0.5,
+                                        style: BorderStyle.solid),
+                                    borderRadius: BorderRadius.circular(5)),
+                              ),
+                              SizedBox(width: 5.0),
+                              RawMaterialButton(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                      backgroundColor: Colors.transparent,
+                                      context: context,
+                                      builder: (BuildContext context) =>
+                                          AccountSettings(user: profileUser));
+                                },
+                                constraints: BoxConstraints(),
+                                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                                fillColor: Theme.of(context).backgroundColor,
+                                elevation: 0.0,
+                                child: Text(
+                                  'Settings',
+                                  style: TextStyle(
+                                    color: Theme.of(context).buttonColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: Theme.of(context).hintColor,
+                                        width: 0.5,
+                                        style: BorderStyle.solid),
+                                    borderRadius: BorderRadius.circular(5)),
+                              ),
+                            ]
+                          : [
+                              RawMaterialButton(
+                                onPressed: () async {
+                                  if (!alreadyPressed) {
+                                    alreadyPressed = true;
+                                  } else {
+                                    return showAlert(profileContext, 'Going too fast.');
+                                  }
+
+                                  List followingUsers =
+                                      user['followingUsers'] != null ? user['followingUsers'] : [];
+                                  String profileUserId = profileUser['_id'];
+
+                                  if (following) {
+                                    followingUsers.remove(profileUserId);
+                                  } else {
+                                    followingUsers.add(profileUserId);
+                                  }
+
+                                  var updatedUser = await updateUser(followingUsers);
+                                  if (updatedUser != null) {
+                                    setState(() {
+                                      user = updatedUser;
+                                      following = followingUsers.contains(profileUserId);
+                                      alreadyPressed = false;
+                                    });
+                                  }
+                                },
+                                constraints: BoxConstraints(),
+                                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+                                fillColor: following
+                                    ? Theme.of(context).buttonColor
+                                    : Theme.of(context).backgroundColor,
+                                elevation: 0.0,
+                                child: Text(
+                                  following ? 'Unfollow' : 'Follow',
+                                  style: TextStyle(
+                                    color: following
+                                        ? Theme.of(context).backgroundColor
+                                        : Theme.of(context).buttonColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                        color: Theme.of(context).buttonColor,
+                                        width: 0.5,
+                                        style: BorderStyle.solid),
+                                    borderRadius: BorderRadius.circular(5)),
+                              ),
+                            ],
+                    ),
+                  ),
+                ],
               ),
             ),
             pollObjects != null

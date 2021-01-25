@@ -1,18 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:timeago/timeago.dart' as timeago;
-import 'package:keyboard_visibility/keyboard_visibility.dart';
-import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
-
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
 
-import 'package:juneau/profile/profile.dart';
-import 'package:juneau/common/methods/numMethods.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
+import 'package:http/http.dart' as http;
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/controllers/richTextController.dart';
+import 'package:juneau/common/methods/imageMethods.dart';
+import 'package:juneau/common/methods/numMethods.dart';
+import 'package:juneau/profile/profile.dart';
+import 'package:keyboard_visibility/keyboard_visibility.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 var currentUser;
 List<Widget> commentWidgets;
@@ -286,7 +286,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
   bool repliesOpened = commentRepliesOpened[id] != null ? commentRepliesOpened[id] : false;
 
   DateTime createdAt = DateTime.parse(comment['createdAt']);
-  String time = timeago.format(createdAt, locale: 'en_short');
+  String time = timeago.format(createdAt, locale: 'en_short').replaceAll(new RegExp(r'~'), '');
 
   List<String> contentSplit = comment['content'].split(' ');
   List<Widget> textChildren = [];
@@ -319,10 +319,16 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
   }
 
   EdgeInsets padding = nested
-      ? EdgeInsets.fromLTRB(50.0, 0.0, 15.0, 10.0)
-      : EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0);
+      ? EdgeInsets.fromLTRB(40.0, 5.0, 15.0, 5.0)
+      : EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 5.0);
 
   double mediaWidth = MediaQuery.of(context).size.width;
+
+  var profilePhoto;
+  String profilePhotoUrl = creator['profilePhoto'];
+  if (profilePhotoUrl != null) {
+    profilePhoto = await imageMethods.getImage(profilePhotoUrl);
+  }
 
   Widget commentContainer = Container(
     color: Theme.of(context).backgroundColor,
@@ -335,41 +341,77 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                GestureDetector(
-                    child: Text(
-                      creator['username'],
-                      style: TextStyle(
-                          fontSize: 15.0,
-                          fontWeight: FontWeight.w500,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 5.0),
+                    child: GestureDetector(
+                      child: profilePhoto != null
+                        ? Container(
+                        width: 20,
+                        height: 20,
+                        child: ClipOval(
+                          child: Image.memory(
+                            profilePhoto,
+                            fit: BoxFit.cover,
+                            width: 20.0,
+                            height: 20.0,
+                          ),
+                        ),
+                      )
+                        : CircleAvatar(
+                        radius: 10,
+                        backgroundColor: Colors.transparent,
+                        backgroundImage: AssetImage('images/profile.png'),
                       ),
+                      onTap: () {
+                        openProfile(context, creator);
+                      },
                     ),
-                    onTap: () {
-                      openProfile(context, creator);
-                    }),
-                Text(
-                  '•',
-                  style: TextStyle(
-                    fontSize: 13.0,
                   ),
-                ),
-                Text(
-                  time,
-                  style: TextStyle(
-                    fontSize: 13,
-                    wordSpacing: -3.0,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        child: Text(
+                          creator['username'],
+                          style: TextStyle(
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onTap: () {
+                          openProfile(context, creator);
+                        },
+                      ),
+                      Text(
+                        '•',
+                        style: TextStyle(
+                          fontSize: 13.0,
+                        ),
+                      ),
+                      Text(
+                        time,
+                        style: TextStyle(
+                          fontSize: 13,
+                          wordSpacing: -3.0,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ]),
-              SizedBox(
-                height: 5.0,
+                ],
               ),
-              Container(
-                width: nested ? mediaWidth - 110 : mediaWidth - 75,
-                child: Wrap(
-                  alignment: WrapAlignment.start,
-                  children: textChildren,
+              SizedBox(
+                height: 3.0,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 25.0),
+                child: Container(
+                  width: nested ? mediaWidth - 110 : mediaWidth - 75,
+                  child: Wrap(
+                    alignment: WrapAlignment.start,
+                    children: textChildren,
+                  ),
                 ),
               ),
             ],
@@ -457,7 +499,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
             ? replies.length > 0
                 ? !repliesOpened
                     ? Padding(
-                        padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 5.0),
+                        padding: const EdgeInsets.fromLTRB(40.0, 0.0, 15.0, 5.0),
                         child: GestureDetector(
                           onTap: () async {
                             if (commentReplies[id].length == 0) {
@@ -487,7 +529,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                         ),
                       )
                     : Padding(
-                        padding: const EdgeInsets.fromLTRB(50.0, 0.0, 15.0, 5.0),
+                        padding: const EdgeInsets.fromLTRB(40.0, 0.0, 15.0, 5.0),
                         child: GestureDetector(
                           onTap: () async {
                             commentRepliesOpened[id] = null;
@@ -726,7 +768,9 @@ class _BottomInputState extends State<BottomInput> {
                     child: Text(
                       'COMMENT',
                       style: TextStyle(
-                          fontSize: 15.0, color: Theme.of(context).highlightColor, fontWeight: FontWeight.w700),
+                          fontSize: 15.0,
+                          color: Theme.of(context).highlightColor,
+                          fontWeight: FontWeight.w700),
                     ))
               ],
             ),
@@ -740,8 +784,7 @@ class CommentsPage extends StatefulWidget {
   final pollId;
   final formKey;
 
-  CommentsPage({Key key, @required this.user, this.pollId, this.formKey})
-      : super(key: key);
+  CommentsPage({Key key, @required this.user, this.pollId, this.formKey}) : super(key: key);
 
   @override
   _CommentsPageState createState() => _CommentsPageState();

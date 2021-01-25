@@ -1,15 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:email_validator/email_validator.dart';
-import 'package:juneau/common/methods/validator.dart';
-
-import 'package:juneau/common/components/inputComponent.dart';
-import 'package:juneau/common/components/alertComponent.dart';
-
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:email_validator/email_validator.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/components/inputComponent.dart';
+import 'package:juneau/common/methods/validator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void login(email, password, context) async {
   email = email.trimRight();
@@ -28,7 +26,9 @@ void login(email, password, context) async {
   var response = await http.post(url, headers: headers, body: body);
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body), token = jsonResponse['token'], user = jsonResponse['user'];
+    var jsonResponse = jsonDecode(response.body),
+        token = jsonResponse['token'],
+        user = jsonResponse['user'];
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -89,41 +89,29 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/loginSelect');
-                  },
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    size: 20.0
-                  ),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/loginSelect');
+                },
+                child: Icon(Icons.arrow_back_ios, size: 20.0),
+              ),
+              Text(
+                'LOGIN',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
                 ),
-                Text(
-                  'LOGIN',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 20,
-                  ),
-                ),
-                Container()
-              ]
-            ),
+              ),
+              Container()
+            ]),
             Padding(
               padding: const EdgeInsets.only(top: 50.0, bottom: 10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'ENTER EMAIL / USERNAME AND PASSWORD',
-                    style: TextStyle(
-                      fontSize: 15.0,
-                      fontWeight: FontWeight.bold
-                    )
-                  ),
+                  Text('ENTER EMAIL / USERNAME AND PASSWORD',
+                      style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold)),
                   Padding(
                     padding: const EdgeInsets.only(top: 15.0, bottom: 10.0),
                     child: emailInput,
@@ -139,13 +127,9 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.only(bottom: 30.0),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  'Trouble logging in?',
-                  style: TextStyle(
-                    color: Theme.of(context).accentColor,
-                    fontWeight: FontWeight.w500
-                  )
-                ),
+                child: Text('Trouble logging in?',
+                    style: TextStyle(
+                        color: Theme.of(context).accentColor, fontWeight: FontWeight.w500)),
               ),
             ),
             FlatButton(
@@ -174,9 +158,9 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Theme.of(context).accentColor, width: 1, style: BorderStyle.solid),
-                borderRadius: BorderRadius.circular(50)),
+                  side: BorderSide(
+                      color: Theme.of(context).accentColor, width: 1, style: BorderStyle.solid),
+                  borderRadius: BorderRadius.circular(50)),
             ),
           ],
         ),

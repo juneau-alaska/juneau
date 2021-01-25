@@ -5,7 +5,7 @@ class TransparentRoute extends PageRoute<void> {
     @required this.builder,
     RouteSettings settings,
   })  : assert(builder != null),
-      super(settings: settings, fullscreenDialog: false);
+        super(settings: settings, fullscreenDialog: false);
 
   final WidgetBuilder builder;
 
@@ -26,7 +26,7 @@ class TransparentRoute extends PageRoute<void> {
 
   @override
   Widget buildPage(
-    BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+      BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
     final result = builder(context);
     return FadeTransition(
       opacity: Tween<double>(begin: 0, end: 1).animate(animation),

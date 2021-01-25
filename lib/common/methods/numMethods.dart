@@ -7,21 +7,17 @@ class NumberMethods {
 
     if (n < 1000) {
       return n.toString();
-
     } else if (n < 1000000) {
-      divN = (n/1000).toString();
+      divN = (n / 1000).toString();
       sym = 'K';
-
     } else if (n > 999999 && n < 1000000000) {
-      divN = (n/1000000).toString();
+      divN = (n / 1000000).toString();
       sym = 'M';
-
     } else if (n < 1000000000000) {
-      divN = (n/1000000000).toString();
+      divN = (n / 1000000000).toString();
       sym = 'B';
-
     } else if (n < 1000000000000000) {
-      divN = (n/1000000000000).toString();
+      divN = (n / 1000000000000).toString();
       sym = 'T';
     }
 

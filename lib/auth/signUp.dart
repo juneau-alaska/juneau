@@ -1,16 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:juneau/common/components/inputComponent.dart';
-import 'package:juneau/common/components/alertComponent.dart';
-
-import 'package:email_validator/email_validator.dart';
-import 'package:juneau/common/methods/validator.dart';
-
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:email_validator/email_validator.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/components/inputComponent.dart';
+import 'package:juneau/common/methods/validator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void signUp(email, username, password, context) async {
   const url = 'http://localhost:4000/signUp';
@@ -20,7 +18,9 @@ void signUp(email, username, password, context) async {
   var response = await http.post(url, headers: headers, body: body);
 
   if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body), token = jsonResponse['token'], user = jsonResponse['user'];
+    var jsonResponse = jsonDecode(response.body),
+        token = jsonResponse['token'],
+        user = jsonResponse['user'];
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -69,13 +69,16 @@ class _SignUpPageState extends State<SignUpPage> {
 
     usernameInput = new InputComponent(
       hintText: 'Username',
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(new RegExp("[0-9A-Za-z_.]"))
-      ],
+      maxLength: 30,
+      inputFormatters: [FilteringTextInputFormatter.allow(new RegExp("[0-9A-Za-z_.]"))],
     );
     usernameController = usernameInput.controller;
 
-    passwordInput = new InputComponent(hintText: 'Password', obscureText: true);
+    passwordInput = new InputComponent(
+      hintText: 'Password',
+      obscureText: true,
+      maxLength: 40,
+    );
     passwordController = passwordInput.controller;
     super.initState();
   }
@@ -90,7 +93,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-
     List<Widget> currentStepWidgets = [];
 
     if (currentStep == 'email') {
@@ -100,13 +102,8 @@ class _SignUpPageState extends State<SignUpPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'ENTER A VALID EMAIL ADDRESS',
-                style: TextStyle(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.bold
-                )
-              ),
+              Text('ENTER A VALID EMAIL ADDRESS',
+                  style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold)),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, bottom: 25.0),
                 child: emailInput,
@@ -138,9 +135,9 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
           ),
           shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: Theme.of(context).buttonColor, width: 1, style: BorderStyle.solid),
-            borderRadius: BorderRadius.circular(50)),
+              side: BorderSide(
+                  color: Theme.of(context).buttonColor, width: 1, style: BorderStyle.solid),
+              borderRadius: BorderRadius.circular(50)),
         )
       ];
     }
@@ -152,13 +149,8 @@ class _SignUpPageState extends State<SignUpPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'CREATE A PASSWORD',
-                style: TextStyle(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.bold
-                )
-              ),
+              Text('CREATE A PASSWORD',
+                  style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold)),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, bottom: 25.0),
                 child: passwordInput,
@@ -192,9 +184,9 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
           ),
           shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: Theme.of(context).buttonColor, width: 1, style: BorderStyle.solid),
-            borderRadius: BorderRadius.circular(50)),
+              side: BorderSide(
+                  color: Theme.of(context).buttonColor, width: 1, style: BorderStyle.solid),
+              borderRadius: BorderRadius.circular(50)),
         )
       ];
     }
@@ -206,13 +198,8 @@ class _SignUpPageState extends State<SignUpPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'CREATE A USERNAME',
-                style: TextStyle(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.bold
-                )
-              ),
+              Text('CREATE A USERNAME',
+                  style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold)),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, bottom: 25.0),
                 child: usernameInput,
@@ -242,9 +229,9 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
           ),
           shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: Theme.of(context).accentColor, width: 1, style: BorderStyle.solid),
-            borderRadius: BorderRadius.circular(50)),
+              side: BorderSide(
+                  color: Theme.of(context).accentColor, width: 1, style: BorderStyle.solid),
+              borderRadius: BorderRadius.circular(50)),
         )
       ];
     }
@@ -257,42 +244,33 @@ class _SignUpPageState extends State<SignUpPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    if (currentStep == 'email') {
-                      Navigator.pushNamed(context, '/signUpSelect');
-                    } else if (currentStep == 'password') {
-                      setState(() {
-                        currentStep = 'email';
-                      });
-                    } else if (currentStep == 'username') {
-                      setState(() {
-                        currentStep = 'password';
-                      });
-                    }
-                  },
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    size: 20.0
-                  ),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              GestureDetector(
+                onTap: () {
+                  if (currentStep == 'email') {
+                    Navigator.pushNamed(context, '/signUpSelect');
+                  } else if (currentStep == 'password') {
+                    setState(() {
+                      currentStep = 'email';
+                    });
+                  } else if (currentStep == 'username') {
+                    setState(() {
+                      currentStep = 'password';
+                    });
+                  }
+                },
+                child: Icon(Icons.arrow_back_ios, size: 20.0),
+              ),
+              Text(
+                'SIGN UP',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
                 ),
-                Text(
-                  'SIGN UP',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 20,
-                  ),
-                ),
-                Container()
-              ]
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: currentStepWidgets
-            ),
+              ),
+              Container()
+            ]),
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: currentStepWidgets),
           ],
         ),
       ),

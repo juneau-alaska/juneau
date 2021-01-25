@@ -1,18 +1,17 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
-
-import 'package:juneau/common/components/pageRoutes.dart';
-import 'package:juneau/poll/poll.dart';
-import 'package:juneau/comment/commentsPage.dart';
-import 'package:juneau/common/components/keepAlivePage.dart';
-import 'package:juneau/common/components/alertComponent.dart';
-
-import 'package:http/http.dart' as http;
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:juneau/comment/commentsPage.dart';
+import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/components/keepAlivePage.dart';
+import 'package:juneau/common/components/pageRoutes.dart';
+import 'package:juneau/poll/poll.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 var user;
 var parentController;
@@ -77,9 +76,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
           ),
           shape: RoundedRectangleBorder(
               side: BorderSide(
-                  color: Theme.of(context).buttonColor,
-                  width: 0.5,
-                  style: BorderStyle.solid),
+                  color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
               borderRadius: BorderRadius.circular(20)),
         ),
       ),
@@ -106,47 +103,45 @@ class _CategoryTabsState extends State<CategoryTabs> {
           ),
           shape: RoundedRectangleBorder(
               side: BorderSide(
-                  color: Theme.of(context).buttonColor,
-                  width: 0.5,
-                  style: BorderStyle.solid),
+                  color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
               borderRadius: BorderRadius.circular(20)),
         ),
       ),
     ];
 
-    for (var i = 0; i < followingCategories.length; i++) {
-      String category = followingCategories[i];
-      categoryTabs.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 3.0),
-          child: RawMaterialButton(
-            onPressed: () {
-              categoryStreamController.add(category);
-            },
-            constraints: BoxConstraints(),
-            padding: EdgeInsets.symmetric(horizontal: 18.0),
-            fillColor: currentCategory == category
-                ? Theme.of(context).buttonColor
-                : Theme.of(context).backgroundColor,
-            elevation: 0.0,
-            child: Text(
-              category,
-              style: TextStyle(
-                color: currentCategory == category
-                    ? Theme.of(context).backgroundColor
-                    : Theme.of(context).buttonColor,
-                fontWeight: FontWeight.w500,
+    if (followingCategories != null) {
+      for (var i = 0; i < followingCategories.length; i++) {
+        String category = followingCategories[i];
+        categoryTabs.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 3.0),
+            child: RawMaterialButton(
+              onPressed: () {
+                categoryStreamController.add(category);
+              },
+              constraints: BoxConstraints(),
+              padding: EdgeInsets.symmetric(horizontal: 18.0),
+              fillColor: currentCategory == category
+                  ? Theme.of(context).buttonColor
+                  : Theme.of(context).backgroundColor,
+              elevation: 0.0,
+              child: Text(
+                category,
+                style: TextStyle(
+                  color: currentCategory == category
+                      ? Theme.of(context).backgroundColor
+                      : Theme.of(context).buttonColor,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
+              shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                      color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
+                  borderRadius: BorderRadius.circular(20)),
             ),
-            shape: RoundedRectangleBorder(
-                side: BorderSide(
-                    color: Theme.of(context).buttonColor,
-                    width: 0.5,
-                    style: BorderStyle.solid),
-                borderRadius: BorderRadius.circular(20)),
           ),
-        ),
-      );
+        );
+      }
     }
 
     return Padding(
@@ -269,14 +264,14 @@ class _HomePageState extends State<HomePage> {
     parentController.add({'dataType': 'user', 'data': user});
   }
 
-  void _onRefresh() async {
+  Future<void> _onRefresh() async {
     preventReload = false;
     prevId = null;
     await _fetchData();
     refreshController.refreshCompleted();
   }
 
-  void _onLoading() async {
+  Future<void> _onLoading() async {
     preventReload = false;
     var nextPolls = await getPolls();
     if (nextPolls != null && nextPolls.length > 0) {
@@ -321,29 +316,15 @@ class _HomePageState extends State<HomePage> {
               viewPoll: viewPoll,
               index: i,
               updatedUserModel: updatedUserModel,
-              parentController: parentController),
+              parentController: parentController,
+          ),
         ),
       );
     }
 
-    return Flexible(
-      child: KeepAlivePage(
-        child: SmartRefresher(
-          enablePullDown: true,
-          enablePullUp: true,
-          header: ClassicHeader(),
-          footer: ClassicFooter(
-            loadStyle: LoadStyle.ShowWhenLoading,
-          ),
-          controller: refreshController,
-          onRefresh: _onRefresh,
-          onLoading: _onLoading,
-          child: ListView(
-            physics: ClampingScrollPhysics(),
-            children: pollsList,
-          ),
-        ),
-      ),
+    return ListView(
+      physics: ClampingScrollPhysics(),
+      children: pollsList,
     );
   }
 
@@ -367,15 +348,31 @@ class _HomePageState extends State<HomePage> {
     return Column(
       children: [
         categoryTabs,
-        polls.length > 0
-            ? listViewBuilder
-            : Padding(
+
+        Flexible(
+          child: KeepAlivePage(
+            child: SmartRefresher(
+              enablePullDown: true,
+              enablePullUp: true,
+              header: ClassicHeader(),
+              footer: ClassicFooter(
+                loadStyle: LoadStyle.ShowWhenLoading,
+              ),
+              controller: refreshController,
+              onRefresh: _onRefresh,
+              onLoading: _onLoading,
+              child: polls.length > 0
+                ? listViewBuilder
+                : Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Container(
                   height: MediaQuery.of(context).size.height / 1.4,
                   child: Center(child: Text('No polls found')),
                 ),
               ),
+            ),
+          ),
+        ),
       ],
     );
   }

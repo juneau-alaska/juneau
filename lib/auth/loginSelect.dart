@@ -9,17 +9,15 @@ class _LoginSelectPageState extends State<LoginSelectPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 80.0, horizontal: 30.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+        backgroundColor: Theme.of(context).backgroundColor,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 80.0, horizontal: 30.0),
+          child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Container(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 50.0),
-                child: Text('Login',
-                  style: TextStyle(fontSize: 45.0, fontWeight: FontWeight.bold)))),
+                child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 50.0),
+                    child: Text('Login',
+                        style: TextStyle(fontSize: 45.0, fontWeight: FontWeight.bold)))),
             Column(children: [
               FlatButton(
                 onPressed: () {
@@ -39,9 +37,9 @@ class _LoginSelectPageState extends State<LoginSelectPage> {
                   ),
                 ),
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    color: Theme.of(context).hintColor, width: 1, style: BorderStyle.solid),
-                  borderRadius: BorderRadius.circular(50)),
+                    side: BorderSide(
+                        color: Theme.of(context).hintColor, width: 1, style: BorderStyle.solid),
+                    borderRadius: BorderRadius.circular(50)),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(30.0, 50.0, 30.0, 10.0),
@@ -57,6 +55,6 @@ class _LoginSelectPageState extends State<LoginSelectPage> {
               )
             ])
           ]),
-      ));
+        ));
   }
 }
