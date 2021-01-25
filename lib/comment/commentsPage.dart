@@ -319,8 +319,8 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
   }
 
   EdgeInsets padding = nested
-      ? EdgeInsets.fromLTRB(50.0, 0.0, 15.0, 10.0)
-      : EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0);
+      ? EdgeInsets.fromLTRB(40.0, 5.0, 15.0, 5.0)
+      : EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 5.0);
 
   double mediaWidth = MediaQuery.of(context).size.width;
 
@@ -402,13 +402,16 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                 ],
               ),
               SizedBox(
-                height: 5.0,
+                height: 3.0,
               ),
-              Container(
-                width: nested ? mediaWidth - 110 : mediaWidth - 75,
-                child: Wrap(
-                  alignment: WrapAlignment.start,
-                  children: textChildren,
+              Padding(
+                padding: const EdgeInsets.only(left: 25.0),
+                child: Container(
+                  width: nested ? mediaWidth - 110 : mediaWidth - 75,
+                  child: Wrap(
+                    alignment: WrapAlignment.start,
+                    children: textChildren,
+                  ),
                 ),
               ),
             ],
@@ -496,7 +499,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
             ? replies.length > 0
                 ? !repliesOpened
                     ? Padding(
-                        padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 5.0),
+                        padding: const EdgeInsets.fromLTRB(40.0, 0.0, 15.0, 5.0),
                         child: GestureDetector(
                           onTap: () async {
                             if (commentReplies[id].length == 0) {
@@ -526,7 +529,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                         ),
                       )
                     : Padding(
-                        padding: const EdgeInsets.fromLTRB(50.0, 0.0, 15.0, 5.0),
+                        padding: const EdgeInsets.fromLTRB(40.0, 0.0, 15.0, 5.0),
                         child: GestureDetector(
                           onTap: () async {
                             commentRepliesOpened[id] = null;
