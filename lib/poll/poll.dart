@@ -544,6 +544,7 @@ class _PollWidgetState extends State<PollWidget> {
   bool saved = false;
   bool liked = false;
   bool warning = false;
+  bool profileFetched = false;
 
   Future<List> getImages(List options, imageBytes) async {
     if (images == null) {
@@ -621,6 +622,7 @@ class _PollWidgetState extends State<PollWidget> {
       if (profilePhoto == null && profilePhotoUrl != null) {
         profilePhoto = await imageMethods.getImage(profilePhotoUrl);
       }
+      bool profileFetched = true;
 
       if (options == null) {
         _getOptions(poll).then((pollOptions) {
@@ -932,7 +934,7 @@ class _PollWidgetState extends State<PollWidget> {
                                     : CircleAvatar(
                                     radius: 13,
                                     backgroundColor: Colors.transparent,
-                                    backgroundImage: AssetImage('images/profile.png'),
+                                    backgroundImage: profileFetched ? AssetImage('images/profile.png') : null,
                                   ),
                                   onTap: () {
                                     openProfile(context, pollCreator, user: user);

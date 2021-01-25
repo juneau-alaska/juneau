@@ -5,10 +5,15 @@ import 'dart:io';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:http/http.dart' as http;
 import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/methods/imageMethods.dart';
+import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/methods/validator.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfileModal extends StatefulWidget {
@@ -21,8 +26,11 @@ class EditProfileModal extends StatefulWidget {
 }
 
 class _EditProfileModalState extends State<EditProfileModal> {
-  var user;
   BuildContext editProfileContext;
+
+  var user;
+  var profilePhoto;
+  String profilePhotoUrl;
 
   InputComponent usernameInput;
   TextEditingController usernameController;
@@ -35,6 +43,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
 
   bool _isEmailValid = false;
   bool _isUsernameValid = false;
+  bool profileFetched = false;
 
   Future updateUserInfo(updatedInfo) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -85,6 +94,17 @@ class _EditProfileModalState extends State<EditProfileModal> {
     descriptionController = descriptionInput.controller;
     descriptionController.text = user['description'];
 
+    profilePhotoUrl = user['profilePhoto'];
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (profilePhoto == null && profilePhotoUrl != null) {
+        profilePhoto = await imageMethods.getImage(profilePhotoUrl);
+      }
+      profileFetched = true;
+
+      setState(() {});
+    });
+
     super.initState();
   }
 
@@ -120,11 +140,113 @@ class _EditProfileModalState extends State<EditProfileModal> {
           ),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                child: Center(
+                  child: Column(
+                    children: [
+                      profilePhoto != null
+                        ? Container(
+                        width: 80,
+                        height: 80,
+                        child: ClipOval(
+                          child: Image.memory(
+                            profilePhoto,
+                            fit: BoxFit.cover,
+                            width: 80.0,
+                            height: 80.0,
+                          ),
+                        ),
+                      )
+                        : CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Colors.transparent,
+                        backgroundImage: profileFetched ? AssetImage('images/profile.png') : null,
+                      ),
+                      SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () async {
+                          // OPEN MULTI SELECT
+                          List selectedImages = await MultiImagePicker.pickImages(
+                            maxImages: 1,
+                            enableCamera: true,
+                            selectedAssets: [],
+                          );
+
+                          var selectedImage = selectedImages[0];
+
+                          // CREATE URLS
+                          String path = await FlutterAbsolutePath.getAbsolutePath(
+                            selectedImage.identifier);
+
+                          final file = File(path);
+                          if (!file.existsSync()) {
+                            file.createSync(recursive: true);
+                          }
+
+                          String fileExtension = p.extension(file.path);
+                          var imageUrl = await imageMethods
+                            .getImageUrl(fileExtension, 'user-profile')
+                            .catchError((err) {
+                            showAlert(context, 'Something went wrong, please try again');
+                          });
+
+                          // UPLOAD IMAGE
+                          if (imageUrl != null) {
+                            String uploadUrl = imageUrl['uploadUrl'];
+                            String downloadUrl = imageUrl['downloadUrl'];
+
+                            await imageMethods
+                              .uploadFile(uploadUrl, selectedImage)
+                              .then((result) async {
+                              String prevUrl = profilePhotoUrl;
+                              // SAVE LINK TO USER
+                              var updatedUser =
+                              await userMethods.updateUser(user['_id'], {
+                                'profilePhoto': downloadUrl,
+                              });
+
+                              if (updatedUser == null) {
+                                showAlert(
+                                  context, 'Something went wrong, please try again');
+                                return;
+                              }
+
+                              // DELETE PREVIOUS IMAGE
+                              if (prevUrl != null && prevUrl != '') {
+                                imageMethods.deleteFile(prevUrl, 'user-profile');
+                                user = updatedUser;
+                                profilePhotoUrl = updatedUser['profilePhoto'];
+                              }
+                            }).catchError((err) {
+                              showAlert(
+                                context, 'Something went wrong, please try again');
+                            });
+                          }
+
+                          // SHOW NEW PROFILE IMAGE
+                          setState(() {
+                            showAlert(editProfileContext, 'Successfully saved profile photo', true);
+                          });
+                        },
+                        child: Text(
+                          'Change Profile Photo',
+                          style: TextStyle(
+                            color: Theme.of(context).highlightColor,
+                            fontWeight: FontWeight.w500
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 18),
               Text(
                 'USERNAME',
                 style: TextStyle(
@@ -151,6 +273,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
                 ),
               ),
               descriptionInput,
+              SizedBox(height: 13),
               RawMaterialButton(
                 onPressed: () async {
                   if (user == null) {

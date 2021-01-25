@@ -40,7 +40,7 @@ class _InputComponentState extends State<InputComponent> {
   @override
   Widget build(BuildContext context) {
     EdgeInsets contentPadding = widget.contentPadding == null
-        ? EdgeInsets.symmetric(vertical: 15.0, horizontal: 0.0)
+        ? EdgeInsets.symmetric(vertical: 12.0, horizontal: 0.0)
         : widget.contentPadding;
     int maxLines = widget.maxLines == null ? 1 : widget.maxLines;
     double fontSize = widget.fontSize == null ? 15.0 : widget.fontSize;
