@@ -83,6 +83,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final PageController _pageController = PageController();
   final StreamController _navController = StreamController();
+  final StreamController _profileController = StreamController();
 
   @override
   void initState() {
@@ -98,8 +99,8 @@ class _MainScaffoldState extends State<MainScaffold> {
       }
 
       homePage = HomePage(user: user);
-      profilePage = ProfilePage(profileUser: user, profilePhoto: profilePhoto);
-      navBar = NavBar(navigatorKey: _navigatorKey, navController: _navController, profilePhoto: profilePhoto);
+      profilePage = ProfilePage(profileUser: user, profilePhoto: profilePhoto, profileController: _profileController);
+      navBar = NavBar(navigatorKey: _navigatorKey, navController: _navController, profilePhoto: profilePhoto, profileController: _profileController);
       appBar = ApplicationBar(height: 0.0);
 
       _navController.stream.listen((index) async {
@@ -116,6 +117,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   void dispose() {
     _pageController.dispose();
     _navController.close();
+    _profileController.close();
     super.dispose();
   }
 

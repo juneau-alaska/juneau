@@ -1,26 +1,24 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-import 'dart:math' as math;
-import 'dart:ui';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-
-import 'package:juneau/poll/pollMenu.dart';
-import 'package:juneau/common/colors.dart';
-import 'package:juneau/common/components/pageRoutes.dart';
-import 'package:juneau/common/components/alertComponent.dart';
-import 'package:juneau/common/methods/imageMethods.dart';
-import 'package:juneau/common/methods/userMethods.dart';
-import 'package:juneau/common/methods/numMethods.dart';
-import 'package:juneau/profile/profile.dart';
+import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:dots_indicator/dots_indicator.dart';
-import 'package:timeago/timeago.dart' as timeago;
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:juneau/common/colors.dart';
+import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/components/pageRoutes.dart';
+import 'package:juneau/common/methods/imageMethods.dart';
+import 'package:juneau/common/methods/numMethods.dart';
+import 'package:juneau/common/methods/userMethods.dart';
+import 'package:juneau/poll/pollMenu.dart';
+import 'package:juneau/profile/profile.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class PositionalDots extends StatefulWidget {
   final pageController;
@@ -177,16 +175,15 @@ class ImageCarousel extends StatefulWidget {
   final completed;
   final getImages;
 
-  ImageCarousel(
-      {Key key,
-      @required this.options,
-      this.selectedOption,
-      this.vote,
-      this.isCreator,
-      this.completed,
-      this.getImages,
-      })
-      : super(key: key);
+  ImageCarousel({
+    Key key,
+    @required this.options,
+    this.selectedOption,
+    this.vote,
+    this.isCreator,
+    this.completed,
+    this.getImages,
+  }) : super(key: key);
 
   @override
   _ImageCarouselState createState() => _ImageCarouselState();
@@ -770,13 +767,9 @@ class _PollWidgetState extends State<PollWidget> {
     List keys = [];
 
     for (var i = 0; i < options.length; i++) {
-      var url = options[i]['content'],
-          split = url.split('/'),
-          key = split[split.length - 1];
+      var url = options[i]['content'], split = url.split('/'), key = split[split.length - 1];
 
-      keys.add({
-        'Key': key
-      });
+      keys.add({'Key': key});
     }
 
     var body = jsonEncode({'optionsList': options});
@@ -887,12 +880,12 @@ class _PollWidgetState extends State<PollWidget> {
     }
 
     ImageCarousel imageCarousel = new ImageCarousel(
-        options: options,
-        selectedOption: selectedOption,
-        vote: vote,
-        isCreator: isCreator,
-        completed: completed,
-        getImages: getImages,
+      options: options,
+      selectedOption: selectedOption,
+      vote: vote,
+      isCreator: isCreator,
+      completed: completed,
+      getImages: getImages,
     );
 
     return Container(
@@ -900,117 +893,124 @@ class _PollWidgetState extends State<PollWidget> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: screenWidth / 1.5,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Row(children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 5.0),
-                                child: GestureDetector(
-                                  child: profilePhoto != null
-                                    ? Container(
-                                    width: 26,
-                                    height: 26,
-                                    child: ClipOval(
-                                      child: Image.memory(
-                                        profilePhoto,
-                                        fit: BoxFit.cover,
-                                        width: 26.0,
-                                        height: 26.0,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: screenWidth / 1.5,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              Row(children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 5.0),
+                                  child: GestureDetector(
+                                    child: profilePhoto != null
+                                        ? Container(
+                                            width: 26,
+                                            height: 26,
+                                            child: ClipOval(
+                                              child: Image.memory(
+                                                profilePhoto,
+                                                fit: BoxFit.cover,
+                                                width: 26.0,
+                                                height: 26.0,
+                                              ),
+                                            ),
+                                          )
+                                        : CircleAvatar(
+                                            radius: 13,
+                                            backgroundColor: Colors.transparent,
+                                            backgroundImage: profileFetched
+                                                ? AssetImage('images/profile.png')
+                                                : null,
+                                          ),
+                                    onTap: () {
+                                      openProfile(context, pollCreator, user: user);
+                                    },
+                                  ),
+                                ),
+                                GestureDetector(
+                                    child: Text(
+                                      pollCreator['username'],
+                                      style: TextStyle(
+                                        fontSize: 15.0,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                  )
-                                    : CircleAvatar(
-                                    radius: 13,
-                                    backgroundColor: Colors.transparent,
-                                    backgroundImage: profileFetched ? AssetImage('images/profile.png') : null,
-                                  ),
-                                  onTap: () {
-                                    openProfile(context, pollCreator, user: user);
-                                  },
-                                ),
-                              ),
-                              GestureDetector(
-                                  child: Text(
-                                    pollCreator['username'],
-                                    style: TextStyle(
-                                      fontSize: 15.0,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    openProfile(context, pollCreator, user: user);
-                                  }),
-                              Text(
-                                '•',
-                                style: TextStyle(
-                                  fontSize: 13.0,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 1.5),
-                                child: Text(
-                                  time,
+                                    onTap: () {
+                                      openProfile(context, pollCreator, user: user);
+                                    }),
+                                Text(
+                                  '•',
                                   style: TextStyle(
                                     fontSize: 13.0,
-                                    wordSpacing: -3.0,
                                   ),
                                 ),
-                              ),
-                            ]),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  user['_id'] == pollCreator['_id']
-                      ? GestureDetector(
-                          onTap: () async {
-                            bool isCreator = user['_id'] == pollCreator['_id'];
-                            String action = await showModalBottomSheet(
-                                backgroundColor: Colors.transparent,
-                                context: context,
-                                builder: (BuildContext context) => PollMenu(isCreator: isCreator));
-                            handleAction(action);
-                          },
-                          child: Icon(
-                            Icons.more_horiz,
-                            size: 20,
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 1.5),
+                                  child: Text(
+                                    time,
+                                    style: TextStyle(
+                                      fontSize: 13.0,
+                                      wordSpacing: -3.0,
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                            ],
                           ),
-                        )
-                      : Container(),
-                ],
-              ),
-              prompt.trim() != ''
-                  ? Padding(
-                      padding: const EdgeInsets.only(top: 5.0),
-                      child: Text(
-                        prompt,
-                        style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                      ),
-                    )
-                  : SizedBox(height: 3.0),
-              Padding(
-                padding: const EdgeInsets.only(top: 5.0),
-                child: CategoryButton(
+                        ),
+                      ],
+                    ),
+                    user['_id'] == pollCreator['_id']
+                        ? GestureDetector(
+                            onTap: () async {
+                              bool isCreator = user['_id'] == pollCreator['_id'];
+                              String action = await showModalBottomSheet(
+                                  backgroundColor: Colors.transparent,
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      PollMenu(isCreator: isCreator));
+                              handleAction(action);
+                            },
+                            child: Icon(
+                              Icons.more_horiz,
+                              size: 20,
+                            ),
+                          )
+                        : Container(),
+                  ],
+                ),
+                prompt.trim() != ''
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 5.0),
+                        child: Text(
+                          prompt,
+                          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    : SizedBox(height: 3.0),
+                Padding(
+                  padding: const EdgeInsets.only(top: 5.0),
+                  child: CategoryButton(
                     followingCategories: followingCategories,
                     pollCategory: pollCategory,
                     warning: warning,
                     parentController: widget.parentController,
-                    updatedUserModel: widget.updatedUserModel),
-              ),
-            ]),
+                    updatedUserModel: widget.updatedUserModel,
+                  ),
+                ),
+              ],
+            ),
           ),
           Container(
             height: screenHeight + 35,
@@ -1084,6 +1084,7 @@ class _PollWidgetState extends State<PollWidget> {
               ],
             ),
           ),
+          SizedBox(height: 10),
         ],
       ),
     );

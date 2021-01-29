@@ -172,12 +172,14 @@ class ProfilePage extends StatefulWidget {
   final profileUser;
   final user;
   final profilePhoto;
+  final profileController;
 
   ProfilePage({
     Key key,
     @required this.profileUser,
     this.user,
     this.profilePhoto,
+    this.profileController,
   }) : super(key: key);
 
   @override
@@ -514,6 +516,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                   setState(() {
                                     if (update != null) {
                                       profileUser = update['user'];
+                                      profilePhoto = update['profilePhoto'];
+                                      widget.profileController.add(profilePhoto);
                                     }
                                   });
                                 },

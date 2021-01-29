@@ -6,12 +6,14 @@ class NavBar extends StatefulWidget {
   final navigatorKey;
   final navController;
   final profilePhoto;
+  final profileController;
 
   NavBar({
     Key key,
     @required this.navigatorKey,
     this.navController,
     this.profilePhoto,
+    this.profileController,
   }) : super(key: key);
 
   @override
@@ -26,6 +28,12 @@ class _NavBarState extends State<NavBar> {
   @override
   void initState() {
     profilePhoto = widget.profilePhoto;
+
+    widget.profileController.stream.listen((updatedProfilePhoto) {
+      profilePhoto = updatedProfilePhoto;
+      setState(() {});
+    });
+
     super.initState();
   }
 
