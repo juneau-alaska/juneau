@@ -490,14 +490,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   profileUser['description'] != null
                       ? Padding(
-                          padding: const EdgeInsets.only(top: 15.0),
+                          padding: const EdgeInsets.only(top: 5.0),
                           child: Text(
                             profileUser['description'],
                           ),
                         )
                       : Container(),
                   Padding(
-                    padding: const EdgeInsets.only(top: 5.0, bottom: 7.0),
+                    padding: const EdgeInsets.only(top: 3.0, bottom: 8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: isUser != null && isUser

@@ -461,7 +461,6 @@ class _CategoryButtonState extends State<CategoryButton> {
     var pollCategory = widget.pollCategory;
 
     return Container(
-      height: 30,
       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 20),
       decoration: new BoxDecoration(
         color: followingCategories.contains(pollCategory)
@@ -483,7 +482,7 @@ class _CategoryButtonState extends State<CategoryButton> {
           streamController.add(pollCategory);
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
           child: Text(
             pollCategory,
             overflow: TextOverflow.ellipsis,
@@ -619,7 +618,7 @@ class _PollWidgetState extends State<PollWidget> {
       if (profilePhoto == null && profilePhotoUrl != null) {
         profilePhoto = await imageMethods.getImage(profilePhotoUrl);
       }
-      bool profileFetched = true;
+      profileFetched = true;
 
       if (options == null) {
         _getOptions(poll).then((pollOptions) {
@@ -992,7 +991,7 @@ class _PollWidgetState extends State<PollWidget> {
                 ),
                 prompt.trim() != ''
                     ? Padding(
-                        padding: const EdgeInsets.only(top: 5.0),
+                        padding: const EdgeInsets.only(top: 10.0),
                         child: Text(
                           prompt,
                           style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),

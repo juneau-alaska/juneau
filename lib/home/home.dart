@@ -24,11 +24,14 @@ class CategoryTabs extends StatefulWidget {
 }
 
 class _CategoryTabsState extends State<CategoryTabs> {
-  List followingCategories = user['followingCategories'];
+  List<String> followingCategories;
   List<Widget> categoryTabs;
 
   @override
   void initState() {
+    followingCategories = List<String>.from(user['followingCategories']);
+    followingCategories.sort();
+
     parentController.stream.asBroadcastStream().listen((options) {
       String dataType = options['dataType'];
 
@@ -36,7 +39,8 @@ class _CategoryTabsState extends State<CategoryTabs> {
         var newUser = options['data'];
         if (mounted)
           setState(() {
-            followingCategories = newUser['followingCategories'];
+            followingCategories = List<String>.from(newUser['followingCategories']);
+            followingCategories.sort();
           });
       }
     });

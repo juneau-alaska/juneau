@@ -12,7 +12,7 @@ class RichTextController extends TextEditingController {
   RichTextController(this.patternMap) : assert(patternMap != null);
 
   @override
-  TextSpan buildTextSpan({TextStyle style, bool withComposing}) {
+  TextSpan buildTextSpan({BuildContext context, TextStyle style, bool withComposing}) {
     List<TextSpan> children = [];
     RegExp allRegex;
     allRegex = RegExp(patternMap.keys.map((e) => e.pattern).join('|'));

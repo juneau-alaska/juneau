@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 import 'package:http/http.dart' as http;
+import 'package:juneau/common/colors.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/controllers/richTextController.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
@@ -341,29 +342,29 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(right: 5.0),
                     child: GestureDetector(
                       child: profilePhoto != null
-                        ? Container(
-                        width: 20,
-                        height: 20,
-                        child: ClipOval(
-                          child: Image.memory(
-                            profilePhoto,
-                            fit: BoxFit.cover,
-                            width: 20.0,
-                            height: 20.0,
-                          ),
-                        ),
-                      )
-                        : CircleAvatar(
-                        radius: 10,
-                        backgroundColor: Colors.transparent,
-                        backgroundImage: AssetImage('images/profile.png'),
-                      ),
+                          ? Container(
+                              width: 19,
+                              height: 19,
+                              child: ClipOval(
+                                child: Image.memory(
+                                  profilePhoto,
+                                  fit: BoxFit.cover,
+                                  width: 19.0,
+                                  height: 19.0,
+                                ),
+                              ),
+                            )
+                          : CircleAvatar(
+                              radius: 9.5,
+                              backgroundColor: Colors.transparent,
+                              backgroundImage: AssetImage('images/profile.png'),
+                            ),
                       onTap: () {
                         openProfile(context, creator);
                       },
@@ -502,15 +503,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                         padding: const EdgeInsets.fromLTRB(40.0, 0.0, 15.0, 5.0),
                         child: GestureDetector(
                           onTap: () async {
-                            if (commentReplies[id].length == 0) {
-                              List fetchedReplies = await fetchComments(id, context);
-                              commentReplies[id] = fetchedReplies;
-                              List fetchedReplyWidgets =
-                                  await buildComments(fetchedReplies, context, isReply: true);
-                              commentReplyWidgets[id] = replyWidgets + fetchedReplyWidgets;
-                            }
-                            commentRepliesOpened[id] = true;
-                            rebuildStreamController.add({'list': commentList});
+                            openReplies(id, context);
                           },
                           child: Row(
                             children: [
@@ -556,6 +549,17 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
       ],
     ),
   );
+}
+
+void openReplies(String id, context) async {
+  if (commentReplies[id].length == 0) {
+    List fetchedReplies = await fetchComments(id, context);
+    commentReplies[id] = fetchedReplies;
+    List fetchedReplyWidgets = await buildComments(fetchedReplies, context, isReply: true);
+    commentReplyWidgets[id] = commentReplyWidgets[id] + fetchedReplyWidgets;
+  }
+  commentRepliesOpened[id] = true;
+  rebuildStreamController.add({'list': commentList});
 }
 
 class CommentsWidget extends StatefulWidget {
@@ -622,12 +626,12 @@ class _CommentsWidgetState extends State<CommentsWidget> {
                   : [
                       Center(
                         child: Text(
-                            commentList.length == 0 ? 'No comments' : 'Failed to retrieve comments',
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.w300,
-                              color: Theme.of(context).hintColor,
-                            )),
+                          commentList.length == 0 ? 'No comments' : 'Failed to retrieve comments',
+                          style: TextStyle(
+                            fontSize: 15.0,
+                            color: Theme.of(context).hintColor,
+                          ),
+                        ),
                       ),
                     ],
             ),
@@ -635,7 +639,10 @@ class _CommentsWidgetState extends State<CommentsWidget> {
         : Container(
             height: 100.0,
             width: MediaQuery.of(context).size.width,
-            child: Center(child: CircularProgressIndicator()));
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
   }
 }
 
@@ -646,13 +653,14 @@ class BottomInput extends StatefulWidget {
 
 class _BottomInputState extends State<BottomInput> {
   RichTextController inputController = RichTextController({
-    RegExp(r"\B@[a-zA-Z0-9]+\b"): TextStyle(
-      color: Colors.indigoAccent,
+    RegExp(r"\B@[a-zA-Z0-9_.]+\b"): TextStyle(
+      color: customColors.blue,
     ),
   });
   bool isReply = false;
   String parentId;
   String repliedToUser;
+  bool preventSubmit = false;
 
   void resetInput() {
     inputController.text = "";
@@ -725,7 +733,8 @@ class _BottomInputState extends State<BottomInput> {
                         contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
                         hintText: 'Add a comment',
                         hintStyle: TextStyle(
-                            color: Theme.of(context).hintColor, fontWeight: FontWeight.w300),
+                          color: Theme.of(context).hintColor,
+                        ),
                         focusedBorder: borderOutline,
                         enabledBorder: borderOutline),
                     controller: inputController,
@@ -735,17 +744,26 @@ class _BottomInputState extends State<BottomInput> {
                     onTap: () async {
                       String text = inputController.text;
 
+                      if (text == '' || preventSubmit) {
+                        return;
+                      }
+
+                      preventSubmit = true;
+
                       if (isReply) {
+                        openReplies(parentId, context);
+
                         if (text != null || text.replaceAll(new RegExp(r"\s+"), "").length > 0) {
                           var comment = await createComment(text, parentId, context);
                           commentReplies[parentId].add(comment);
+
                           bool addedToComment =
                               await updateCommentReplies(parentId, comment['_id'], context);
 
                           if (addedToComment) {
                             Widget commentWidget =
                                 await createCommentWidget(comment, context, nested: true);
-                            commentReplyWidgets[parentId].add(commentWidget);
+                            commentReplyWidgets[parentId].insert(0, commentWidget);
                             rebuildStreamController.add({'list': commentList});
                             resetInput();
                           }
@@ -764,6 +782,8 @@ class _BottomInputState extends State<BottomInput> {
                           }
                         }
                       }
+
+                      preventSubmit = false;
                     },
                     child: Text(
                       'COMMENT',
@@ -847,10 +867,10 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
             child: Container(
                 height: MediaQuery.of(context).size.height,
                 color: Theme.of(context).backgroundColor,
-                child: ListView(
+                child: Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      padding: const EdgeInsets.fromLTRB(15.0, 50.0, 15.0, 0.0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -863,9 +883,19 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 60.0),
-                      child: CommentsWidget(),
+                    Expanded(
+                      child: MediaQuery.removePadding(
+                        context: context,
+                        removeTop: true,
+                        child: ListView(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 60.0),
+                              child: CommentsWidget(),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 )),
