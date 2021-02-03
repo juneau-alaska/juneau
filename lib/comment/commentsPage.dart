@@ -385,17 +385,23 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                           openProfile(context, creator);
                         },
                       ),
-                      Text(
-                        '•',
-                        style: TextStyle(
-                          fontSize: 13.0,
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(2.0, 1.0, 2.0, 0.0),
+                        child: Text(
+                          '•',
+                          style: TextStyle(
+                            fontSize: 13.0,
+                          ),
                         ),
                       ),
-                      Text(
-                        time,
-                        style: TextStyle(
-                          fontSize: 13,
-                          wordSpacing: -3.0,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 0.5),
+                        child: Text(
+                          time,
+                          style: TextStyle(
+                            fontSize: 13,
+                            wordSpacing: -3.0,
+                          ),
                         ),
                       ),
                     ],

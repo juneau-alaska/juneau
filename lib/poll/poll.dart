@@ -60,7 +60,7 @@ class _PositionalDotsState extends State<PositionalDots> {
       if (mounted) {
         setState(() {
           double page = widget.pageController.page;
-          currentPosition = page;
+          currentPosition = page % options.length;
         });
       }
     });
@@ -200,7 +200,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    List options = widget.options;
+    List options = widget.options..shuffle();
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = screenWidth / 1.3;
     List imageBytesList = [];
@@ -279,9 +279,11 @@ class _ImageCarouselState extends State<ImageCarousel> {
                 children: [
                   Container(
                     height: screenHeight,
-                    child: PageView(
-                      children: imageWidgets,
+                    child: PageView.builder(
                       controller: pageController,
+                      itemBuilder: (context, index) {
+                        return imageWidgets[index % imageWidgets.length];
+                      },
                     ),
                   ),
                   IgnorePointer(
@@ -482,7 +484,7 @@ class _CategoryButtonState extends State<CategoryButton> {
           streamController.add(pollCategory);
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
+          padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 3.0),
           child: Text(
             pollCategory,
             overflow: TextOverflow.ellipsis,
@@ -908,63 +910,75 @@ class _PollWidgetState extends State<PollWidget> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              Row(children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 5.0),
-                                  child: GestureDetector(
-                                    child: profilePhoto != null
-                                        ? Container(
-                                            width: 26,
-                                            height: 26,
-                                            child: ClipOval(
-                                              child: Image.memory(
-                                                profilePhoto,
-                                                fit: BoxFit.cover,
-                                                width: 26.0,
-                                                height: 26.0,
+                              Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: GestureDetector(
+                                      child: profilePhoto != null
+                                          ? Container(
+                                              width: 26,
+                                              height: 26,
+                                              child: ClipOval(
+                                                child: Image.memory(
+                                                  profilePhoto,
+                                                  fit: BoxFit.cover,
+                                                  width: 26.0,
+                                                  height: 26.0,
+                                                ),
+                                              ),
+                                            )
+                                          : CircleAvatar(
+                                              radius: 13,
+                                              backgroundColor: Colors.transparent,
+                                              backgroundImage: profileFetched
+                                                  ? AssetImage('images/profile.png')
+                                                  : null,
+                                            ),
+                                      onTap: () {
+                                        openProfile(context, pollCreator, user: user);
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 2.0),
+                                    child: Row(
+                                      children: [
+                                        GestureDetector(
+                                            child: Text(
+                                              pollCreator['username'],
+                                              style: TextStyle(
+                                                fontSize: 15.0,
+                                                fontWeight: FontWeight.w500,
                                               ),
                                             ),
-                                          )
-                                        : CircleAvatar(
-                                            radius: 13,
-                                            backgroundColor: Colors.transparent,
-                                            backgroundImage: profileFetched
-                                                ? AssetImage('images/profile.png')
-                                                : null,
+                                            onTap: () {
+                                              openProfile(context, pollCreator, user: user);
+                                            }),
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(2.0, 1.0, 2.0, 0.0),
+                                          child: Text(
+                                            '•',
+                                            style: TextStyle(
+                                              fontSize: 13.0,
+                                            ),
                                           ),
-                                    onTap: () {
-                                      openProfile(context, pollCreator, user: user);
-                                    },
-                                  ),
-                                ),
-                                GestureDetector(
-                                    child: Text(
-                                      pollCreator['username'],
-                                      style: TextStyle(
-                                        fontSize: 15.0,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    onTap: () {
-                                      openProfile(context, pollCreator, user: user);
-                                    }),
-                                Text(
-                                  '•',
-                                  style: TextStyle(
-                                    fontSize: 13.0,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 1.5),
-                                  child: Text(
-                                    time,
-                                    style: TextStyle(
-                                      fontSize: 13.0,
-                                      wordSpacing: -3.0,
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 1.5),
+                                          child: Text(
+                                            time,
+                                            style: TextStyle(
+                                              fontSize: 13.0,
+                                              wordSpacing: -3.0,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                              ]),
+                                ],
+                              ),
                             ],
                           ),
                         ),
@@ -991,7 +1005,7 @@ class _PollWidgetState extends State<PollWidget> {
                 ),
                 prompt.trim() != ''
                     ? Padding(
-                        padding: const EdgeInsets.only(top: 10.0),
+                        padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
                           prompt,
                           style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
