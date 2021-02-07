@@ -373,11 +373,13 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _onRefresh() async {
     prevId = null;
     await fetchPollData(false);
+    refreshController.refreshCompleted();
   }
 
   Future<void> _onLoading() async {
     if (pollObjects.length == profileUser['createdPolls'].length) return;
     await fetchPollData(true);
+    refreshController.refreshCompleted();
   }
 
   void openListView(index, tag) async {

@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/methods/validator.dart';
+import 'package:juneau/common/methods/userMethods.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void signUp(email, username, password, context) async {
@@ -77,7 +78,6 @@ class _SignUpPageState extends State<SignUpPage> {
     passwordInput = new InputComponent(
       hintText: 'Password',
       obscureText: true,
-      maxLength: 40,
     );
     passwordController = passwordInput.controller;
     super.initState();
@@ -112,13 +112,20 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
         ),
         FlatButton(
-          onPressed: () {
+          onPressed: () async {
             String email = emailController.text.trim();
             _isEmailValid = EmailValidator.validate(email);
 
             if (!_isEmailValid) {
-              return showAlert(context, 'Invalid email address.');
+              return showAlert(context, 'Invalid email address');
             } else {
+              // TODO: CHECK IF EMAIL USED
+              var existingUser = await userMethods.getUserByEmail(email);
+
+              if (existingUser != null) {
+                return showAlert(context, 'Email address already in use');
+              }
+
               setState(() {
                 currentStep = 'password';
               });
@@ -163,8 +170,8 @@ class _SignUpPageState extends State<SignUpPage> {
             String password = passwordController.text.trim();
             _isPasswordValid = validator.validatePassword(password);
 
-            if (password.length < 6) {
-              return showAlert(context, 'Password must be at least 6 characters.');
+            if (password.length < 6 || password.length > 40) {
+              return showAlert(context, 'Password must be between 6-40 characters.');
             } else if (!_isPasswordValid) {
               return showAlert(context, 'Password contains invalid characters.');
             } else {

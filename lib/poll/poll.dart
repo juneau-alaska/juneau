@@ -1005,7 +1005,7 @@ class _PollWidgetState extends State<PollWidget> {
                 ),
                 prompt.trim() != ''
                     ? Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
+                        padding: const EdgeInsets.only(top: 6.0),
                         child: Text(
                           prompt,
                           style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
@@ -1013,7 +1013,7 @@ class _PollWidgetState extends State<PollWidget> {
                       )
                     : SizedBox(height: 3.0),
                 Padding(
-                  padding: const EdgeInsets.only(top: 5.0),
+                  padding: const EdgeInsets.only(top: 3.0),
                   child: CategoryButton(
                     followingCategories: followingCategories,
                     pollCategory: pollCategory,
