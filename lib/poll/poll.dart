@@ -238,34 +238,35 @@ class _ImageCarouselState extends State<ImageCarousel> {
                       photo: image,
                       width: screenWidth,
                       onPanUpdate: (details) {},
-                      onLongPress: () async {
-                        HapticFeedback.heavyImpact();
-                        Navigator.of(context).push(
-                          TransparentRoute(
-                            builder: (BuildContext context) {
-                              return Scaffold(
-                                backgroundColor: Colors.transparent,
-                                body: BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                  child: Center(
-                                    child: PhotoHero(
-                                      tag: options[i]['_id'],
-                                      photo: image,
-                                      width: screenWidth,
-                                      onPanUpdate: (details) {
-                                        if (details.delta.dy > 0) {
-                                          Navigator.of(context).pop();
-                                        }
-                                      },
-                                      onLongPress: () {},
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
+                      onLongPress: () {},
+                      // onLongPress: () async {
+                      //   HapticFeedback.heavyImpact();
+                      //   Navigator.of(context).push(
+                      //     TransparentRoute(
+                      //       builder: (BuildContext context) {
+                      //         return Scaffold(
+                      //           backgroundColor: Colors.transparent,
+                      //           body: BackdropFilter(
+                      //             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      //             child: Center(
+                      //               child: PhotoHero(
+                      //                 tag: options[i]['_id'],
+                      //                 photo: image,
+                      //                 width: screenWidth,
+                      //                 onPanUpdate: (details) {
+                      //                   if (details.delta.dy > 0) {
+                      //                     Navigator.of(context).pop();
+                      //                   }
+                      //                 },
+                      //                 onLongPress: () {},
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         );
+                      //       },
+                      //     ),
+                      //   );
+                      // },
                     ),
                   ),
                 );

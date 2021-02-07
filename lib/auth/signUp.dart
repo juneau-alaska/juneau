@@ -119,7 +119,6 @@ class _SignUpPageState extends State<SignUpPage> {
             if (!_isEmailValid) {
               return showAlert(context, 'Invalid email address');
             } else {
-              // TODO: CHECK IF EMAIL USED
               var existingUser = await userMethods.getUserByEmail(email);
 
               if (existingUser != null) {
@@ -215,8 +214,15 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
         ),
         FlatButton(
-          onPressed: () {
+          onPressed: () async {
             String username = usernameController.text.trim().toLowerCase();
+
+            var existingUser = await userMethods.getUserByUsername(username);
+
+            if (existingUser != null) {
+              return showAlert(context, 'Username already in use');
+            }
+
             _isUsernameValid = validator.validateUsername(username);
 
             if (!_isUsernameValid) {
