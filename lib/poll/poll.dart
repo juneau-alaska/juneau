@@ -202,7 +202,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
   Widget build(BuildContext context) {
     List options = widget.options..shuffle();
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = screenWidth / 1.3;
+    double screenHeight = screenWidth / 1.25;
     List imageBytesList = [];
 
     return FutureBuilder<List>(
@@ -275,7 +275,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
             return Container(
               width: screenWidth,
-              height: screenHeight + 22,
+              height: screenHeight + 25,
               child: Stack(
                 children: [
                   Container(
@@ -485,7 +485,7 @@ class _CategoryButtonState extends State<CategoryButton> {
           streamController.add(pollCategory);
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 3.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.5),
           child: Text(
             pollCategory,
             overflow: TextOverflow.ellipsis,
@@ -1006,15 +1006,15 @@ class _PollWidgetState extends State<PollWidget> {
                 ),
                 prompt.trim() != ''
                     ? Padding(
-                        padding: const EdgeInsets.only(top: 6.0),
+                        padding: const EdgeInsets.only(top: 8.0, bottom: 4.5),
                         child: Text(
                           prompt,
-                          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600),
                         ),
                       )
-                    : SizedBox(height: 3.0),
+                    : SizedBox(height: 9.5),
                 Padding(
-                  padding: const EdgeInsets.only(top: 3.0),
+                  padding: const EdgeInsets.only(bottom: 1.0),
                   child: CategoryButton(
                     followingCategories: followingCategories,
                     pollCategory: pollCategory,
@@ -1027,7 +1027,7 @@ class _PollWidgetState extends State<PollWidget> {
             ),
           ),
           Container(
-            height: screenHeight + 35,
+            height: screenHeight + 50,
             child: Stack(
               children: [
                 imageCarousel,
