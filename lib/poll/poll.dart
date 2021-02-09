@@ -50,17 +50,18 @@ class _PositionalDotsState extends State<PositionalDots> {
   String votePercent;
   bool selected = false;
   List options;
+  double page;
 
   @override
   void initState() {
     options = widget.options;
-    currentPosition = 0;
+    currentPosition = 0.0;
 
     widget.pageController.addListener(() {
       if (mounted) {
         setState(() {
-          double page = widget.pageController.page;
-          currentPosition = page % options.length;
+          page = widget.pageController.page;
+          currentPosition = page;
         });
       }
     });
@@ -280,11 +281,9 @@ class _ImageCarouselState extends State<ImageCarousel> {
                 children: [
                   Container(
                     height: screenHeight,
-                    child: PageView.builder(
+                    child: PageView(
                       controller: pageController,
-                      itemBuilder: (context, index) {
-                        return imageWidgets[index % imageWidgets.length];
-                      },
+                      children: imageWidgets,
                     ),
                   ),
                   IgnorePointer(
@@ -1006,7 +1005,7 @@ class _PollWidgetState extends State<PollWidget> {
                 ),
                 prompt.trim() != ''
                     ? Padding(
-                        padding: const EdgeInsets.only(top: 8.0, bottom: 4.5),
+                        padding: const EdgeInsets.only(top: 8.0, bottom: 6.0),
                         child: Text(
                           prompt,
                           style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600),
@@ -1014,7 +1013,7 @@ class _PollWidgetState extends State<PollWidget> {
                       )
                     : SizedBox(height: 9.5),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 1.0),
+                  padding: const EdgeInsets.only(bottom: 2.0),
                   child: CategoryButton(
                     followingCategories: followingCategories,
                     pollCategory: pollCategory,
@@ -1098,7 +1097,7 @@ class _PollWidgetState extends State<PollWidget> {
               ],
             ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 15),
         ],
       ),
     );

@@ -123,20 +123,28 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      appBar: appBar,
-      body: user != null
-          ? PageView(
-              physics: new NeverScrollableScrollPhysics(),
-              children: [
-                homePage,
-                profilePage,
-              ],
-              controller: _pageController,
-            )
-          : Container(),
-      bottomNavigationBar: navBar,
+    return WillPopScope(
+      onWillPop: ()async {
+        if (Navigator.of(context).userGestureInProgress)
+          return false;
+        else
+          return true;
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).backgroundColor,
+        appBar: appBar,
+        body: user != null
+            ? PageView(
+                physics: new NeverScrollableScrollPhysics(),
+                children: [
+                  homePage,
+                  profilePage,
+                ],
+                controller: _pageController,
+              )
+            : Container(),
+        bottomNavigationBar: navBar,
+      ),
     );
   }
 }

@@ -200,8 +200,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool pollOpen = false;
   bool preventReload = false;
   bool following = false;
-  bool isUser;
-  bool profileFetched;
+  bool profileFetched = false;
+  bool isUser = false;
 
   bool alreadyPressed = false;
 
@@ -452,7 +452,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: isUser != null && isUser
+                    padding: isUser
                         ? const EdgeInsets.symmetric(vertical: 10.0)
                         : const EdgeInsets.only(top: 5.0, bottom: 10.0),
                     child: Row(
