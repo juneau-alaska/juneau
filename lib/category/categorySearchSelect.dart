@@ -7,8 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:juneau/common/methods/categoryMethods.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rxdart/rxdart.dart';
 
 Future<List> getCategories(String partialText, context) async {
   const url = 'http://localhost:4000/categories';
@@ -74,7 +75,7 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
       categoriesList[0] = Container();
     } else {
       categoriesList = [Container()];
-      List categories = await getCategories(text, context);
+      List categories = await categoryMethods.searchCategories(text);
 
       bool hasMatchingText = false;
 
@@ -133,7 +134,7 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
     super.initState();
     searchBar = new InputComponent(
       hintText: "Search",
-      contentPadding: EdgeInsets.fromLTRB(35.0, 7.0, 12.0, 15.0),
+      contentPadding: EdgeInsets.fromLTRB(38.0, 7.0, 12.0, 15.0),
       maxLength: 30,
       inputFormatters: [FilteringTextInputFormatter.allow(new RegExp("[0-9A-Za-z]"))],
     );
@@ -198,7 +199,7 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
           Stack(children: [
             searchBar,
             Padding(
-              padding: const EdgeInsets.only(left: 12.0, top: 7.0),
+              padding: const EdgeInsets.only(left: 12.0, top: 6.5),
               child: Icon(Icons.search, color: Theme.of(context).hintColor, size: 19.0),
             ),
           ]),

@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:juneau/common/colors.dart';
 import 'package:juneau/common/components/alertComponent.dart';
-import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/common/methods/numMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
@@ -468,7 +467,9 @@ class _CategoryButtonState extends State<CategoryButton> {
         color: followingCategories.contains(pollCategory)
             ? Theme.of(context).buttonColor
             : Theme.of(context).backgroundColor,
-        borderRadius: new BorderRadius.all(const Radius.circular(4.0)),
+        borderRadius: new BorderRadius.all(
+          const Radius.circular(20.0),
+        ),
         border: Border.all(
           color: Theme.of(context).buttonColor,
           width: 0.5,
@@ -484,12 +485,11 @@ class _CategoryButtonState extends State<CategoryButton> {
           streamController.add(pollCategory);
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.5),
+          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 6.5),
           child: Text(
             pollCategory,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 15,
               fontWeight: FontWeight.w500,
               color: followingCategories.contains(pollCategory)
                   ? Theme.of(context).backgroundColor

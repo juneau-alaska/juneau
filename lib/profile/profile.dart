@@ -23,7 +23,7 @@ void openProfile(context, profileUser, {user}) {
     return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         appBar: AppBar(
-          toolbarHeight: 30.0,
+          toolbarHeight: 40.0,
           backgroundColor: Theme.of(context).backgroundColor,
           brightness: Theme.of(context).brightness,
           elevation: 0,

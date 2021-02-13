@@ -83,7 +83,7 @@ class UserMethods {
     }
   }
 
-  Future lookUpUsers(String partial) async {
+  Future searchUsers(String partial) async {
     String url = 'http://localhost:4000/users';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -108,7 +108,7 @@ class UserMethods {
       return jsonResponse;
     } else {
       print('Request failed with status: ${response.statusCode}.');
-      return null;
+      return [];
     }
   }
 

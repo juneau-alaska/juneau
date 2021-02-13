@@ -1,21 +1,20 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:juneau/auth/login.dart';
+import 'package:juneau/auth/loginSelect.dart';
+import 'package:juneau/auth/signUp.dart';
+import 'package:juneau/auth/signUpSelect.dart';
 import 'package:juneau/common/colors.dart';
-import 'package:juneau/common/views/appBar.dart';
-import 'package:juneau/common/views/navBar.dart';
-
 import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
-
-import 'package:juneau/auth/loginSelect.dart';
-import 'package:juneau/auth/login.dart';
-import 'package:juneau/auth/signUpSelect.dart';
-import 'package:juneau/auth/signUp.dart';
+import 'package:juneau/common/views/appBar.dart';
+import 'package:juneau/common/views/navBar.dart';
 import 'package:juneau/home/home.dart';
+import 'package:juneau/category/search.dart';
 import 'package:juneau/profile/profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(new MyApp());
 
@@ -78,6 +77,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   Widget appBar;
   Widget navBar;
   Widget homePage;
+  Widget searchPage;
   Widget profilePage;
 
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
@@ -99,8 +99,14 @@ class _MainScaffoldState extends State<MainScaffold> {
       }
 
       homePage = HomePage(user: user);
-      profilePage = ProfilePage(profileUser: user, profilePhoto: profilePhoto, profileController: _profileController);
-      navBar = NavBar(navigatorKey: _navigatorKey, navController: _navController, profilePhoto: profilePhoto, profileController: _profileController);
+      searchPage = SearchPage(user: user);
+      profilePage = ProfilePage(
+          profileUser: user, profilePhoto: profilePhoto, profileController: _profileController);
+      navBar = NavBar(
+          navigatorKey: _navigatorKey,
+          navController: _navController,
+          profilePhoto: profilePhoto,
+          profileController: _profileController);
       appBar = ApplicationBar(height: 0.0);
 
       _navController.stream.listen((index) async {
@@ -124,7 +130,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: ()async {
+      onWillPop: () async {
         if (Navigator.of(context).userGestureInProgress)
           return false;
         else
@@ -138,6 +144,7 @@ class _MainScaffoldState extends State<MainScaffold> {
                 physics: new NeverScrollableScrollPhysics(),
                 children: [
                   homePage,
+                  searchPage,
                   profilePage,
                 ],
                 controller: _pageController,
@@ -167,7 +174,14 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      body: Center(),
+      body: Center(
+          child: Text(
+        'ARTFOLK',
+        style: TextStyle(
+          fontSize: 28.0,
+          fontWeight: FontWeight.bold,
+        ),
+      )),
     );
   }
 

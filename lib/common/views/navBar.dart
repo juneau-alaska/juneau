@@ -63,6 +63,7 @@ class _NavBarState extends State<NavBar> {
                   break;
                 case 1:
                   _previousIndex = _selectedIndex;
+                  widget.navController.add(1);
                   break;
                 case 2:
                   showModalBottomSheet(
@@ -74,8 +75,10 @@ class _NavBarState extends State<NavBar> {
                   _selectedIndex = _previousIndex;
                   break;
                 case 3:
+                  break;
+                case 4:
                   _previousIndex = _selectedIndex;
-                  widget.navController.add(1);
+                  widget.navController.add(2);
                   break;
                 default:
                   break;
@@ -94,6 +97,11 @@ class _NavBarState extends State<NavBar> {
             ),
             BottomNavigationBarItem(
               icon: new Icon(Icons.add, size: 28.0),
+              title: Text(''),
+            ),
+            BottomNavigationBarItem(
+              icon: new Icon(Icons.notifications_outlined, size: 26.0),
+              activeIcon: new Icon(Icons.notifications, size: 26.0),
               title: Text(''),
             ),
             BottomNavigationBarItem(
