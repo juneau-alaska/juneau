@@ -1005,7 +1005,7 @@ class _PollWidgetState extends State<PollWidget> {
                 ),
                 prompt.trim() != ''
                     ? Padding(
-                        padding: const EdgeInsets.only(top: 8.0, bottom: 6.0),
+                        padding: const EdgeInsets.only(top: 10.0, bottom: 8.0, left: 2.0),
                         child: Text(
                           prompt,
                           style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600),

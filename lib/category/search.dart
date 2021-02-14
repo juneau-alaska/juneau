@@ -10,53 +10,80 @@ import 'package:rxdart/rxdart.dart';
 Future<List<Widget>> buildResults(List results, List followingList, BuildContext context) async {
   List<Widget> resultsWidgets = [];
 
-  for (int i=0; i<results.length; i++) {
+  for (int i = 0; i < results.length; i++) {
     var result = results[i];
+    bool isString = result is String;
     bool following = followingList.contains(result);
+    List followers;
+    int followersLength;
+    String followersLengthString;
 
-    resultsWidgets.add(
-      Container(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
+    if (!isString) {
+      followers = result['followers'];
+      followersLength = followers.length;
+      followersLengthString = followersLength.toString();
+    }
+
+    resultsWidgets.add(Container(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width - 123,
+            child: isString
+              ? Text(
               result,
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 15.0,
               ),
-            ),
-            RawMaterialButton(
-              onPressed: () {
-
-              },
-              constraints: BoxConstraints(),
-              padding: EdgeInsets.symmetric(horizontal: 15.0),
-              fillColor: following
-                ? Theme.of(context).buttonColor
-                : Theme.of(context).backgroundColor,
-              elevation: 0.0,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6.5),
-                child: Text(
-                  following ? 'Unfollow' : 'Follow',
+            )
+              : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  result['name'],
                   style: TextStyle(
-                    color: following
-                      ? Theme.of(context).backgroundColor
-                      : Theme.of(context).buttonColor,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 15.0,
                   ),
                 ),
-              ),
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
-                borderRadius: BorderRadius.circular(20)),
+                Text(
+                  followersLength == 1 ? '$followersLengthString follower' : '$followersLengthString followers',
+                  style: TextStyle(
+                    fontSize: 13.0,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      )
-    );
+          ),
+          RawMaterialButton(
+            onPressed: () {},
+            constraints: BoxConstraints(),
+            padding: EdgeInsets.symmetric(horizontal: 15.0),
+            fillColor:
+                following ? Theme.of(context).buttonColor : Theme.of(context).backgroundColor,
+            elevation: 0.0,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.5),
+              child: Text(
+                following ? 'Unfollow' : 'Follow',
+                style: TextStyle(
+                  color:
+                      following ? Theme.of(context).backgroundColor : Theme.of(context).buttonColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            shape: RoundedRectangleBorder(
+                side: BorderSide(
+                    color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
+                borderRadius: BorderRadius.circular(20)),
+          ),
+        ],
+      ),
+    ));
   }
 
   return resultsWidgets;
@@ -100,13 +127,13 @@ class _SearchedCategoriesListState extends State<SearchedCategoriesList> {
           searchResults = followingResultsMemo;
         } else {
           List searchedCategories = await categoryMethods.searchCategories(text);
-          List categories = [];
+          // List categories = [];
+          //
+          // for (int i=0; i<searchedCategories.length; i++) {
+          //   categories.add(searchedCategories[i]['name']);
+          // }
 
-          for (int i=0; i<searchedCategories.length; i++) {
-            categories.add(searchedCategories[i]['name']);
-          }
-
-          searchResults = await buildResults(categories, followingCategories, context);
+          searchResults = await buildResults(searchedCategories, followingCategories, context);
         }
 
         setState(() {});
@@ -116,7 +143,7 @@ class _SearchedCategoriesListState extends State<SearchedCategoriesList> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    return Column(
       children: searchResults,
     );
   }
@@ -161,7 +188,7 @@ class _SearchedUsersListState extends State<SearchedUsersList> {
           List searchedUsers = await userMethods.searchUsers(text);
           List users = [];
 
-          for (int i=0; i<searchedUsers.length; i++) {
+          for (int i = 0; i < searchedUsers.length; i++) {
             users.add(searchedUsers[i]['username']);
           }
 
@@ -175,12 +202,11 @@ class _SearchedUsersListState extends State<SearchedUsersList> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    return Column(
       children: searchResults,
     );
   }
 }
-
 
 class SearchPage extends StatefulWidget {
   final user;
@@ -209,7 +235,8 @@ class _SearchPageState extends State<SearchPage> {
     List followingCategories = user['followingCategories'];
     List followingUsers = user['followingUsers'];
 
-    Stream stream = streamController.stream.debounceTime(Duration(milliseconds: 250)).asBroadcastStream();
+    Stream stream =
+        streamController.stream.debounceTime(Duration(milliseconds: 250)).asBroadcastStream();
 
     categoriesList = SearchedCategoriesList(
       stream: stream,
@@ -239,9 +266,6 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-
-    double height = MediaQuery.of(context).size.height;
-
     return Column(
       children: [
         Padding(
@@ -254,53 +278,35 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ]),
         ),
-        Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            children: [
-              Container(
-                height: height/2.025 - 2.0,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'CATEGORIES',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15.0,
-                      ),
-                    ),
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: categoriesList,
-                      ),
-                    ),
-                  ],
+        Flexible(
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: ListView(
+              children: [
+                Text(
+                  'CATEGORIES',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16.0,
+                  ),
                 ),
-              ),
-              Container(
-                height: height/4 + 1.2,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'USERS',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15.0,
-                      ),
-                    ),
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 10.0),
-                        child: usersList,
-                      ),
-                    ),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: categoriesList,
                 ),
-              ),
-            ],
+                Text(
+                  'USERS',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16.0,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: usersList,
+                ),
+              ],
+            ),
           ),
         ),
       ],
