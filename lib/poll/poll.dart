@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:juneau/common/colors.dart';
 import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/methods/categoryMethods.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/common/methods/numMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
@@ -346,77 +347,77 @@ class _CategoryButtonState extends State<CategoryButton> {
 
   final streamController = StreamController();
 
-  Future categoryAddFollower(String category, bool unfollow) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token = prefs.getString('token');
-    String userId = prefs.getString('userId');
-
-    String url = 'http://localhost:4000/category/followers';
-
-    var headers = {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: token
-    };
-
-    var body = jsonEncode({'name': category, 'userId': userId, 'unfollow': unfollow});
-    await http.put(url, headers: headers, body: body);
-  }
-
-  Future followCategory(String category, bool unfollow, context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token = prefs.getString('token');
-    String userId = prefs.getString('userId');
-    var jsonResponse, user;
-
-    String url = 'http://localhost:4000/user/' + userId;
-
-    var headers = {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: token
-        },
-        response,
-        body;
-
-    response = await http.get(url, headers: headers);
-
-    if (response.statusCode == 200) {
-      jsonResponse = jsonDecode(response.body);
-
-      user = jsonResponse;
-      followingCategories = user['followingCategories'];
-
-      if (!followingCategories.contains(category) || unfollow) {
-        if (unfollow) {
-          followingCategories.remove(category);
-        } else {
-          followingCategories.add(category);
-        }
-
-        body = jsonEncode({'followingCategories': followingCategories});
-        response = await http.put(url, headers: headers, body: body);
-
-        if (response.statusCode == 200) {
-          jsonResponse = jsonDecode(response.body);
-          user = jsonResponse['user'];
-
-          await categoryAddFollower(category, unfollow);
-          widget.updatedUserModel(user);
-
-          if (unfollow) {
-            return showAlert(context, 'Successfully unfollowed category "' + category + '"', true);
-          } else {
-            return showAlert(context, 'Successfully followed category "' + category + '"', true);
-          }
-        } else {
-          return showAlert(context, 'Something went wrong, please try again');
-        }
-      } else {
-        setState(() {});
-      }
-    } else {
-      return showAlert(context, 'Something went wrong, please try again');
-    }
-  }
+  // Future categoryAddFollower(String category, bool unfollow) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String token = prefs.getString('token');
+  //   String userId = prefs.getString('userId');
+  //
+  //   String url = 'http://localhost:4000/category/followers';
+  //
+  //   var headers = {
+  //     HttpHeaders.contentTypeHeader: 'application/json',
+  //     HttpHeaders.authorizationHeader: token
+  //   };
+  //
+  //   var body = jsonEncode({'name': category, 'userId': userId, 'unfollow': unfollow});
+  //   await http.put(url, headers: headers, body: body);
+  // }
+  //
+  // Future followCategory(String category, bool unfollow, context) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String token = prefs.getString('token');
+  //   String userId = prefs.getString('userId');
+  //   var jsonResponse, user;
+  //
+  //   String url = 'http://localhost:4000/user/' + userId;
+  //
+  //   var headers = {
+  //         HttpHeaders.contentTypeHeader: 'application/json',
+  //         HttpHeaders.authorizationHeader: token
+  //       },
+  //       response,
+  //       body;
+  //
+  //   response = await http.get(url, headers: headers);
+  //
+  //   if (response.statusCode == 200) {
+  //     jsonResponse = jsonDecode(response.body);
+  //
+  //     user = jsonResponse;
+  //     followingCategories = user['followingCategories'];
+  //
+  //     if (!followingCategories.contains(category) || unfollow) {
+  //       if (unfollow) {
+  //         followingCategories.remove(category);
+  //       } else {
+  //         followingCategories.add(category);
+  //       }
+  //
+  //       body = jsonEncode({'followingCategories': followingCategories});
+  //       response = await http.put(url, headers: headers, body: body);
+  //
+  //       if (response.statusCode == 200) {
+  //         jsonResponse = jsonDecode(response.body);
+  //         user = jsonResponse['user'];
+  //
+  //         await categoryAddFollower(category, unfollow);
+  //         widget.updatedUserModel(user);
+  //
+  //         if (unfollow) {
+  //           return showAlert(context, 'Successfully unfollowed category "' + category + '"', true);
+  //         } else {
+  //           return showAlert(context, 'Successfully followed category "' + category + '"', true);
+  //         }
+  //       } else {
+  //         return showAlert(context, 'Something went wrong, please try again');
+  //       }
+  //     } else {
+  //       setState(() {});
+  //     }
+  //   } else {
+  //     return showAlert(context, 'Something went wrong, please try again');
+  //   }
+  // }
 
   @override
   void initState() {
@@ -434,7 +435,7 @@ class _CategoryButtonState extends State<CategoryButton> {
       });
     }
 
-    streamController.stream.throttleTime(Duration(milliseconds: 1000)).listen((category) {
+    streamController.stream.throttleTime(Duration(milliseconds: 1000)).listen((category) async {
       bool unfollow = false;
       if (followingCategories.contains(category)) {
         unfollow = true;
@@ -445,7 +446,19 @@ class _CategoryButtonState extends State<CategoryButton> {
         warning = false;
       });
 
-      followCategory(category, unfollow, context);
+      var updatedUser =
+          await categoryMethods.followCategory(category, unfollow, followingCategories);
+
+      if (updatedUser != null) {
+        widget.updatedUserModel(updatedUser);
+        if (unfollow) {
+          showAlert(context, 'Successfully unfollowed category "' + category + '"', true);
+        } else {
+          showAlert(context, 'Successfully followed category "' + category + '"', true);
+        }
+      } else {
+        showAlert(context, 'Something went wrong, please try again');
+      }
     });
 
     super.initState();

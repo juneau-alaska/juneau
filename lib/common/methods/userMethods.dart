@@ -141,6 +141,54 @@ class UserMethods {
       return null;
     }
   }
+
+  Future followUser(String username, bool unfollow, List followingUsers) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+    String userId = prefs.getString('userId');
+    var jsonResponse, user;
+
+    String url = 'http://localhost:4000/user/' + userId;
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    },
+      response,
+      body;
+
+    response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      jsonResponse = jsonDecode(response.body);
+
+      user = jsonResponse;
+      followingUsers = user['followingUsers'];
+
+      if (!followingUsers.contains(username) || unfollow) {
+        if (unfollow) {
+          followingUsers.remove(username);
+        } else {
+          followingUsers.add(username);
+        }
+
+        body = jsonEncode({'followingUsers': followingUsers});
+        response = await http.put(url, headers: headers, body: body);
+
+        if (response.statusCode == 200) {
+          jsonResponse = jsonDecode(response.body);
+
+          return jsonResponse['user'];
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
 }
 
 UserMethods userMethods = new UserMethods();
