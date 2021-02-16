@@ -28,32 +28,31 @@ class ResultWidget extends StatefulWidget {
 }
 
 class _ResultWidgetState extends State<ResultWidget> {
-  var result;
-  String type;
-  List followingList;
-
   @override
   void initState() {
-    result = widget.result;
-    type = widget.type;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var result = widget.result;
+
+    List followingList;
+    List followers;
+    int followersLength;
+    String followersLengthString;
+    String name;
+    String type = widget.type;
+
+    bool isString = result is String;
+    bool following = false;
+
 
     if (type == 'category') {
       followingList = followingCategories;
     } else if (type == 'user') {
       followingList = followingUsers;
     }
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    List followers;
-    int followersLength;
-    String followersLengthString;
-    String name;
-
-    bool isString = result is String;
-    bool following = false;
 
     if (!isString) {
       followers = result['followers'];
@@ -162,11 +161,13 @@ Future<List> buildResults(List results, String type, BuildContext context) async
   List<Widget> resultsWidgets = [];
 
   for (int i = 0; i < results.length; i++) {
-    resultsWidgets.add(new ResultWidget(
+    Widget resultWidget = new ResultWidget(
       result: results[i],
       type: type,
       context: context,
-    ));
+    );
+
+    resultsWidgets.add(resultWidget);
   }
 
   return resultsWidgets;
@@ -196,7 +197,6 @@ class _SearchedCategoriesListState extends State<SearchedCategoriesList> {
 
     widget.stream.listen((String text) async {
       text = text.toLowerCase();
-
       if (text == '') {
         categorySearchResults = await buildResults(followingCategories, 'category', context);
       } else {
