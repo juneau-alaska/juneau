@@ -9,13 +9,13 @@ import 'package:juneau/comment/commentsPage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/keepAlivePage.dart';
 import 'package:juneau/common/components/pageRoutes.dart';
+import 'package:juneau/common/components/pollListPopoverComponent.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
-import 'package:juneau/poll/poll.dart';
+import 'package:juneau/common/methods/pollMethods.dart';
 import 'package:juneau/poll/pollPreview.dart';
 import 'package:juneau/profile/editProfile.dart';
 import 'package:juneau/settings/accountSettings.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void openProfile(context, profileUser, {user}) {
@@ -38,134 +38,6 @@ void openProfile(context, profileUser, {user}) {
         ),
         body: ProfilePage(profileUser: profileUser, user: user));
   }));
-}
-
-class PollListPopover extends StatefulWidget {
-  final selectedIndex;
-  final user;
-  final pollObjects;
-  final pollListController;
-  final dismissPoll;
-  final viewPoll;
-  final updatedUserModel;
-  final parentController;
-  final tag;
-
-  PollListPopover(
-      {Key key,
-      @required this.selectedIndex,
-      this.user,
-      this.pollObjects,
-      this.pollListController,
-      this.dismissPoll,
-      this.viewPoll,
-      this.updatedUserModel,
-      this.parentController,
-      this.tag})
-      : super(key: key);
-
-  @override
-  _PollListPopoverState createState() => _PollListPopoverState();
-}
-
-class _PollListPopoverState extends State<PollListPopover> {
-  final ItemScrollController itemScrollController = ItemScrollController();
-  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
-
-  List<Widget> pollsList;
-  List pollObjects;
-  int visibleIndex;
-
-  @override
-  void initState() {
-    pollObjects = widget.pollObjects;
-
-    widget.pollListController.stream.listen((updatedPollObjects) {
-      setState(() {
-        pollObjects = updatedPollObjects;
-      });
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      itemScrollController.jumpTo(index: widget.selectedIndex);
-    });
-
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Center(
-          child: Hero(
-              tag: widget.tag,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.width,
-              )),
-        ),
-        Scaffold(
-          backgroundColor: Theme.of(context).backgroundColor,
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).backgroundColor,
-            brightness: Theme.of(context).brightness,
-            elevation: 0,
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                size: 25.0,
-                color: Theme.of(context).buttonColor,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            title: Text(
-              widget.user['username'],
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).buttonColor,
-              ),
-            ),
-          ),
-          body: pollObjects != null && pollObjects.length > 0
-              ? ScrollablePositionedList.builder(
-                  itemCount: pollObjects.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == pollObjects.length) {
-                      return SizedBox(height: 43);
-                    }
-
-                    var pollObject = pollObjects[index],
-                        poll = pollObject['poll'],
-                        options = pollObject['options'],
-                        images = pollObject['images'];
-
-                    return Container(
-                      key: UniqueKey(),
-                      child: PollWidget(
-                          poll: poll,
-                          options: options,
-                          images: images,
-                          user: widget.user,
-                          dismissPoll: widget.dismissPoll,
-                          viewPoll: widget.viewPoll,
-                          index: index,
-                          updatedUserModel: widget.updatedUserModel,
-                          parentController: widget.parentController),
-                    );
-                  },
-                  itemScrollController: itemScrollController,
-                  itemPositionsListener: itemPositionsListener,
-                )
-              : Padding(
-                  padding: const EdgeInsets.only(top: 100.0),
-                  child: Center(child: Container(child: Text('No created polls found'))),
-                ),
-        ),
-      ],
-    );
-  }
 }
 
 class ProfilePage extends StatefulWidget {
@@ -209,37 +81,8 @@ class _ProfilePageState extends State<ProfilePage> {
   StreamController pollListController = StreamController.broadcast();
   var parentController;
 
-  Future<List> getPollsFromUser() async {
-    const url = 'http://localhost:4000/polls';
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token');
-
-    var headers = {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: token
-    };
-
-    var body = jsonEncode({'prevId': prevId, 'createdBy': profileUser['_id']});
-
-    var response = await http.post(url, headers: headers, body: body);
-
-    if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body);
-
-      if (jsonResponse.length > 0) {
-        prevId = jsonResponse.last['_id'];
-      }
-
-      return jsonResponse;
-    } else {
-      showAlert(context, 'Something went wrong, please try again');
-      return [];
-    }
-  }
-
   Future fetchPollData(bool next) async {
-    List polls = await getPollsFromUser();
+    List polls = await pollMethods.getPollsFromUser(userId);
 
     if (pollObjects == null ||
         (next && polls.length > 0) ||
@@ -387,13 +230,15 @@ class _ProfilePageState extends State<ProfilePage> {
       return PollListPopover(
           selectedIndex: index,
           user: profileUser,
+          title: profileUser['username'],
           pollObjects: pollObjects,
           pollListController: pollListController,
           dismissPoll: dismissPoll,
           viewPoll: viewPoll,
           updatedUserModel: updatedUserModel,
           parentController: parentController,
-          tag: tag);
+          tag: tag,
+      );
     }));
   }
 

@@ -2,23 +2,32 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:juneau/comment/commentsPage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/methods/categoryMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
+import 'package:juneau/common/methods/pollMethods.dart';
+import 'package:juneau/common/components/pageRoutes.dart';
+import 'package:juneau/common/components/pollListPopoverComponent.dart';
+import 'package:juneau/profile/profile.dart';
 import 'package:rxdart/rxdart.dart';
 
 List followingCategories;
 List followingUsers;
 
 class ResultWidget extends StatefulWidget {
+  final user;
+  final profileUser;
   final result;
   final type;
   final context;
 
   ResultWidget({
     Key key,
-    @required this.result,
+    @required this.user,
+    this.profileUser,
+    this.result,
     this.type,
     this.context,
   }) : super(key: key);
@@ -28,8 +37,99 @@ class ResultWidget extends StatefulWidget {
 }
 
 class _ResultWidgetState extends State<ResultWidget> {
+  var user;
+  List pollObjects;
+  BuildContext profileContext;
+
+  bool pollOpen = false;
+  bool preventReload = false;
+
+  StreamController pollListController = StreamController.broadcast();
+  StreamController parentController = new StreamController.broadcast();
+
+  void dismissPoll(index) {
+    if (mounted) {
+      setState(() {
+        preventReload = false;
+        pollObjects.removeAt(index);
+        pollListController.add(pollObjects);
+      });
+    }
+  }
+
+  void viewPoll(String pollId) async {
+    if (!pollOpen) {
+      pollOpen = true;
+      final _formKey = GlobalKey<FormState>();
+
+      Navigator.of(profileContext).push(TransparentRoute(builder: (BuildContext context) {
+        return CommentsPage(user: user, pollId: pollId, formKey: _formKey);
+      }));
+
+      pollOpen = false;
+    }
+  }
+
+  void updatedUserModel(updatedUser) {
+    user = updatedUser;
+    parentController.add({'dataType': 'user', 'data': user});
+  }
+
+  void openListView(name) async {
+    Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
+      return PollListPopover(
+        selectedIndex: null,
+        user: user,
+        title: name,
+        pollObjects: pollObjects,
+        pollListController: pollListController,
+        dismissPoll: dismissPoll,
+        viewPoll: viewPoll,
+        updatedUserModel: updatedUserModel,
+        parentController: parentController,
+        tag: null,
+      );
+    }));
+  }
+
+  Future fetchPollData(bool next, String type, String name) async {
+    List polls;
+
+    if (type == 'category') {
+      polls = await pollMethods.getPollsFromCategory(name);
+
+      if (pollObjects == null ||
+        (next && polls.length > 0) ||
+        (!next && polls.length != pollObjects.length)) {
+        if (!next) {
+          pollObjects = [];
+        }
+        for (int i = 0; i < polls.length; i++) {
+          var poll = polls[i];
+          pollObjects.add({
+            'index': i,
+            'poll': poll,
+          });
+        }
+      }
+
+      openListView(name);
+    } else if (type == 'user') {
+      var user = await userMethods.getUserByUsername(name);
+      openProfile(context, user);
+    }
+  }
+
+  @override
+  void dispose() {
+    pollListController.close();
+    parentController.close();
+    super.dispose();
+  }
+
   @override
   void initState() {
+    user = widget.user;
     super.initState();
   }
 
@@ -67,11 +167,16 @@ class _ResultWidgetState extends State<ResultWidget> {
       following = followingList.contains(name);
     }
 
-    Widget nameWidget = Text(
-      name,
-      style: TextStyle(
-        fontWeight: FontWeight.w400,
-        fontSize: 15.0,
+    Widget nameWidget = GestureDetector(
+      onTap: () async {
+        fetchPollData(false, type, name);
+      },
+      child: Text(
+        name,
+        style: TextStyle(
+          fontWeight: FontWeight.w400,
+          fontSize: 15.0,
+        ),
       ),
     );
 
@@ -157,11 +262,12 @@ class _ResultWidgetState extends State<ResultWidget> {
   }
 }
 
-Future<List> buildResults(List results, String type, BuildContext context) async {
+Future<List> buildResults(user, List results, String type, BuildContext context) async {
   List<Widget> resultsWidgets = [];
 
   for (int i = 0; i < results.length; i++) {
     Widget resultWidget = new ResultWidget(
+      user: user,
       result: results[i],
       type: type,
       context: context,
@@ -174,11 +280,13 @@ Future<List> buildResults(List results, String type, BuildContext context) async
 }
 
 class SearchedCategoriesList extends StatefulWidget {
+  final user;
   final stream;
 
   SearchedCategoriesList({
     Key key,
-    @required this.stream,
+    @required this.user,
+    this.stream,
   }) : super(key: key);
 
   @override
@@ -191,18 +299,18 @@ class _SearchedCategoriesListState extends State<SearchedCategoriesList> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      categorySearchResults = await buildResults(followingCategories, 'category', context);
+      categorySearchResults = await buildResults(widget.user, followingCategories, 'category', context);
       setState(() {});
     });
 
     widget.stream.listen((String text) async {
       text = text.toLowerCase();
       if (text == '') {
-        categorySearchResults = await buildResults(followingCategories, 'category', context);
+        categorySearchResults = await buildResults(widget.user, followingCategories, 'category', context);
       } else {
         List searchedCategories = await categoryMethods.searchCategories(text);
 
-        categorySearchResults = await buildResults(searchedCategories, 'category', context);
+        categorySearchResults = await buildResults(widget.user, searchedCategories, 'category', context);
       }
 
       if (mounted) {
@@ -222,11 +330,13 @@ class _SearchedCategoriesListState extends State<SearchedCategoriesList> {
 }
 
 class SearchedUsersList extends StatefulWidget {
+  final user;
   final stream;
 
   SearchedUsersList({
     Key key,
-    @required this.stream,
+    @required this.user,
+    this.stream,
   }) : super(key: key);
 
   @override
@@ -239,14 +349,14 @@ class _SearchedUsersListState extends State<SearchedUsersList> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      userSearchResults = await buildResults(followingUsers, 'user', context);
+      userSearchResults = await buildResults(widget.user, followingUsers, 'user', context);
       setState(() {});
     });
 
     widget.stream.listen((String text) async {
       text = text.toLowerCase();
       if (text == '') {
-        userSearchResults = await buildResults(followingUsers, 'user', context);
+        userSearchResults = await buildResults(widget.user, followingUsers, 'user', context);
       } else {
         List searchedUsers = await userMethods.searchUsers(text);
         List users = [];
@@ -255,7 +365,7 @@ class _SearchedUsersListState extends State<SearchedUsersList> {
           users.add(searchedUsers[i]['username']);
         }
 
-        userSearchResults = await buildResults(users, 'user', context);
+        userSearchResults = await buildResults(widget.user, users, 'user', context);
       }
 
       if (mounted) {
@@ -302,9 +412,11 @@ class _SearchPageState extends State<SearchPage> {
     followingUsers = widget.user['followingUsers'];
 
     categoriesList = SearchedCategoriesList(
+      user: widget.user,
       stream: stream,
     );
     usersList = SearchedUsersList(
+      user: widget.user,
       stream: stream,
     );
 
@@ -357,11 +469,14 @@ class _SearchPageState extends State<SearchPage> {
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: categoriesList,
                 ),
-                Text(
-                  'USERS',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16.0,
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: Text(
+                    'USERS',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16.0,
+                    ),
                   ),
                 ),
                 Padding(
