@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:juneau/common/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PollPreview extends StatefulWidget {
@@ -132,12 +131,12 @@ class _PollPreviewState extends State<PollPreview> {
               future: buildPreview(size),
               builder: (context, AsyncSnapshot<Widget> pollPreview) {
                 if (pollPreview.hasData) {
-                  return Container(color: customColors.grey, child: pollPreview.data);
+                  return Container(color: Theme.of(context).dividerColor, child: pollPreview.data);
                 } else {
                   return Container(
                     width: size,
                     height: size,
-                    color: customColors.grey,
+                    color: Theme.of(context).dividerColor,
                   );
                 }
               })

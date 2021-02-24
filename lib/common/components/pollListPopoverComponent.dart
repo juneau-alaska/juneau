@@ -70,7 +70,8 @@ class _PollListPopoverState extends State<PollListPopover> {
                     child: Container(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.width,
-                    )),
+                    ),
+                ),
               )
             : Container(),
         Scaffold(

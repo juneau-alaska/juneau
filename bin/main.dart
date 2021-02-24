@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
 
     Color background = customColors.white;
     Color hint = customColors.darkGrey;
+    Color divider = customColors.lightGrey;
     Color highlight = customColors.blue;
     Color button = customColors.black;
     Color textColor = customColors.black;
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
         backgroundColor: background,
         hintColor: hint,
+        dividerColor: divider,
         highlightColor: highlight,
         buttonColor: button,
         textTheme: TextTheme(

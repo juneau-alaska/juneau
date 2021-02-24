@@ -91,7 +91,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
             categoryStreamController.add('following');
           },
           constraints: BoxConstraints(),
-          padding: EdgeInsets.symmetric(horizontal: 18.0),
+          padding: EdgeInsets.symmetric(horizontal: 15.0),
           fillColor: currentCategory == 'following'
               ? Theme.of(context).buttonColor
               : Theme.of(context).backgroundColor,
@@ -124,7 +124,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
                 categoryStreamController.add(category);
               },
               constraints: BoxConstraints(),
-              padding: EdgeInsets.symmetric(horizontal: 18.0),
+              padding: EdgeInsets.symmetric(horizontal: 15.0),
               fillColor: currentCategory == category
                   ? Theme.of(context).buttonColor
                   : Theme.of(context).backgroundColor,
@@ -151,7 +151,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 10.0),
       child: Container(
-        height: 38.0,
+        height: 33.0,
         width: MediaQuery.of(context).size.width - 20,
         child: ListView(
           scrollDirection: Axis.horizontal,

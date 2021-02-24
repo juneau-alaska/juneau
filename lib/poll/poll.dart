@@ -8,7 +8,6 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:juneau/common/colors.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/methods/categoryMethods.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
@@ -130,7 +129,7 @@ class _PositionalDotsState extends State<PositionalDots> {
             position: currentPosition,
             decorator: DotsDecorator(
               size: Size.square(6.0),
-              color: customColors.grey,
+              color: Theme.of(context).dividerColor,
               activeColor: Theme.of(context).highlightColor,
               activeSize: Size.square(6.0),
               spacing: const EdgeInsets.symmetric(horizontal: 2.5),
@@ -138,32 +137,6 @@ class _PositionalDotsState extends State<PositionalDots> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class PhotoHero extends StatelessWidget {
-  const PhotoHero({Key key, this.tag, this.photo, this.onLongPress, this.onPanUpdate, this.width})
-      : super(key: key);
-
-  final String tag;
-  final photo;
-  final onLongPress;
-  final onPanUpdate;
-  final double width;
-
-  Widget build(BuildContext context) {
-    return Hero(
-      tag: tag,
-      child: GestureDetector(
-        onLongPress: onLongPress,
-        onPanUpdate: onPanUpdate,
-        child: Image.memory(
-          photo,
-          fit: BoxFit.cover,
-          width: width,
-        ),
-      ),
     );
   }
 }
@@ -234,40 +207,10 @@ class _ImageCarouselState extends State<ImageCarousel> {
                         widget.vote(options[i]);
                       }
                     },
-                    child: PhotoHero(
-                      tag: options[i]['_id'],
-                      photo: image,
+                    child: Image.memory(
+                      image,
+                      fit: BoxFit.cover,
                       width: screenWidth,
-                      onPanUpdate: (details) {},
-                      onLongPress: () {},
-                      // onLongPress: () async {
-                      //   HapticFeedback.heavyImpact();
-                      //   Navigator.of(context).push(
-                      //     TransparentRoute(
-                      //       builder: (BuildContext context) {
-                      //         return Scaffold(
-                      //           backgroundColor: Colors.transparent,
-                      //           body: BackdropFilter(
-                      //             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      //             child: Center(
-                      //               child: PhotoHero(
-                      //                 tag: options[i]['_id'],
-                      //                 photo: image,
-                      //                 width: screenWidth,
-                      //                 onPanUpdate: (details) {
-                      //                   if (details.delta.dy > 0) {
-                      //                     Navigator.of(context).pop();
-                      //                   }
-                      //                 },
-                      //                 onLongPress: () {},
-                      //               ),
-                      //             ),
-                      //           ),
-                      //         );
-                      //       },
-                      //     ),
-                      //   );
-                      // },
                     ),
                   ),
                 );
@@ -276,7 +219,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
             return Container(
               width: screenWidth,
-              height: screenHeight + 25,
+              height: screenHeight + 30,
               child: Stack(
                 children: [
                   Container(
@@ -312,7 +255,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
             );
           } else {
             return new Container(
-              color: customColors.grey,
+              color: Theme.of(context).dividerColor,
               width: screenWidth,
               height: screenHeight,
             );
@@ -346,78 +289,6 @@ class _CategoryButtonState extends State<CategoryButton> {
   bool warning;
 
   final streamController = StreamController();
-
-  // Future categoryAddFollower(String category, bool unfollow) async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String token = prefs.getString('token');
-  //   String userId = prefs.getString('userId');
-  //
-  //   String url = 'http://localhost:4000/category/followers';
-  //
-  //   var headers = {
-  //     HttpHeaders.contentTypeHeader: 'application/json',
-  //     HttpHeaders.authorizationHeader: token
-  //   };
-  //
-  //   var body = jsonEncode({'name': category, 'userId': userId, 'unfollow': unfollow});
-  //   await http.put(url, headers: headers, body: body);
-  // }
-  //
-  // Future followCategory(String category, bool unfollow, context) async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String token = prefs.getString('token');
-  //   String userId = prefs.getString('userId');
-  //   var jsonResponse, user;
-  //
-  //   String url = 'http://localhost:4000/user/' + userId;
-  //
-  //   var headers = {
-  //         HttpHeaders.contentTypeHeader: 'application/json',
-  //         HttpHeaders.authorizationHeader: token
-  //       },
-  //       response,
-  //       body;
-  //
-  //   response = await http.get(url, headers: headers);
-  //
-  //   if (response.statusCode == 200) {
-  //     jsonResponse = jsonDecode(response.body);
-  //
-  //     user = jsonResponse;
-  //     followingCategories = user['followingCategories'];
-  //
-  //     if (!followingCategories.contains(category) || unfollow) {
-  //       if (unfollow) {
-  //         followingCategories.remove(category);
-  //       } else {
-  //         followingCategories.add(category);
-  //       }
-  //
-  //       body = jsonEncode({'followingCategories': followingCategories});
-  //       response = await http.put(url, headers: headers, body: body);
-  //
-  //       if (response.statusCode == 200) {
-  //         jsonResponse = jsonDecode(response.body);
-  //         user = jsonResponse['user'];
-  //
-  //         await categoryAddFollower(category, unfollow);
-  //         widget.updatedUserModel(user);
-  //
-  //         if (unfollow) {
-  //           return showAlert(context, 'Successfully unfollowed category "' + category + '"', true);
-  //         } else {
-  //           return showAlert(context, 'Successfully followed category "' + category + '"', true);
-  //         }
-  //       } else {
-  //         return showAlert(context, 'Something went wrong, please try again');
-  //       }
-  //     } else {
-  //       setState(() {});
-  //     }
-  //   } else {
-  //     return showAlert(context, 'Something went wrong, please try again');
-  //   }
-  // }
 
   @override
   void initState() {
@@ -498,7 +369,7 @@ class _CategoryButtonState extends State<CategoryButton> {
           streamController.add(pollCategory);
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 6.5),
+          padding: const EdgeInsets.symmetric(horizontal: 11.0, vertical: 6.5),
           child: Text(
             pollCategory,
             overflow: TextOverflow.ellipsis,
@@ -924,71 +795,72 @@ class _PollWidgetState extends State<PollWidget> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
                               Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.only(right: 8.0),
                                     child: GestureDetector(
+                                      onTap: () {
+                                        openProfile(context, pollCreator, user: user);
+                                      },
                                       child: profilePhoto != null
                                           ? Container(
-                                              width: 26,
-                                              height: 26,
+                                              width: 34,
+                                              height: 34,
                                               child: ClipOval(
                                                 child: Image.memory(
                                                   profilePhoto,
                                                   fit: BoxFit.cover,
-                                                  width: 26.0,
-                                                  height: 26.0,
+                                                  width: 34.0,
+                                                  height: 34.0,
                                                 ),
                                               ),
                                             )
                                           : CircleAvatar(
-                                              radius: 13,
+                                              radius: 17.0,
                                               backgroundColor: Colors.transparent,
                                               backgroundImage: profileFetched
                                                   ? AssetImage('images/profile.png')
                                                   : null,
                                             ),
-                                      onTap: () {
-                                        openProfile(context, pollCreator, user: user);
-                                      },
                                     ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 2.0),
-                                    child: Row(
-                                      children: [
-                                        GestureDetector(
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          GestureDetector(
+                                              child: Text(
+                                                pollCreator['username'],
+                                                style: TextStyle(
+                                                  fontSize: 15.0,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              onTap: () {
+                                                openProfile(context, pollCreator, user: user);
+                                              }),
+                                          Padding(
+                                            padding: const EdgeInsets.only(left: 2.5, top: 1.75),
                                             child: Text(
-                                              pollCreator['username'],
+                                              time,
                                               style: TextStyle(
-                                                fontSize: 15.0,
-                                                fontWeight: FontWeight.w500,
+                                                fontSize: 13.0,
+                                                wordSpacing: -3.0,
+                                                color: Theme.of(context).hintColor,
                                               ),
                                             ),
-                                            onTap: () {
-                                              openProfile(context, pollCreator, user: user);
-                                            }),
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(2.0, 1.0, 2.0, 0.0),
-                                          child: Text(
-                                            '•',
-                                            style: TextStyle(
-                                              fontSize: 13.0,
-                                            ),
                                           ),
+                                        ],
+                                      ),
+                                      Text(
+                                        prompt.trim() != '' ? prompt : '--',
+                                        style: TextStyle(
+                                          color: Theme.of(context).hintColor,
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(top: 1.5),
-                                          child: Text(
-                                            time,
-                                            style: TextStyle(
-                                              fontSize: 13.0,
-                                              wordSpacing: -3.0,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -1016,17 +888,8 @@ class _PollWidgetState extends State<PollWidget> {
                         : Container(),
                   ],
                 ),
-                prompt.trim() != ''
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 10.0, bottom: 8.0, left: 2.0),
-                        child: Text(
-                          prompt,
-                          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600),
-                        ),
-                      )
-                    : SizedBox(height: 9.5),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 2.0),
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 5.0),
                   child: CategoryButton(
                     followingCategories: followingCategories,
                     pollCategory: pollCategory,
@@ -1039,7 +902,7 @@ class _PollWidgetState extends State<PollWidget> {
             ),
           ),
           Container(
-            height: screenHeight + 50,
+            height: screenHeight + 53,
             child: Stack(
               children: [
                 imageCarousel,
@@ -1060,8 +923,11 @@ class _PollWidgetState extends State<PollWidget> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.how_to_vote,
-                                        color: Theme.of(context).buttonColor, size: 20.0),
+                                    Icon(
+                                      Icons.how_to_vote,
+                                      color: Theme.of(context).buttonColor,
+                                      size: 20.0,
+                                    ),
                                     Padding(
                                       padding: const EdgeInsets.only(left: 1.0),
                                       child: Text(
@@ -1110,7 +976,13 @@ class _PollWidgetState extends State<PollWidget> {
               ],
             ),
           ),
-          SizedBox(height: 15),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
+            child: Divider(
+              thickness: 1.0,
+              color: Theme.of(context).dividerColor,
+            ),
+          ),
         ],
       ),
     );
