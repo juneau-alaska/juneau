@@ -385,11 +385,11 @@ class _SearchedUsersListState extends State<SearchedUsersList> {
 }
 
 class SearchPage extends StatefulWidget {
-  final user;
+  final userId;
 
   SearchPage({
     Key key,
-    @required this.user,
+    @required this.userId,
   }) : super(key: key);
 
   @override
@@ -402,23 +402,12 @@ class _SearchPageState extends State<SearchPage> {
   Widget categoriesList;
   Widget usersList;
   final streamController = StreamController<String>.broadcast();
+  var user;
 
   @override
-  void initState() {
+  void initState()  {
     Stream stream =
         streamController.stream.debounceTime(Duration(milliseconds: 250)).asBroadcastStream();
-
-    followingCategories = widget.user['followingCategories'];
-    followingUsers = widget.user['followingUsers'];
-
-    categoriesList = SearchedCategoriesList(
-      user: widget.user,
-      stream: stream,
-    );
-    usersList = SearchedUsersList(
-      user: widget.user,
-      stream: stream,
-    );
 
     searchBar = new InputComponent(
       hintText: "Find new categories and users to follow",
@@ -428,6 +417,23 @@ class _SearchPageState extends State<SearchPage> {
     );
     searchBarController = searchBar.controller;
     searchBarController.addListener(() => streamController.add(searchBarController.text.trim()));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      user = await userMethods.getUser(widget.userId);
+      followingCategories = user['followingCategories'];
+      followingUsers = user['followingUsers'];
+
+      categoriesList = SearchedCategoriesList(
+        user: user,
+        stream: stream,
+      );
+      usersList = SearchedUsersList(
+        user: user,
+        stream: stream,
+      );
+
+      setState(() {});
+    });
 
     super.initState();
   }

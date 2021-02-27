@@ -100,8 +100,8 @@ class _MainScaffoldState extends State<MainScaffold> {
         profilePhoto = await imageMethods.getImage(profilePhotoUrl);
       }
 
-      homePage = HomePage(user: user);
-      searchPage = SearchPage(user: user);
+      homePage = HomePage(userId: userId);
+      searchPage = SearchPage(userId: userId);
       profilePage = ProfilePage(
           profileUser: user, profilePhoto: profilePhoto, profileController: _profileController);
       navBar = NavBar(

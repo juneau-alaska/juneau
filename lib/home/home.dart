@@ -9,6 +9,7 @@ import 'package:juneau/comment/commentsPage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/keepAlivePage.dart';
 import 'package:juneau/common/components/pageRoutes.dart';
+import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/poll/poll.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,19 +30,14 @@ class _CategoryTabsState extends State<CategoryTabs> {
 
   @override
   void initState() {
-    followingCategories = List<String>.from(user['followingCategories']);
-    followingCategories.sort();
-
     parentController.stream.asBroadcastStream().listen((options) {
       String dataType = options['dataType'];
 
       if (dataType == 'user') {
-        var newUser = options['data'];
-        if (mounted)
-          setState(() {
-            followingCategories = List<String>.from(newUser['followingCategories']);
-            followingCategories.sort();
-          });
+        user = options['data'];
+        if (mounted) {
+          setState(() {});
+        }
       }
     });
 
@@ -56,6 +52,9 @@ class _CategoryTabsState extends State<CategoryTabs> {
 
   @override
   Widget build(BuildContext context) {
+    followingCategories = List<String>.from(user['followingCategories']);
+    followingCategories.sort();
+
     categoryTabs = [
       Padding(
         padding: const EdgeInsets.only(right: 3.0),
@@ -106,9 +105,10 @@ class _CategoryTabsState extends State<CategoryTabs> {
             ),
           ),
           shape: RoundedRectangleBorder(
-              side: BorderSide(
-                  color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
-              borderRadius: BorderRadius.circular(20)),
+            side: BorderSide(
+                color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
+            borderRadius: BorderRadius.circular(20),
+          ),
         ),
       ),
     ];
@@ -163,11 +163,11 @@ class _CategoryTabsState extends State<CategoryTabs> {
 }
 
 class HomePage extends StatefulWidget {
-  final user;
+  final userId;
 
   HomePage({
     Key key,
-    @required this.user,
+    @required this.userId,
   }) : super(key: key);
 
   @override
@@ -230,15 +230,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   _fetchData() async {
+    user = await userMethods.getUser(widget.userId);
     polls = await getPolls();
     if (mounted) {
-      setState(() {});
+      setState(() {
+        categoryTabs = CategoryTabs();
+      });
     }
   }
 
   @override
   void initState() {
-    user = widget.user;
     parentController = new StreamController.broadcast();
     categoryStreamController = new StreamController.broadcast();
     categoryStreamController.stream.listen((category) async {
@@ -314,13 +316,13 @@ class _HomePageState extends State<HomePage> {
         Container(
           key: UniqueKey(),
           child: PollWidget(
-              poll: poll,
-              user: user,
-              dismissPoll: dismissPoll,
-              viewPoll: viewPoll,
-              index: i,
-              updatedUserModel: updatedUserModel,
-              parentController: parentController,
+            poll: poll,
+            user: user,
+            dismissPoll: dismissPoll,
+            viewPoll: viewPoll,
+            index: i,
+            updatedUserModel: updatedUserModel,
+            parentController: parentController,
           ),
         ),
       );
@@ -352,7 +354,6 @@ class _HomePageState extends State<HomePage> {
     return Column(
       children: [
         categoryTabs,
-
         Flexible(
           child: KeepAlivePage(
             child: SmartRefresher(
@@ -366,14 +367,14 @@ class _HomePageState extends State<HomePage> {
               onRefresh: _onRefresh,
               onLoading: _onLoading,
               child: polls.length > 0
-                ? listViewBuilder
-                : Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Container(
-                  height: MediaQuery.of(context).size.height / 1.4,
-                  child: Center(child: Text('No polls found')),
-                ),
-              ),
+                  ? listViewBuilder
+                  : Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Container(
+                        height: MediaQuery.of(context).size.height / 1.4,
+                        child: Center(child: Text('No polls found')),
+                      ),
+                    ),
             ),
           ),
         ),
