@@ -22,7 +22,7 @@ dependencies:
   rxdart: ^0.25.0
   scrollable_positioned_list: ^0.1.9
   shared_preferences: ^0.5.8
-  timeago: ^2.0.26
+  timeago: ^3.0.1
 
 dev_dependencies:
   flutter_test:

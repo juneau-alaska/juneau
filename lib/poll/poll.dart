@@ -84,7 +84,7 @@ class _PositionalDotsState extends State<PositionalDots> {
       children: [
         widget.completed || widget.isCreator
             ? Align(
-                alignment: Alignment.topRight,
+                alignment: Alignment.topCenter,
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Row(
@@ -92,30 +92,28 @@ class _PositionalDotsState extends State<PositionalDots> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 4.0),
-                            child: Icon(Icons.equalizer, color: Colors.white, size: 20.0),
+                            padding: const EdgeInsets.only(bottom: 0.0),
+                            child: Icon(Icons.bar_chart, color: Colors.white, size: 26.0),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 1.0),
+                            padding: const EdgeInsets.only(bottom: 2.0),
                             child: Text(
                               '$votePercent%',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ],
                       ),
                       selected
-                          ? Padding(
-                              padding: const EdgeInsets.only(bottom: 3.0),
-                              child: Icon(Icons.check, color: Colors.white, size: 18.0),
-                            )
+                          ? Icon(Icons.check, color: Colors.white, size: 24.0)
                           : Container(width: 0, height: 0),
                     ],
                   ),
@@ -231,7 +229,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                   ),
                   IgnorePointer(
                     child: Opacity(
-                      opacity: 0.35,
+                      opacity: widget.completed || widget.isCreator ? 0.35 : 0.0,
                       child: Container(
                         width: screenWidth,
                         height: screenHeight,
@@ -346,7 +344,6 @@ class _CategoryButtonState extends State<CategoryButton> {
     var pollCategory = widget.pollCategory;
 
     return Container(
-      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 20),
       decoration: new BoxDecoration(
         color: followingCategories.contains(pollCategory)
             ? Theme.of(context).buttonColor
@@ -369,16 +366,36 @@ class _CategoryButtonState extends State<CategoryButton> {
           streamController.add(pollCategory);
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 11.0, vertical: 6.5),
-          child: Text(
-            pollCategory,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              color: followingCategories.contains(pollCategory)
-                  ? Theme.of(context).backgroundColor
-                  : Theme.of(context).buttonColor,
-            ),
+          padding: const EdgeInsets.fromLTRB(11.0, 6.5, 8.0, 6.5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                pollCategory,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: followingCategories.contains(pollCategory)
+                      ? Theme.of(context).backgroundColor
+                      : Theme.of(context).buttonColor,
+                ),
+              ),
+              followingCategories.contains(pollCategory)
+                ? Padding(
+                  padding: const EdgeInsets.only(left: 3.0, right: 2.0),
+                  child: Icon(
+                    Icons.check,
+                    color: Theme.of(context).backgroundColor,
+                    size: 13.0,
+                  ),
+                )
+                : Icon(
+                  Icons.add,
+                  color: Theme.of(context).buttonColor,
+                  size: 14.0,
+                ),
+            ],
           ),
         ),
       ),
@@ -740,7 +757,7 @@ class _PollWidgetState extends State<PollWidget> {
 
     DateTime createdAt = DateTime.parse(poll['createdAt']);
     String pollCategory = poll['category'];
-    String time = timeago.format(createdAt, locale: 'en_short').replaceAll(new RegExp(r'~'), '');
+    String time = timeago.format(createdAt, locale: 'en_short'); // .replaceAll(new RegExp(r'~'), '');
 
     var completedPolls = user['completedPolls'];
     var selectedOptions = user['selectedOptions'];
@@ -750,7 +767,7 @@ class _PollWidgetState extends State<PollWidget> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = screenWidth / 1.3;
     int totalVotes = 0;
-    String prompt = poll['prompt'];
+    String prompt = poll['prompt'].trim();
     String selectedOption;
 
     for (var c in options) {
@@ -775,9 +792,10 @@ class _PollWidgetState extends State<PollWidget> {
 
     return Container(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+            padding: const EdgeInsets.fromLTRB(15.0, 13.0, 15.0, 0.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -789,9 +807,8 @@ class _PollWidgetState extends State<PollWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          width: screenWidth / 1.5,
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
                               Row(
@@ -803,62 +820,56 @@ class _PollWidgetState extends State<PollWidget> {
                                       onTap: () {
                                         openProfile(context, pollCreator, user: user);
                                       },
-                                      child: profilePhoto != null
-                                          ? Container(
-                                              width: 34,
-                                              height: 34,
-                                              child: ClipOval(
-                                                child: Image.memory(
-                                                  profilePhoto,
-                                                  fit: BoxFit.cover,
-                                                  width: 34.0,
-                                                  height: 34.0,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(top: 1.0),
+                                        child: profilePhoto != null
+                                            ? Container(
+                                                width: 34,
+                                                height: 34,
+                                                child: ClipOval(
+                                                  child: Image.memory(
+                                                    profilePhoto,
+                                                    fit: BoxFit.cover,
+                                                    width: 34.0,
+                                                    height: 34.0,
+                                                  ),
                                                 ),
+                                              )
+                                            : CircleAvatar(
+                                                radius: 17.0,
+                                                backgroundColor: Colors.transparent,
+                                                backgroundImage: profileFetched
+                                                    ? AssetImage('images/profile.png')
+                                                    : null,
                                               ),
-                                            )
-                                          : CircleAvatar(
-                                              radius: 17.0,
-                                              backgroundColor: Colors.transparent,
-                                              backgroundImage: profileFetched
-                                                  ? AssetImage('images/profile.png')
-                                                  : null,
-                                            ),
+                                      ),
                                     ),
                                   ),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
+                                      GestureDetector(
+                                          child: Text(
+                                            pollCreator['username'],
+                                            style: TextStyle(
+                                              fontSize: 15.0,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          onTap: () {
+                                            openProfile(context, pollCreator, user: user);
+                                          },
+                                      ),
                                       Row(
                                         children: [
-                                          GestureDetector(
-                                              child: Text(
-                                                pollCreator['username'],
-                                                style: TextStyle(
-                                                  fontSize: 15.0,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              onTap: () {
-                                                openProfile(context, pollCreator, user: user);
-                                              }),
-                                          Padding(
-                                            padding: const EdgeInsets.only(left: 2.5, top: 1.75),
-                                            child: Text(
-                                              time,
-                                              style: TextStyle(
-                                                fontSize: 13.0,
-                                                wordSpacing: -3.0,
-                                                color: Theme.of(context).hintColor,
-                                              ),
+                                          Text(
+                                            'posted $time ago',
+                                            style: TextStyle(
+                                              fontSize: 13.0,
+                                              color: Theme.of(context).hintColor,
                                             ),
                                           ),
                                         ],
-                                      ),
-                                      Text(
-                                        prompt.trim() != '' ? prompt : '--',
-                                        style: TextStyle(
-                                          color: Theme.of(context).hintColor,
-                                        ),
                                       ),
                                     ],
                                   ),
@@ -869,38 +880,56 @@ class _PollWidgetState extends State<PollWidget> {
                         ),
                       ],
                     ),
-                    user['_id'] == pollCreator['_id']
-                        ? GestureDetector(
-                            onTap: () async {
-                              bool isCreator = user['_id'] == pollCreator['_id'];
-                              String action = await showModalBottomSheet(
-                                  backgroundColor: Colors.transparent,
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      PollMenu(isCreator: isCreator));
-                              handleAction(action);
-                            },
-                            child: Icon(
-                              Icons.more_horiz,
-                              size: 20,
-                            ),
-                          )
-                        : Container(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CategoryButton(
+                          followingCategories: followingCategories,
+                          pollCategory: pollCategory,
+                          warning: warning,
+                          parentController: widget.parentController,
+                          updatedUserModel: widget.updatedUserModel,
+                        ),
+                        user['_id'] == pollCreator['_id']
+                            ? Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: GestureDetector(
+                                  onTap: () async {
+                                    bool isCreator = user['_id'] == pollCreator['_id'];
+                                    String action = await showModalBottomSheet(
+                                        backgroundColor: Colors.transparent,
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            PollMenu(isCreator: isCreator));
+                                    handleAction(action);
+                                  },
+                                  child: Icon(
+                                    Icons.more_horiz,
+                                    size: 20,
+                                  ),
+                                ),
+                            )
+                            : Container(),
+                      ],
+                    ),
                   ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 5.0),
-                  child: CategoryButton(
-                    followingCategories: followingCategories,
-                    pollCategory: pollCategory,
-                    warning: warning,
-                    parentController: widget.parentController,
-                    updatedUserModel: widget.updatedUserModel,
-                  ),
                 ),
               ],
             ),
           ),
+          prompt != ''
+            ? Padding(
+              padding: const EdgeInsets.fromLTRB(15.0, 8.0, 15.0, 15.0),
+              child: Text(
+                prompt,
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            )
+            : Container(height: 20.0),
           Container(
             height: screenHeight + 53,
             child: Stack(
@@ -977,7 +1006,7 @@ class _PollWidgetState extends State<PollWidget> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
+            padding: const EdgeInsets.only(top: 8.0),
             child: Divider(
               thickness: 1.0,
               color: Theme.of(context).dividerColor,

@@ -124,9 +124,10 @@ class PollCreate extends StatefulWidget {
 
 class _PollCreateState extends State<PollCreate> {
   InputComponent questionInput = new InputComponent(
-    hintText: 'Create a title (Optional)',
+    hintText: 'Question or title (optional)',
     borderColor: Colors.transparent,
     contentPadding: EdgeInsets.symmetric(vertical: 10.0),
+    maxLength: 150,
     autoFocus: true,
   );
 
