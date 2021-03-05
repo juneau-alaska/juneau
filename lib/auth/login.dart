@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:juneau/common/api.dart';
+
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/methods/validator.dart';
@@ -12,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void login(email, password, context) async {
   email = email.trimRight();
 
-  const url = 'http://localhost:4000/login';
+  String url = API_URL + 'login';
   const headers = {HttpHeaders.contentTypeHeader: 'application/json'};
 
   var body;
@@ -129,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
                 alignment: Alignment.centerLeft,
                 child: Text('Trouble logging in?',
                     style: TextStyle(
-                        color: Theme.of(context).accentColor, fontWeight: FontWeight.w500)),
+                        color: Theme.of(context).buttonColor, fontWeight: FontWeight.w500)),
               ),
             ),
             FlatButton(
@@ -147,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                   return showAlert(context, 'Incorrect email, username or password.');
                 }
               },
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).buttonColor,
               child: Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Text(
@@ -159,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               shape: RoundedRectangleBorder(
                   side: BorderSide(
-                      color: Theme.of(context).accentColor, width: 1, style: BorderStyle.solid),
+                      color: Theme.of(context).buttonColor, width: 1, style: BorderStyle.solid),
                   borderRadius: BorderRadius.circular(50)),
             ),
           ],

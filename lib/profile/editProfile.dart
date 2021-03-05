@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:http/http.dart' as http;
+import 'package:juneau/common/api.dart';
+
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
@@ -53,7 +55,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
     String token = prefs.getString('token');
     String userId = prefs.getString('userId');
 
-    String url = 'http://localhost:4000/user/' + userId;
+    String url = API_URL + 'user/' + userId;
 
     var headers = {
       HttpHeaders.contentTypeHeader: 'application/json',
@@ -136,7 +138,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
             icon: Icon(
               Icons.arrow_back,
               size: 25.0,
-              color: Theme.of(context).buttonColor,
+              color: Theme.of(context).primaryColor,
             ),
             onPressed: () => Navigator.of(context).pop(),
           ),
@@ -336,7 +338,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
                   },
                   constraints: BoxConstraints(),
                   padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
-                  fillColor: Theme.of(context).buttonColor,
+                  fillColor: Theme.of(context).primaryColor,
                   elevation: 0.0,
                   child: Text(
                     'Submit',

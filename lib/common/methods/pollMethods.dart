@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:juneau/common/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PollMethods {
   Future<List> getPollsFromUser(String userId, {String prevId}) async {
-    const url = 'http://localhost:4000/polls';
+    String url = API_URL + 'polls';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
@@ -34,7 +35,7 @@ class PollMethods {
   }
 
   Future<List> getPollsFromCategory(String category, {String prevId}) async {
-    const url = 'http://localhost:4000/polls';
+    String url = API_URL + 'polls';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:juneau/common/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CategoryMethods {

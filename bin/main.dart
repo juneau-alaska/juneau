@@ -26,32 +26,49 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
 
-    Color background = customColors.white;
-    Color hint = customColors.darkGrey;
-    Color divider = customColors.lightGrey;
-    Color highlight = customColors.blue;
-    Color button = customColors.black;
-    Color textColor = customColors.black;
-
     return MaterialApp(
       theme: ThemeData(
         brightness: Brightness.light,
-        backgroundColor: background,
-        hintColor: hint,
-        dividerColor: divider,
-        highlightColor: highlight,
-        buttonColor: button,
+        backgroundColor: customColors.white,
+        primaryColor: customColors.black,
+        hintColor: customColors.darkGrey,
+        dividerColor: customColors.lightGrey,
+        highlightColor: customColors.blue,
+        buttonColor: customColors.blue,
         textTheme: TextTheme(
           headline1: TextStyle(
-            color: textColor,
+            color: customColors.black,
             letterSpacing: -0.25,
           ),
           headline6: TextStyle(
-            color: textColor,
+            color: customColors.black,
             letterSpacing: -0.25,
           ),
           bodyText2: TextStyle(
-            color: textColor,
+            color: customColors.black,
+            letterSpacing: -0.25,
+          ),
+        ),
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        backgroundColor: customColors.black,
+        primaryColor: customColors.white,
+        hintColor: customColors.lightGrey,
+        dividerColor: customColors.darkGrey,
+        highlightColor: customColors.blue,
+        buttonColor: customColors.blue,
+        textTheme: TextTheme(
+          headline1: TextStyle(
+            color: customColors.white,
+            letterSpacing: -0.25,
+          ),
+          headline6: TextStyle(
+            color: customColors.white,
+            letterSpacing: -0.25,
+          ),
+          bodyText2: TextStyle(
+            color: customColors.white,
             letterSpacing: -0.25,
           ),
         ),

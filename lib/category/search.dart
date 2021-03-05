@@ -246,14 +246,14 @@ class _ResultWidgetState extends State<ResultWidget> {
                 following ? 'Unfollow' : 'Follow',
                 style: TextStyle(
                   color:
-                      following ? Theme.of(context).backgroundColor : Theme.of(context).buttonColor,
+                      following ? Theme.of(context).backgroundColor : Theme.of(context).primaryColor,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
             shape: RoundedRectangleBorder(
                 side: BorderSide(
-                    color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
+                    color: following ? Theme.of(context).buttonColor : Theme.of(context).primaryColor, width: 0.5, style: BorderStyle.solid),
                 borderRadius: BorderRadius.circular(20)),
           ),
         ],

@@ -4,6 +4,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:juneau/common/api.dart';
+
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/methods/validator.dart';
@@ -38,7 +40,7 @@ class _ChangePasswordModalState extends State<ChangePasswordModal> {
     String token = prefs.getString('token');
     String userId = prefs.getString('userId');
 
-    String url = 'http://localhost:4000/account/' + userId + '/password';
+    String url = API_URL + 'account/' + userId + '/password';
 
     var headers = {
       HttpHeaders.contentTypeHeader: 'application/json',

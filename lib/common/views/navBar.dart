@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/poll/pollCreate.dart';
 
 class NavBar extends StatefulWidget {
@@ -47,8 +46,8 @@ class _NavBarState extends State<NavBar> {
           type: BottomNavigationBarType.fixed,
           elevation: 0.0,
           backgroundColor: Theme.of(context).backgroundColor,
-          unselectedItemColor: Theme.of(context).buttonColor,
-          selectedItemColor: Theme.of(context).buttonColor,
+          unselectedItemColor: Theme.of(context).primaryColor,
+          selectedItemColor: Theme.of(context).primaryColor,
           selectedFontSize: 0,
           showSelectedLabels: false,
           showUnselectedLabels: false,
@@ -87,21 +86,21 @@ class _NavBarState extends State<NavBar> {
           },
           items: [
             BottomNavigationBarItem(
-              icon: new Icon(Icons.home_outlined, size: 28.0),
-              activeIcon: new Icon(Icons.home, size: 28.0),
+              icon: new Icon(Icons.home_outlined, size: 30.0),
+              activeIcon: new Icon(Icons.home, size: 30.0),
               title: Text(''),
             ),
             BottomNavigationBarItem(
-              icon: new Icon(Icons.search, size: 28.0),
+              icon: new Icon(Icons.search, size: 30.0),
               title: Text(''),
             ),
             BottomNavigationBarItem(
-              icon: new Icon(Icons.add, size: 28.0),
+              icon: new Icon(Icons.add, size: 30.0),
               title: Text(''),
             ),
             BottomNavigationBarItem(
-              icon: new Icon(Icons.notifications_outlined, size: 26.0),
-              activeIcon: new Icon(Icons.notifications, size: 26.0),
+              icon: new Icon(Icons.notifications_outlined, size: 28.5),
+              activeIcon: new Icon(Icons.notifications, size: 28.5),
               title: Text(''),
             ),
             BottomNavigationBarItem(
@@ -129,7 +128,7 @@ class _NavBarState extends State<NavBar> {
               ),
               activeIcon: CircleAvatar(
                 radius: 13,
-                backgroundColor: Theme.of(context).buttonColor,
+                backgroundColor: Theme.of(context).primaryColor,
                 child: profilePhoto != null
                     ? Container(
                         width: 22,

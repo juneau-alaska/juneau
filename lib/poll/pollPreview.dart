@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:juneau/common/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PollPreview extends StatefulWidget {
@@ -41,7 +42,7 @@ class _PollPreviewState extends State<PollPreview> {
   }
 
   Future<List> getOptions(poll) async {
-    const url = 'http://localhost:4000/option';
+    String url = API_URL + 'option';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');

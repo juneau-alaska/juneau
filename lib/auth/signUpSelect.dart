@@ -49,7 +49,7 @@ class _SignUpSelectPageState extends State<SignUpSelectPage> {
                     onTap: () {
                       Navigator.pushNamed(context, '/loginSelect');
                     },
-                    child: Text('Sign in', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text('Log in', style: TextStyle(fontWeight: FontWeight.bold)),
                   )
                 ]),
               )

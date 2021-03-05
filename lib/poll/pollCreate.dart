@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:http/http.dart' as http;
+import 'package:juneau/common/api.dart';
+
 import 'package:juneau/category/categorySearchSelect.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
@@ -14,7 +16,7 @@ import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<bool> createOptions(prompt, options, category, context) async {
-  const url = 'http://localhost:4000/option';
+  String url = API_URL + 'option';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
@@ -58,7 +60,7 @@ Future<bool> createOptions(prompt, options, category, context) async {
 }
 
 Future<bool> createPoll(prompt, optionIds, category, context) async {
-  const url = 'http://localhost:4000/poll';
+  String url = API_URL + 'poll';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token'), userId = prefs.getString('userId');
@@ -84,7 +86,7 @@ Future<bool> createPoll(prompt, optionIds, category, context) async {
 }
 
 Future<bool> updateUserCreatedPolls(pollId, context) async {
-  const url = 'http://localhost:4000/user/';
+  String url = API_URL + 'user/';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token'), userId = prefs.getString('userId');

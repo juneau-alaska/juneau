@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:juneau/common/api.dart';
+
 import 'package:juneau/comment/commentsPage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/keepAlivePage.dart';
@@ -72,14 +74,19 @@ class _CategoryTabsState extends State<CategoryTabs> {
             'All',
             style: TextStyle(
               color: currentCategory == null
-                  ? Theme.of(context).backgroundColor
-                  : Theme.of(context).buttonColor,
+                  ? Colors.white
+                  : Theme.of(context).primaryColor,
               fontWeight: FontWeight.w500,
             ),
           ),
           shape: RoundedRectangleBorder(
               side: BorderSide(
-                  color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
+                  color: currentCategory == null
+                    ? Theme.of(context).buttonColor
+                    : Theme.of(context).primaryColor,
+                  width: 0.5,
+                  style: BorderStyle.solid,
+              ),
               borderRadius: BorderRadius.circular(20)),
         ),
       ),
@@ -100,13 +107,18 @@ class _CategoryTabsState extends State<CategoryTabs> {
             style: TextStyle(
               color: currentCategory == 'following'
                   ? Theme.of(context).backgroundColor
-                  : Theme.of(context).buttonColor,
+                  : Theme.of(context).primaryColor,
               fontWeight: FontWeight.w500,
             ),
           ),
           shape: RoundedRectangleBorder(
             side: BorderSide(
-                color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
+                color: currentCategory == 'following'
+                  ? Theme.of(context).buttonColor
+                  : Theme.of(context).primaryColor,
+                width: 0.5,
+                style: BorderStyle.solid,
+            ),
             borderRadius: BorderRadius.circular(20),
           ),
         ),
@@ -134,13 +146,18 @@ class _CategoryTabsState extends State<CategoryTabs> {
                 style: TextStyle(
                   color: currentCategory == category
                       ? Theme.of(context).backgroundColor
-                      : Theme.of(context).buttonColor,
+                      : Theme.of(context).primaryColor,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               shape: RoundedRectangleBorder(
                   side: BorderSide(
-                      color: Theme.of(context).buttonColor, width: 0.5, style: BorderStyle.solid),
+                      color: currentCategory == category
+                        ? Theme.of(context).buttonColor
+                        : Theme.of(context).primaryColor,
+                      width: 0.5,
+                      style: BorderStyle.solid,
+                  ),
                   borderRadius: BorderRadius.circular(20)),
             ),
           ),
@@ -188,7 +205,7 @@ class _HomePageState extends State<HomePage> {
   RefreshController refreshController = RefreshController(initialRefresh: false);
 
   Future<List> getPolls() async {
-    const url = 'http://localhost:4000/polls';
+    String url = API_URL + 'polls';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');

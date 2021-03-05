@@ -8,6 +8,8 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:juneau/common/api.dart';
+
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/methods/categoryMethods.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
@@ -80,45 +82,67 @@ class _PositionalDotsState extends State<PositionalDots> {
 
     selected = widget.selectedOption == options[index]['_id'];
 
+
     return Stack(
       children: [
         widget.completed || widget.isCreator
-            ? Align(
-                alignment: Alignment.topCenter,
+        ? Stack(
+          children: [
+            Align(
+              alignment: Alignment.center,
                 child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 0.0),
-                            child: Icon(Icons.bar_chart, color: Colors.white, size: 26.0),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 2.0),
-                            child: Text(
-                              '$votePercent%',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      selected
-                          ? Icon(Icons.check, color: Colors.white, size: 24.0)
-                          : Container(width: 0, height: 0),
-                    ],
+                  padding: const EdgeInsets.only(bottom: 25),
+                  child: Text(
+                    '$votePercent%',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              )
+              ),
+            selected
+              ? Center(child: Padding(
+                padding: const EdgeInsets.only(top: 40.0),
+                child: Icon(Icons.check, color: Colors.white, size: 26.0),
+              ))
+              : Container(),
+          ],
+        )
+            // ? Align(
+            //     alignment: Alignment.topCenter,
+            //     child: Padding(
+            //       padding: const EdgeInsets.all(10.0),
+            //       child: Row(
+            //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //         crossAxisAlignment: CrossAxisAlignment.center,
+            //         children: [
+            //           Row(
+            //             mainAxisAlignment: MainAxisAlignment.start,
+            //             crossAxisAlignment: CrossAxisAlignment.end,
+            //             children: [
+            //               Icon(Icons.bar_chart, color: Colors.white, size: 26.0),
+            //               Padding(
+            //                 padding: const EdgeInsets.only(bottom: 1.5),
+            //                 child: Text(
+            //                   '$votePercent%',
+            //                   style: TextStyle(
+            //                     color: Colors.white,
+            //                     fontSize: 18.0,
+            //                     fontWeight: FontWeight.bold,
+            //                   ),
+            //                 ),
+            //               ),
+            //             ],
+            //           ),
+            //           selected
+            //               ? Icon(Icons.check, color: Colors.white, size: 24.0)
+            //               : Container(width: 0, height: 0),
+            //         ],
+            //       ),
+            //     ),
+            //   )
             : Container(width: 0, height: 0),
         Align(
           alignment: Alignment.bottomCenter,
@@ -128,7 +152,7 @@ class _PositionalDotsState extends State<PositionalDots> {
             decorator: DotsDecorator(
               size: Size.square(6.0),
               color: Theme.of(context).dividerColor,
-              activeColor: Theme.of(context).highlightColor,
+              activeColor: Theme.of(context).buttonColor,
               activeSize: Size.square(6.0),
               spacing: const EdgeInsets.symmetric(horizontal: 2.5),
             ),
@@ -352,7 +376,9 @@ class _CategoryButtonState extends State<CategoryButton> {
           const Radius.circular(20.0),
         ),
         border: Border.all(
-          color: Theme.of(context).buttonColor,
+          color: followingCategories.contains(pollCategory)
+            ? Theme.of(context).buttonColor
+            : Theme.of(context).primaryColor,
           width: 0.5,
           style: BorderStyle.solid,
         ),
@@ -366,7 +392,8 @@ class _CategoryButtonState extends State<CategoryButton> {
           streamController.add(pollCategory);
         },
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(11.0, 6.5, 8.0, 6.5),
+          // padding: const EdgeInsets.fromLTRB(11.0, 6.5, 8.0, 6.5),
+          padding: const EdgeInsets.symmetric(horizontal: 11.0, vertical: 6.5),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -377,24 +404,24 @@ class _CategoryButtonState extends State<CategoryButton> {
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   color: followingCategories.contains(pollCategory)
-                      ? Theme.of(context).backgroundColor
-                      : Theme.of(context).buttonColor,
+                      ? Colors.white
+                      : Theme.of(context).primaryColor,
                 ),
               ),
-              followingCategories.contains(pollCategory)
-                ? Padding(
-                  padding: const EdgeInsets.only(left: 3.0, right: 2.0),
-                  child: Icon(
-                    Icons.check,
-                    color: Theme.of(context).backgroundColor,
-                    size: 13.0,
-                  ),
-                )
-                : Icon(
-                  Icons.add,
-                  color: Theme.of(context).buttonColor,
-                  size: 14.0,
-                ),
+              // followingCategories.contains(pollCategory)
+              //   ? Padding(
+              //     padding: const EdgeInsets.only(left: 3.0, right: 2.0, bottom: 1.0),
+              //     child: Icon(
+              //       Icons.check,
+              //       color: Theme.of(context).backgroundColor,
+              //       size: 16.0,
+              //     ),
+              //   )
+              //   : Icon(
+              //     Icons.add,
+              //     color: Theme.of(context).primaryColor,
+              //     size: 18.0,
+              //   ),
             ],
           ),
         ),
@@ -461,7 +488,7 @@ class _PollWidgetState extends State<PollWidget> {
   }
 
   Future<List> _getOptions(poll) async {
-    const url = 'http://localhost:4000/option';
+    String url = API_URL + 'option';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
@@ -563,7 +590,7 @@ class _PollWidgetState extends State<PollWidget> {
   }
 
   void vote(option) async {
-    String url = 'http://localhost:4000/option/vote/' + option['_id'].toString();
+    String url = API_URL + 'option/vote/' + option['_id'].toString();
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
@@ -592,7 +619,7 @@ class _PollWidgetState extends State<PollWidget> {
   }
 
   void updateUserCompletedPolls(pollId, optionId) async {
-    const url = 'http://localhost:4000/user/';
+    String url = API_URL + 'user/';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token'), userId = prefs.getString('userId');
@@ -634,7 +661,7 @@ class _PollWidgetState extends State<PollWidget> {
   }
 
   void removePollFromUser(pollId) async {
-    const url = 'http://localhost:4000/user/';
+    String url = API_URL + 'user/';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token'), userId = prefs.getString('userId');
@@ -657,7 +684,7 @@ class _PollWidgetState extends State<PollWidget> {
   }
 
   void deleteOptions() async {
-    String url = 'http://localhost:4000/options/delete';
+    String url = API_URL + 'options/delete';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
@@ -688,7 +715,7 @@ class _PollWidgetState extends State<PollWidget> {
 
   void deletePoll() async {
     String _id = poll['_id'];
-    String url = 'http://localhost:4000/poll/' + _id;
+    String url = API_URL + 'poll/' + _id;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
@@ -954,7 +981,7 @@ class _PollWidgetState extends State<PollWidget> {
                                   children: [
                                     Icon(
                                       Icons.how_to_vote,
-                                      color: Theme.of(context).buttonColor,
+                                      color: Theme.of(context).primaryColor,
                                       size: 20.0,
                                     ),
                                     Padding(

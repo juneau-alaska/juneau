@@ -5,6 +5,8 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:juneau/common/api.dart';
+
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/methods/validator.dart';
@@ -12,7 +14,7 @@ import 'package:juneau/common/methods/userMethods.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void signUp(email, username, password, context) async {
-  const url = 'http://localhost:4000/signUp';
+  String url = API_URL + 'signUp';
   const headers = {HttpHeaders.contentTypeHeader: 'application/json'};
   var body = jsonEncode({'email': email, 'username': username, 'password': password});
 
@@ -130,7 +132,7 @@ class _SignUpPageState extends State<SignUpPage> {
               });
             }
           },
-          color: Theme.of(context).buttonColor,
+          color: Theme.of(context).primaryColor,
           child: Padding(
             padding: const EdgeInsets.all(15.0),
             child: Text(
@@ -142,7 +144,7 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           shape: RoundedRectangleBorder(
               side: BorderSide(
-                  color: Theme.of(context).buttonColor, width: 1, style: BorderStyle.solid),
+                  color: Theme.of(context).primaryColor, width: 1, style: BorderStyle.solid),
               borderRadius: BorderRadius.circular(50)),
         )
       ];
@@ -179,7 +181,7 @@ class _SignUpPageState extends State<SignUpPage> {
               });
             }
           },
-          color: Theme.of(context).buttonColor,
+          color: Theme.of(context).primaryColor,
           child: Padding(
             padding: const EdgeInsets.all(15.0),
             child: Text(
@@ -191,7 +193,7 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           shape: RoundedRectangleBorder(
               side: BorderSide(
-                  color: Theme.of(context).buttonColor, width: 1, style: BorderStyle.solid),
+                  color: Theme.of(context).primaryColor, width: 1, style: BorderStyle.solid),
               borderRadius: BorderRadius.circular(50)),
         )
       ];
@@ -231,7 +233,7 @@ class _SignUpPageState extends State<SignUpPage> {
               signUp(emailController.text, username, passwordController.text, context);
             }
           },
-          color: Theme.of(context).accentColor,
+          color: Theme.of(context).buttonColor,
           child: Padding(
             padding: const EdgeInsets.all(15.0),
             child: Text(
@@ -243,7 +245,7 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           shape: RoundedRectangleBorder(
               side: BorderSide(
-                  color: Theme.of(context).accentColor, width: 1, style: BorderStyle.solid),
+                  color: Theme.of(context).buttonColor, width: 1, style: BorderStyle.solid),
               borderRadius: BorderRadius.circular(50)),
         )
       ];

@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:juneau/common/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserMethods {
   Future getUser(String userId) async {
-    String url = 'http://localhost:4000/user/' + userId;
+    String url = API_URL + 'user/' + userId;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
@@ -32,7 +33,7 @@ class UserMethods {
   }
 
   Future getUserByEmail(String email) async {
-    String url = 'http://localhost:4000/user/email/' + email;
+    String url = API_URL + 'user/email/' + email;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
@@ -58,7 +59,7 @@ class UserMethods {
   }
 
   Future getUserByUsername(String username) async {
-    String url = 'http://localhost:4000/user/username/' + username;
+    String url = API_URL + 'user/username/' + username;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
@@ -84,7 +85,7 @@ class UserMethods {
   }
 
   Future searchUsers(String partial) async {
-    String url = 'http://localhost:4000/users';
+    String url = API_URL + 'users';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
@@ -113,7 +114,7 @@ class UserMethods {
   }
 
   Future updateUser(String userId, attrs) async {
-    String url = 'http://localhost:4000/user/' + userId;
+    String url = API_URL + 'user/' + userId;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
@@ -148,7 +149,7 @@ class UserMethods {
     String userId = prefs.getString('userId');
     var jsonResponse, user;
 
-    String url = 'http://localhost:4000/user/' + userId;
+    String url = API_URL + 'user/' + userId;
 
     var headers = {
       HttpHeaders.contentTypeHeader: 'application/json',
