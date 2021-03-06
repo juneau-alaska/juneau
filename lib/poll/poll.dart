@@ -110,39 +110,6 @@ class _PositionalDotsState extends State<PositionalDots> {
               : Container(),
           ],
         )
-            // ? Align(
-            //     alignment: Alignment.topCenter,
-            //     child: Padding(
-            //       padding: const EdgeInsets.all(10.0),
-            //       child: Row(
-            //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //         crossAxisAlignment: CrossAxisAlignment.center,
-            //         children: [
-            //           Row(
-            //             mainAxisAlignment: MainAxisAlignment.start,
-            //             crossAxisAlignment: CrossAxisAlignment.end,
-            //             children: [
-            //               Icon(Icons.bar_chart, color: Colors.white, size: 26.0),
-            //               Padding(
-            //                 padding: const EdgeInsets.only(bottom: 1.5),
-            //                 child: Text(
-            //                   '$votePercent%',
-            //                   style: TextStyle(
-            //                     color: Colors.white,
-            //                     fontSize: 18.0,
-            //                     fontWeight: FontWeight.bold,
-            //                   ),
-            //                 ),
-            //               ),
-            //             ],
-            //           ),
-            //           selected
-            //               ? Icon(Icons.check, color: Colors.white, size: 24.0)
-            //               : Container(width: 0, height: 0),
-            //         ],
-            //       ),
-            //     ),
-            //   )
             : Container(width: 0, height: 0),
         Align(
           alignment: Alignment.bottomCenter,
@@ -198,7 +165,6 @@ class _ImageCarouselState extends State<ImageCarousel> {
   Widget build(BuildContext context) {
     List options = widget.options..shuffle();
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = screenWidth / 1.25;
     List imageBytesList = [];
 
     return FutureBuilder<List>(
@@ -241,11 +207,11 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
             return Container(
               width: screenWidth,
-              height: screenHeight + 30,
+              height: screenWidth + 32,
               child: Stack(
                 children: [
                   Container(
-                    height: screenHeight,
+                    height: screenWidth,
                     child: PageView(
                       controller: pageController,
                       children: imageWidgets,
@@ -256,7 +222,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
                       opacity: widget.completed || widget.isCreator ? 0.35 : 0.0,
                       child: Container(
                         width: screenWidth,
-                        height: screenHeight,
+                        height: screenWidth,
                         color: Colors.black45,
                       ),
                     ),
@@ -279,7 +245,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
             return new Container(
               color: Theme.of(context).dividerColor,
               width: screenWidth,
-              height: screenHeight,
+              height: screenWidth,
             );
           }
         });
@@ -404,24 +370,10 @@ class _CategoryButtonState extends State<CategoryButton> {
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   color: followingCategories.contains(pollCategory)
-                      ? Colors.white
+                      ? Theme.of(context).backgroundColor
                       : Theme.of(context).primaryColor,
                 ),
               ),
-              // followingCategories.contains(pollCategory)
-              //   ? Padding(
-              //     padding: const EdgeInsets.only(left: 3.0, right: 2.0, bottom: 1.0),
-              //     child: Icon(
-              //       Icons.check,
-              //       color: Theme.of(context).backgroundColor,
-              //       size: 16.0,
-              //     ),
-              //   )
-              //   : Icon(
-              //     Icons.add,
-              //     color: Theme.of(context).primaryColor,
-              //     size: 18.0,
-              //   ),
             ],
           ),
         ),
@@ -792,7 +744,6 @@ class _PollWidgetState extends State<PollWidget> {
     bool isCreator = user['_id'] == pollCreator['_id'];
     bool completed = completedPolls != null ? completedPolls.indexOf(poll['_id']) >= 0 : false;
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = screenWidth / 1.3;
     int totalVotes = 0;
     String prompt = poll['prompt'].trim();
     String selectedOption;
@@ -958,7 +909,7 @@ class _PollWidgetState extends State<PollWidget> {
             )
             : Container(height: 20.0),
           Container(
-            height: screenHeight + 53,
+            height: screenWidth + 45,
             child: Stack(
               children: [
                 imageCarousel,

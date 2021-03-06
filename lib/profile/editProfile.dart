@@ -195,10 +195,10 @@ class _EditProfileModalState extends State<EditProfileModal> {
                             setState(() {});
                           },
                           child: Text(
-                            'Change Profile Photo',
+                            'Update Photo',
                             style: TextStyle(
                               color: Theme.of(context).highlightColor,
-                              fontSize: 15.0,
+                              fontSize: 16.0,
                             ),
                           ),
                         )

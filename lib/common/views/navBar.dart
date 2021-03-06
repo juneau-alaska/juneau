@@ -39,14 +39,14 @@ class _NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 90.0,
+      height: 87.5,
       child: Padding(
-        padding: const EdgeInsets.only(top: 5.0),
+        padding: const EdgeInsets.only(top: 0.0),
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           elevation: 0.0,
           backgroundColor: Theme.of(context).backgroundColor,
-          unselectedItemColor: Theme.of(context).primaryColor,
+          unselectedItemColor: Theme.of(context).dividerColor,
           selectedItemColor: Theme.of(context).primaryColor,
           selectedFontSize: 0,
           showSelectedLabels: false,
@@ -99,51 +99,51 @@ class _NavBarState extends State<NavBar> {
               title: Text(''),
             ),
             BottomNavigationBarItem(
-              icon: new Icon(Icons.notifications_outlined, size: 28.5),
-              activeIcon: new Icon(Icons.notifications, size: 28.5),
+              icon: new Icon(Icons.notifications_outlined, size: 30.0),
+              activeIcon: new Icon(Icons.notifications, size: 30.0),
               title: Text(''),
             ),
             BottomNavigationBarItem(
               icon: CircleAvatar(
-                radius: 13,
-                backgroundColor: Colors.transparent,
+                radius: 14,
+                backgroundColor: Theme.of(context).dividerColor,
                 child: profilePhoto != null
                   ? Container(
-                  width: 22,
-                  height: 22,
+                  width: 28,
+                  height: 28,
                   child: ClipOval(
                     child: Image.memory(
                       profilePhoto,
                       fit: BoxFit.cover,
-                      width: 22.0,
-                      height: 22.0,
+                      width: 28.0,
+                      height: 28.0,
                     ),
                   ),
                 )
                   : CircleAvatar(
-                  radius: 11,
+                  radius: 11.5,
                   backgroundColor: Colors.transparent,
                   backgroundImage: AssetImage('images/profile.png'),
                 ),
               ),
               activeIcon: CircleAvatar(
-                radius: 13,
+                radius: 14,
                 backgroundColor: Theme.of(context).primaryColor,
                 child: profilePhoto != null
                     ? Container(
-                        width: 22,
-                        height: 22,
+                        width: 28,
+                        height: 28,
                         child: ClipOval(
                           child: Image.memory(
                             profilePhoto,
                             fit: BoxFit.cover,
-                            width: 22.0,
-                            height: 22.0,
+                            width: 28.0,
+                            height: 28.0,
                           ),
                         ),
                       )
                     : CircleAvatar(
-                        radius: 11,
+                        radius: 11.5,
                         backgroundColor: Colors.transparent,
                         backgroundImage: AssetImage('images/profile.png'),
                       ),

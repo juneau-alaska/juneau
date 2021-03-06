@@ -16,7 +16,7 @@ class ImageMethods {
   }
 
   Future getImageUrl(String fileType, String bucket) async {
-    const url = 'http://localhost:4000/image/create_url';
+    String url = API_URL + 'create_url';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
@@ -41,7 +41,7 @@ class ImageMethods {
 
   Future<void> uploadFile(String url, Asset asset) async {
     try {
-      ByteData byteData = await asset.getByteData(quality: 0);
+      ByteData byteData = await asset.getThumbByteData(300, 300, quality: 60);
       var response = await http.put(url, body: byteData.buffer.asUint8List());
       if (response.statusCode == 200) {
         print('Successfully uploaded photo');
@@ -52,7 +52,7 @@ class ImageMethods {
   }
 
   Future deleteFile(String imgUrl, String bucket) async {
-    String url = 'http://localhost:4000/image/delete';
+    String url = API_URL + 'delete';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
@@ -75,7 +75,7 @@ class ImageMethods {
   }
 
   Future deleteFiles(List keys, String bucket) async {
-    String url = 'http://localhost:4000/image/delete';
+    String url = API_URL + 'delete';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');

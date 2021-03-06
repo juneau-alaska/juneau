@@ -32,7 +32,7 @@ Map<String, List<Widget>> commentReplyWidgets = {};
 Map<String, bool> commentRepliesOpened = {};
 
 Future<List> fetchComments(String parentId, context) async {
-  String url = 'http://localhost:4000/comments/' + parentId;
+  String url = API_URL + 'comments/' + parentId;
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
@@ -55,7 +55,7 @@ Future<List> fetchComments(String parentId, context) async {
 }
 
 Future createComment(String comment, String parentId, context) async {
-  const url = 'http://localhost:4000/comment';
+  String url = API_URL + 'comment';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token'), userId = prefs.getString('userId');
@@ -84,7 +84,7 @@ Future createComment(String comment, String parentId, context) async {
 }
 
 Future<bool> updateCommentReplies(commentId, replyId, context) async {
-  String url = 'http://localhost:4000/comment/' + commentId;
+  String url = API_URL + 'comment/' + commentId;
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
@@ -118,7 +118,7 @@ Future<bool> updateCommentReplies(commentId, replyId, context) async {
 }
 
 Future<bool> updatePollComments(commentId, context) async {
-  String url = 'http://localhost:4000/poll/' + pollId;
+  String url = API_URL + 'poll/' + pollId;
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
@@ -152,7 +152,7 @@ Future<bool> updatePollComments(commentId, context) async {
 }
 
 Future getCreatedByUser(String createdById) async {
-  String url = 'http://localhost:4000/user/' + createdById;
+  String url = API_URL + 'user/' + createdById;
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
@@ -173,7 +173,7 @@ Future getCreatedByUser(String createdById) async {
 }
 
 Future getUser(String username) async {
-  String url = 'http://localhost:4000/user/username/' + username;
+  String url = API_URL + 'user/username/' + username;
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
@@ -194,7 +194,7 @@ Future getUser(String username) async {
 }
 
 Future<bool> updateUserLikedComments(String commentId, bool liked) async {
-  String url = 'http://localhost:4000/user/';
+  String url = API_URL + 'user/';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token'), userId = prefs.getString('userId');
@@ -232,7 +232,7 @@ Future<bool> updateUserLikedComments(String commentId, bool liked) async {
 }
 
 Future<bool> likeComment(String commentId, bool liked) async {
-  String url = 'http://localhost:4000/comment/like/' + commentId;
+  String url = API_URL + 'comment/like/' + commentId;
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');

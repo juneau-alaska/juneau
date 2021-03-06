@@ -24,6 +24,7 @@ class PollMethods {
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
 
+      // TODO: FIX
       // if (jsonResponse.length > 0) {
       //   prevId = jsonResponse.last['_id'];
       // }
@@ -52,6 +53,7 @@ class PollMethods {
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
 
+      // TODO: FIX
       // if (jsonResponse.length > 0) {
       //   prevId = jsonResponse.last['_id'];
       // }

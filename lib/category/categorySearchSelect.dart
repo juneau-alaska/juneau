@@ -14,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rxdart/rxdart.dart';
 
 Future<List> getCategories(String partialText, context) async {
-  const url = 'http://localhost:4000/categories';
+  String url = API_URL + 'categories';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');
@@ -38,7 +38,7 @@ Future<List> getCategories(String partialText, context) async {
 }
 
 void createCategory(name, context) async {
-  const url = 'http://localhost:4000/category';
+  String url = API_URL + 'category';
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('token');

@@ -74,7 +74,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
             'All',
             style: TextStyle(
               color: currentCategory == null
-                  ? Colors.white
+                  ? Theme.of(context).backgroundColor
                   : Theme.of(context).primaryColor,
               fontWeight: FontWeight.w500,
             ),

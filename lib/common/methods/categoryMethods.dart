@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CategoryMethods {
   Future searchCategories(String partial) async {
-    String url = 'http://localhost:4000/categories';
+    String url = API_URL + 'categories';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
@@ -40,7 +40,7 @@ class CategoryMethods {
     String token = prefs.getString('token');
     String userId = prefs.getString('userId');
 
-    String url = 'http://localhost:4000/category/followers';
+    String url = API_URL + 'category/followers';
 
     var headers = {
       HttpHeaders.contentTypeHeader: 'application/json',
@@ -57,7 +57,7 @@ class CategoryMethods {
     String userId = prefs.getString('userId');
     var jsonResponse, user;
 
-    String url = 'http://localhost:4000/user/' + userId;
+    String url = API_URL + 'user/' + userId;
 
     var headers = {
       HttpHeaders.contentTypeHeader: 'application/json',

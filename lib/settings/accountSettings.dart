@@ -45,7 +45,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               //     padding: const EdgeInsets.all(15.0),
               //     child: Container(
               //       child: Row(children: [
-              //         Icon(Icons.notifications, size: 25.0),
+              //         Icon(Icons.notifications, size: 23.0),
               //         SizedBox(
               //           width: 13.0,
               //         ),
@@ -72,13 +72,16 @@ class _AccountSettingsState extends State<AccountSettings> {
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Container(
-                      child: Row(children: [
-                    Icon(Icons.vpn_key, size: 25.0),
-                    SizedBox(
-                      width: 13.0,
+                    child: Row(
+                      children: [
+                        Icon(Icons.vpn_key, size: 23.0),
+                        SizedBox(
+                          width: 13.0,
+                        ),
+                        Text('Change Password', style: TextStyle(fontSize: 15.0))
+                      ],
                     ),
-                    Text('Change Password', style: TextStyle(fontSize: 15.0))
-                  ])),
+                  ),
                 ),
               ),
               // GestureDetector(
@@ -90,7 +93,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               //     padding: const EdgeInsets.all(15.0),
               //     child: Container(
               //       child: Row(children: [
-              //         Icon(Icons.bug_report, size: 25.0),
+              //         Icon(Icons.bug_report, size: 23.0),
               //         SizedBox(
               //           width: 13.0,
               //         ),
@@ -108,12 +111,21 @@ class _AccountSettingsState extends State<AccountSettings> {
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
-                  child: Text(
-                    'Log out ' + widget.user['username'],
-                    style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).highlightColor),
+                  child: Container(
+                    child: Row(
+                      children: [
+                        Icon(Icons.logout, size: 23.0),
+                        SizedBox(
+                          width: 13.0,
+                        ),
+                        Text(
+                          'Log out ' + widget.user['username'],
+                          style: TextStyle(
+                            fontSize: 16.0,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
