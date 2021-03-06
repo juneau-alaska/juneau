@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:juneau/common/colors.dart';
 import 'package:juneau/poll/pollCreate.dart';
 
 class NavBar extends StatefulWidget {
@@ -46,7 +47,7 @@ class _NavBarState extends State<NavBar> {
           type: BottomNavigationBarType.fixed,
           elevation: 0.0,
           backgroundColor: Theme.of(context).backgroundColor,
-          unselectedItemColor: Theme.of(context).dividerColor,
+          unselectedItemColor: customColors.darkGrey,
           selectedItemColor: Theme.of(context).primaryColor,
           selectedFontSize: 0,
           showSelectedLabels: false,
@@ -86,8 +87,8 @@ class _NavBarState extends State<NavBar> {
           },
           items: [
             BottomNavigationBarItem(
-              icon: new Icon(Icons.home_outlined, size: 30.0),
-              activeIcon: new Icon(Icons.home, size: 30.0),
+              icon: new Icon(Icons.home_outlined, size: 32.0),
+              activeIcon: new Icon(Icons.home, size: 32.0),
               title: Text(''),
             ),
             BottomNavigationBarItem(
@@ -106,7 +107,7 @@ class _NavBarState extends State<NavBar> {
             BottomNavigationBarItem(
               icon: CircleAvatar(
                 radius: 14,
-                backgroundColor: Theme.of(context).dividerColor,
+                backgroundColor: customColors.darkGrey,
                 child: profilePhoto != null
                   ? Container(
                   width: 28,

@@ -96,16 +96,16 @@ class _PositionalDotsState extends State<PositionalDots> {
                     '$votePercent%',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 28.0,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 21.0,
+                      fontWeight: FontWeight.w300,
                     ),
                   ),
                 ),
               ),
             selected
               ? Center(child: Padding(
-                padding: const EdgeInsets.only(top: 40.0),
-                child: Icon(Icons.check, color: Colors.white, size: 26.0),
+                padding: const EdgeInsets.only(top: 25.0),
+                child: Icon(Icons.check, color: Colors.white, size: 18.0),
               ))
               : Container(),
           ],
@@ -207,7 +207,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
             return Container(
               width: screenWidth,
-              height: screenWidth + 32,
+              height: screenWidth + 31,
               child: Stack(
                 children: [
                   Container(
@@ -919,60 +919,57 @@ class _PollWidgetState extends State<PollWidget> {
                     alignment: Alignment.bottomCenter,
                     child: Wrap(
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.how_to_vote,
-                                      color: Theme.of(context).primaryColor,
-                                      size: 20.0,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 1.0),
-                                      child: Text(
-                                        numberMethods.shortenNum(totalVotes),
-                                        style: TextStyle(fontWeight: FontWeight.w600),
-                                      ),
-                                    ),
-                                  ],
+                                Icon(
+                                  Icons.how_to_vote,
+                                  color: Theme.of(context).primaryColor,
+                                  size: 24.0,
                                 ),
-                                GestureDetector(
-                                  onTap: () {
-                                    widget.viewPoll(poll['_id']);
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Transform(
-                                        alignment: Alignment.center,
-                                        transform: Matrix4.rotationY(math.pi),
-                                        child: Icon(
-                                          Icons.messenger_outline,
-                                          size: 20.0,
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 1.0),
-                                        child: Text(
-                                          poll['comments'] != null
-                                              ? poll['comments'].length.toString()
-                                              : '0',
-                                          style: TextStyle(fontWeight: FontWeight.w600),
-                                        ),
-                                      ),
-                                    ],
+                                SizedBox(width: 1.0),
+                                Text(
+                                  numberMethods.shortenNum(totalVotes),
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                widget.viewPoll(poll['_id']);
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Transform(
+                                    alignment: Alignment.center,
+                                    transform: Matrix4.rotationY(math.pi),
+                                    child: Icon(
+                                      Icons.messenger_outline,
+                                      size: 23.0,
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.5),
+                                  Text(
+                                    poll['comments'] != null
+                                        ? poll['comments'].length.toString()
+                                        : '0',
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
