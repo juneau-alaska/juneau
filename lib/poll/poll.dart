@@ -658,7 +658,7 @@ class _PollWidgetState extends State<PollWidget> {
 
     if (response.statusCode == 200) {
       showAlert(context, 'Successfully deleted poll', true);
-      imageMethods.deleteFiles(keys, 'poll-option');
+      imageMethods.deleteFiles(keys);
       widget.dismissPoll(widget.index);
     } else {
       showAlert(context, 'Something went wrong, please try again');

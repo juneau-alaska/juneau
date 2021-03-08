@@ -237,7 +237,7 @@ class _PollCreateState extends State<PollCreate> {
 
                             String fileExtension = p.extension(file.path);
                             var imageUrl =
-                                await imageMethods.getImageUrl(fileExtension, 'poll-option').catchError((err) {
+                                await imageMethods.getImageUrl(fileExtension).catchError((err) {
                               showAlert(context, 'Something went wrong, please try again');
                             });
 

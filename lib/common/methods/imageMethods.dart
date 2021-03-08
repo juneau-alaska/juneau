@@ -15,7 +15,7 @@ class ImageMethods {
     }
   }
 
-  Future getImageUrl(String fileType, String bucket) async {
+  Future getImageUrl(String fileType) async {
     String url = API_URL + 'create_url';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -28,7 +28,7 @@ class ImageMethods {
 
     var body, response;
 
-    body = jsonEncode({'fileType': fileType, 'bucket': bucket});
+    body = jsonEncode({'fileType': fileType});
 
     response = await http.post(url, headers: headers, body: body);
 
@@ -51,7 +51,7 @@ class ImageMethods {
     }
   }
 
-  Future deleteFile(String imgUrl, String bucket) async {
+  Future deleteFile(String imgUrl) async {
     String url = API_URL + 'delete';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -70,11 +70,11 @@ class ImageMethods {
       'Key': key
     });
 
-    var body = jsonEncode({'keys': keys, 'bucket': bucket});
+    var body = jsonEncode({'keys': keys});
     await http.post(url, headers: headers, body: body);
   }
 
-  Future deleteFiles(List keys, String bucket) async {
+  Future deleteFiles(List keys) async {
     String url = API_URL + 'delete';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -84,7 +84,7 @@ class ImageMethods {
       HttpHeaders.authorizationHeader: token
     };
 
-    var body = jsonEncode({'keys': keys, 'bucket': bucket});
+    var body = jsonEncode({'keys': keys});
     await http.post(url, headers: headers, body: body);
   }
 }

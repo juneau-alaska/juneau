@@ -6,7 +6,7 @@ class CustomColors {
   Color lightGrey = const Color(0xFFa0a0a0);
   Color darkGrey = const Color(0xFF565555);
   Color blue = const Color(0xFF006eff);
-  Color green = const Color(0xFF9DB63A);
+  Color purple = const Color(0xFFDCD0FF);
 }
 
 CustomColors customColors = new CustomColors();

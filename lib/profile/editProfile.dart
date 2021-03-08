@@ -255,7 +255,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
 
                       String fileExtension = p.extension(file.path);
                       var imageUrl = await imageMethods
-                          .getImageUrl(fileExtension, 'user-profile')
+                          .getImageUrl(fileExtension)
                           .catchError((err) {
                         showAlert(context, 'Something went wrong, please try again');
                       });
@@ -279,7 +279,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
 
                           // DELETE PREVIOUS IMAGE
                           if (prevUrl != null && prevUrl != '') {
-                            imageMethods.deleteFile(prevUrl, 'user-profile');
+                            imageMethods.deleteFile(prevUrl);
                             user = updatedUser;
                             profilePhotoUrl = updatedUser['profilePhoto'];
                           }
