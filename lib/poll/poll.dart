@@ -693,6 +693,7 @@ class _PollWidgetState extends State<PollWidget> {
         Widget cancelButton = FlatButton(
           child: Text("CANCEL", style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
           onPressed: () {
+            HapticFeedback.mediumImpact();
             Navigator.pop(context);
           },
         );
@@ -702,6 +703,7 @@ class _PollWidgetState extends State<PollWidget> {
               style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold, color: Colors.red)),
           onPressed: () {
             deletePoll();
+            HapticFeedback.mediumImpact();
             Navigator.pop(context);
           },
         );

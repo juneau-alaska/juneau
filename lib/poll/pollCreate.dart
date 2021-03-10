@@ -130,7 +130,7 @@ class _PollCreateState extends State<PollCreate> {
     borderColor: Colors.transparent,
     contentPadding: EdgeInsets.symmetric(vertical: 10.0),
     maxLength: 150,
-    autoFocus: true,
+    // autoFocus: true,
   );
 
   List<Asset> images = [];
@@ -189,6 +189,7 @@ class _PollCreateState extends State<PollCreate> {
     return Stack(
       children: [
         Scaffold(
+          resizeToAvoidBottomInset: false,
           backgroundColor: Theme.of(context).backgroundColor,
           body: Column(
             mainAxisAlignment: MainAxisAlignment.start,

@@ -55,30 +55,27 @@ class _InputComponentState extends State<InputComponent> {
     UnderlineInputBorder borderOutline =
         UnderlineInputBorder(borderSide: BorderSide(color: borderColor, width: 0.5));
 
-    return Container(
-      color: Colors.transparent,
-      child: TextField(
-        obscuringCharacter: '•',
-        obscureText: obscureText,
-        maxLines: maxLines,
-        maxLength: widget.maxLength,
-        autofocus: autoFocus,
-        style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
-        decoration: InputDecoration(
-          prefixIcon: widget.prefixIcon,
-          counterText: "",
-          isDense: true,
-          contentPadding: contentPadding,
-          hintText: widget.hintText,
-          hintStyle: TextStyle(color: Theme.of(context).hintColor, fontWeight: fontWeight),
-          filled: false,
-          errorText: widget.errorText,
-          focusedBorder: borderOutline,
-          enabledBorder: borderOutline,
-        ),
-        controller: widget.controller,
-        inputFormatters: inputFormatters,
+    return TextField(
+      obscuringCharacter: '•',
+      obscureText: obscureText,
+      maxLines: maxLines,
+      maxLength: widget.maxLength,
+      autofocus: autoFocus,
+      style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
+      decoration: InputDecoration(
+        prefixIcon: widget.prefixIcon,
+        counterText: "",
+        isDense: true,
+        contentPadding: contentPadding,
+        hintText: widget.hintText,
+        hintStyle: TextStyle(color: Theme.of(context).hintColor, fontWeight: fontWeight),
+        filled: false,
+        errorText: widget.errorText,
+        focusedBorder: borderOutline,
+        enabledBorder: borderOutline,
       ),
+      controller: widget.controller,
+      inputFormatters: inputFormatters,
     );
   }
 }

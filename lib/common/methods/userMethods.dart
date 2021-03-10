@@ -35,12 +35,8 @@ class UserMethods {
   Future getUserByEmail(String email) async {
     String url = API_URL + 'user/email/' + email;
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token = prefs.getString('token');
-
     var headers = {
       HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: token
     };
 
     var response = await http.get(
@@ -61,12 +57,8 @@ class UserMethods {
   Future getUserByUsername(String username) async {
     String url = API_URL + 'user/username/' + username;
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token = prefs.getString('token');
-
     var headers = {
       HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: token
     };
 
     var response = await http.get(

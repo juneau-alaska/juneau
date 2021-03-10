@@ -206,6 +206,7 @@ class _ResultWidgetState extends State<ResultWidget> {
           ),
           RawMaterialButton(
             onPressed: () async {
+              HapticFeedback.mediumImpact();
               var updatedUser;
 
               if (type == 'category') {

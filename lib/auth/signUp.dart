@@ -123,6 +123,8 @@ class _SignUpPageState extends State<SignUpPage> {
             } else {
               var existingUser = await userMethods.getUserByEmail(email);
 
+              print(existingUser);
+
               if (existingUser != null) {
                 return showAlert(context, 'Email address already in use');
               }
