@@ -9,7 +9,7 @@ import 'package:juneau/common/methods/categoryMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/common/methods/pollMethods.dart';
 import 'package:juneau/common/components/pageRoutes.dart';
-import 'package:juneau/common/components/pollListPopoverComponent.dart';
+import 'package:juneau/common/components/pollListPopover.dart';
 import 'package:juneau/profile/profile.dart';
 import 'package:rxdart/rxdart.dart';
 

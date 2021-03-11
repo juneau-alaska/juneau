@@ -15,7 +15,7 @@ class KeepAlivePage extends StatefulWidget {
 class _KeepAlivePageState extends State<KeepAlivePage> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
-    /// Dont't forget this
+    /// Don't forget this
     super.build(context);
 
     return widget.child;

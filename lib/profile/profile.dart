@@ -11,7 +11,7 @@ import 'package:juneau/comment/commentsPage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/keepAlivePage.dart';
 import 'package:juneau/common/components/pageRoutes.dart';
-import 'package:juneau/common/components/pollListPopoverComponent.dart';
+import 'package:juneau/common/components/pollListPopover.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/common/methods/pollMethods.dart';
 import 'package:juneau/poll/pollPreview.dart';

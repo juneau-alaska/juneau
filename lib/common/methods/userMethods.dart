@@ -182,6 +182,22 @@ class UserMethods {
       return null;
     }
   }
+
+  void resetPassword(String email) {
+    String url = API_URL + 'user/reset-password';
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+    };
+
+    var body = jsonEncode({email: email});
+
+    http.post(
+      url,
+      headers: headers,
+      body: body,
+    );
+  }
 }
 
 UserMethods userMethods = new UserMethods();

@@ -385,13 +385,10 @@ class _HomePageState extends State<HomePage> {
               onLoading: _onLoading,
               child: polls.length > 0
                   ? listViewBuilder
-                  : Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Container(
-                        height: MediaQuery.of(context).size.height / 1.4,
-                        child: Center(child: Text('No polls found')),
-                      ),
-                    ),
+                  : Container(
+                    height: MediaQuery.of(context).size.height/1.2,
+                    child: Center(child: Text('No polls found')),
+                  ),
             ),
           ),
         ),

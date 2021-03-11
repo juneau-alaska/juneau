@@ -4,10 +4,11 @@ import 'dart:io';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:juneau/auth/forgotPassword.dart';
 import 'package:juneau/common/api.dart';
-
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
+import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/methods/validator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -112,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('ENTER EMAIL / USERNAME AND PASSWORD',
+                  Text('ENTER LOGIN INFO',
                       style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold)),
                   Padding(
                     padding: const EdgeInsets.only(top: 15.0, bottom: 10.0),
@@ -129,9 +130,20 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.only(bottom: 30.0),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Trouble logging in?',
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
+                      return ForgotPasswordPage();
+                    }));
+                  },
+                  child: Text(
+                    'Trouble logging in?',
                     style: TextStyle(
-                        color: Theme.of(context).buttonColor, fontWeight: FontWeight.w500)),
+                      color: Theme.of(context).buttonColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
               ),
             ),
             FlatButton(
