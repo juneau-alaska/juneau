@@ -1,24 +1,39 @@
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
-import 'package:juneau/common/methods/userMethods.dart';
+import 'package:juneau/common/methods/accountMethods.dart';
+import 'package:juneau/common/methods/validator.dart';
 
-class ForgotPasswordPage extends StatefulWidget {
+class ResetPasswordPage extends StatefulWidget {
+  final userId;
+  final token;
+
+  ResetPasswordPage({
+    Key key,
+    @required this.userId,
+    this.token,
+  }) : super(key: key);
+
   @override
-  _ForgotPasswordPageState createState() => _ForgotPasswordPageState();
+  _ResetPasswordPageState createState() => _ResetPasswordPageState();
 }
 
-class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  InputComponent emailInput;
-  TextEditingController emailController;
+class _ResetPasswordPageState extends State<ResetPasswordPage> {
+  InputComponent passwordInput;
+  TextEditingController passwordController;
 
-  bool _isEmailValid = false;
+  InputComponent confirmInput;
+  TextEditingController confirmController;
+
+  bool _isPasswordValid = false;
 
   @override
   void initState() {
-    emailInput = new InputComponent(hintText: 'Email');
-    emailController = emailInput.controller;
+    passwordInput = new InputComponent(hintText: 'New password');
+    passwordController = passwordInput.controller;
+
+    confirmInput = new InputComponent(hintText: 'Confirm new password');
+    confirmController = confirmInput.controller;
 
     super.initState();
   }
@@ -47,34 +62,43 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'TROUBLE LOGGING IN?',
+              'RESET PASSWORD',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: passwordInput,
+            ),
+            Padding(
               padding: const EdgeInsets.only(top: 10.0, bottom: 30.0),
-              child: emailInput,
+              child: confirmInput,
             ),
             FlatButton(
               onPressed: () async {
-                String email = emailController.text.trim();
+                String password = passwordController.text.trim();
+                _isPasswordValid = validator.validatePassword(password);
 
-                _isEmailValid = EmailValidator.validate(email);
+                String confirmPassword = confirmController.text.trim();
 
-                if (!_isEmailValid) {
-                  return showAlert(context, 'Not a valid email address');
+                if (password != confirmPassword) {
+                  return showAlert(context, 'Passwords must match.');
+                } else if (password.length < 6 || password.length > 40) {
+                  return showAlert(context, 'Password must be between 6-40 characters.');
+                } else if (!_isPasswordValid) {
+                  return showAlert(context, 'Password contains invalid characters.');
                 }
 
-                var response = await userMethods.requestPassword(email);
+                var response = await accountMethods.resetPassword(widget.userId, widget.token, password);
                 showAlert(context, response['msg'], response['success']);
               },
               color: Theme.of(context).buttonColor,
               child: Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Text(
-                  'Reset Password',
+                  'Submit',
                   style: TextStyle(
                     color: Theme.of(context).backgroundColor,
                   ),
@@ -91,3 +115,5 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     );
   }
 }
+
+

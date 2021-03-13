@@ -183,8 +183,8 @@ class UserMethods {
     }
   }
 
-  void resetPassword(String email) async {
-    String url = API_URL + 'user/reset-password';
+  Future requestPassword(String email) async {
+    String url = API_URL + 'user/request_password';
 
     var headers = {
       HttpHeaders.contentTypeHeader: 'application/json',
@@ -192,11 +192,19 @@ class UserMethods {
 
     var body = jsonEncode({'email': email});
 
-    await http.post(
+    var response = await http.post(
       url,
       headers: headers,
       body: body,
     );
+
+    var jsonResponse = jsonDecode(response.body);
+    bool success = response.statusCode == 200;
+
+    return {
+      'msg': jsonResponse['message'],
+      'success': success,
+    };
   }
 }
 
