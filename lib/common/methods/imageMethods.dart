@@ -16,7 +16,8 @@ class ImageMethods {
   }
 
   Future getImageUrl(String fileType) async {
-    String url = API_URL + 'create_url';
+    String url = API_URL + 'image/create_url';
+    print(url);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
@@ -52,7 +53,7 @@ class ImageMethods {
   }
 
   Future deleteFile(String imgUrl) async {
-    String url = API_URL + 'delete';
+    String url = API_URL + 'image/delete';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
@@ -75,7 +76,7 @@ class ImageMethods {
   }
 
   Future deleteFiles(List keys) async {
-    String url = API_URL + 'delete';
+    String url = API_URL + 'image/delete';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');

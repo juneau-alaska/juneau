@@ -159,24 +159,24 @@ class _EditProfileModalState extends State<EditProfileModal> {
                       children: [
                         profilePhoto != null
                             ? Container(
-                                width: 90,
-                                height: 90,
+                                width: 80,
+                                height: 80,
                                 child: ClipOval(
                                   child: Image.memory(
                                     profilePhoto,
                                     fit: BoxFit.cover,
-                                    width: 90.0,
-                                    height: 90.0,
+                                    width: 80.0,
+                                    height: 80.0,
                                   ),
                                 ),
                               )
                             : CircleAvatar(
-                                radius: 45,
+                                radius: 40,
                                 backgroundColor: Colors.transparent,
                                 backgroundImage:
                                     profileFetched ? AssetImage('images/profile.png') : null,
                               ),
-                        SizedBox(height: 10),
+                        SizedBox(height: 6),
                         GestureDetector(
                           onTap: () async {
                             // OPEN MULTI SELECT
@@ -199,6 +199,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
                             style: TextStyle(
                               color: Theme.of(context).highlightColor,
                               fontSize: 16.0,
+                              fontWeight: FontWeight.w500
                             ),
                           ),
                         )
@@ -259,6 +260,8 @@ class _EditProfileModalState extends State<EditProfileModal> {
                           .catchError((err) {
                         showAlert(context, 'Something went wrong, please try again');
                       });
+
+                      print(imageUrl);
 
                       // UPLOAD IMAGE
                       if (imageUrl != null) {
