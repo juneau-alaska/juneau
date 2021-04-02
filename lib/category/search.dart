@@ -239,7 +239,9 @@ class _ResultWidgetState extends State<ResultWidget> {
             constraints: BoxConstraints(),
             padding: EdgeInsets.symmetric(horizontal: 15.0),
             fillColor:
-                following ? Theme.of(context).buttonColor : Theme.of(context).backgroundColor,
+                following
+                  ? Theme.of(context).backgroundColor
+                  : Theme.of(context).primaryColor,
             elevation: 0.0,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.5),
@@ -247,7 +249,9 @@ class _ResultWidgetState extends State<ResultWidget> {
                 following ? 'Unfollow' : 'Follow',
                 style: TextStyle(
                   color:
-                      following ? Theme.of(context).backgroundColor : Theme.of(context).primaryColor,
+                      following
+                        ? Theme.of(context).buttonColor
+                        : Theme.of(context).backgroundColor,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -363,7 +367,9 @@ class _SearchedUsersListState extends State<SearchedUsersList> {
         List users = [];
 
         for (int i = 0; i < searchedUsers.length; i++) {
-          users.add(searchedUsers[i]['username']);
+          if (searchedUsers[i]['username'] != widget.user['username']) {
+            users.add(searchedUsers[i]['username']);
+          }
         }
 
         userSearchResults = await buildResults(widget.user, users, 'user', context);

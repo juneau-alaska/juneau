@@ -163,7 +163,8 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    List options = widget.options..shuffle();
+    //..shuffle()
+    List options = widget.options;
     double screenWidth = MediaQuery.of(context).size.width;
     List imageBytesList = [];
 
@@ -336,8 +337,8 @@ class _CategoryButtonState extends State<CategoryButton> {
     return Container(
       decoration: new BoxDecoration(
         color: followingCategories.contains(pollCategory)
-            ? Theme.of(context).buttonColor
-            : Theme.of(context).backgroundColor,
+            ? Theme.of(context).backgroundColor
+            : Theme.of(context).buttonColor,
         borderRadius: new BorderRadius.all(
           const Radius.circular(20.0),
         ),
@@ -358,7 +359,6 @@ class _CategoryButtonState extends State<CategoryButton> {
           streamController.add(pollCategory);
         },
         child: Padding(
-          // padding: const EdgeInsets.fromLTRB(11.0, 6.5, 8.0, 6.5),
           padding: const EdgeInsets.symmetric(horizontal: 11.0, vertical: 6.5),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,

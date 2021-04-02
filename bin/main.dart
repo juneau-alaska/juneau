@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
     ]);
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.light,
         backgroundColor: customColors.white,
@@ -34,7 +35,7 @@ class MyApp extends StatelessWidget {
         hintColor: customColors.darkGrey,
         dividerColor: customColors.lightGrey,
         highlightColor: customColors.blue,
-        buttonColor: Color(0xFF4966c6),
+        buttonColor: customColors.black,
         textTheme: TextTheme(
           headline1: TextStyle(
             color: customColors.black,
@@ -57,7 +58,7 @@ class MyApp extends StatelessWidget {
         hintColor: customColors.lightGrey,
         dividerColor: customColors.darkGrey,
         highlightColor: customColors.blue,
-        buttonColor: Color(0xFF95a5db),
+        buttonColor: customColors.white,
         textTheme: TextTheme(
           headline1: TextStyle(
             color: customColors.white,

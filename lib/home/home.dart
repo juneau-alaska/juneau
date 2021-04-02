@@ -386,8 +386,15 @@ class _HomePageState extends State<HomePage> {
               child: polls.length > 0
                   ? listViewBuilder
                   : Container(
-                    height: MediaQuery.of(context).size.height/1.2,
-                    child: Center(child: Text('No polls found')),
+                    height: MediaQuery.of(context).size.height/1.3,
+                    child: Center(
+                      child: Text(
+                        'No polls found',
+                        style: TextStyle(
+                          fontSize: 15.0,
+                        ),
+                      ),
+                    ),
                   ),
             ),
           ),
