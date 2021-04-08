@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:juneau/common/api.dart';
+import 'package:juneau/common/colors.dart';
 
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/methods/categoryMethods.dart';
@@ -20,6 +21,7 @@ import 'package:juneau/profile/profile.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:animated_check/animated_check.dart';
 
 class PositionalDots extends StatefulWidget {
   final pageController;
@@ -52,7 +54,6 @@ class _PositionalDotsState extends State<PositionalDots> {
   bool selected = false;
   bool _visible = true;
   List options;
-  double page;
 
   @override
   void initState() {
@@ -61,16 +62,17 @@ class _PositionalDotsState extends State<PositionalDots> {
 
     widget.pageController.addListener(() {
       if (mounted) {
+        double page = widget.pageController.page;
+        currentPosition = page.roundToDouble();
         setState(() {
-          page = widget.pageController.page;
-          currentPosition = page;
-
           _visible = true;
-          Future.delayed(const Duration(milliseconds: 1500), () {
-            setState(() {
-              _visible = false;
+          if (widget.completed || widget.isCreator) {
+            Future.delayed(const Duration(milliseconds: 1500), () {
+              setState(() {
+                _visible = false;
+              });
             });
-          });
+          }
         });
       }
     });
@@ -82,18 +84,13 @@ class _PositionalDotsState extends State<PositionalDots> {
   Widget build(BuildContext context) {
     int index = currentPosition.toInt();
     votes = options[index]['votes'];
-    if (votes == 0) {
-      votePercent = '0';
-    } else {
-      votePercent = (100 * votes ~/ widget.totalVotes).toString();
-    }
-
+    votePercent = (100 * votes ~/ widget.totalVotes).toString();
     selected = widget.selectedOption == options[index]['_id'];
 
     return AnimatedOpacity(
       opacity: _visible ? 1 : 0,
       curve: Curves.easeOut,
-      duration: Duration(milliseconds: _visible ? 0 : 500),
+      duration: Duration(milliseconds: _visible ? 250 : 500),
       child: Stack(
         children: [
           IgnorePointer(
@@ -110,7 +107,7 @@ class _PositionalDotsState extends State<PositionalDots> {
               Align(
                 alignment: Alignment.center,
                   child: Text(
-                    '$votePercent%',
+                    votes == 0 ? '0' : '$votePercent%',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 28.0,
@@ -120,7 +117,7 @@ class _PositionalDotsState extends State<PositionalDots> {
                 ),
               selected
                 ? Center(child: Padding(
-                  padding: const EdgeInsets.only(top: 25.0),
+                  padding: const EdgeInsets.only(top: 60.0),
                   child: Icon(Icons.check, color: Colors.white, size: 18.0),
                 ))
                 : Container(),
@@ -172,8 +169,25 @@ class ImageCarousel extends StatefulWidget {
   _ImageCarouselState createState() => _ImageCarouselState();
 }
 
-class _ImageCarouselState extends State<ImageCarousel> {
+class _ImageCarouselState extends State<ImageCarousel> with SingleTickerProviderStateMixin {
   PageController pageController = PageController();
+
+  AnimationController _animationController;
+  Animation _animation;
+  bool _visible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _animation = new Tween<double>(begin: 0, end: 1)
+      .animate(
+        new CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInCirc,
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -212,7 +226,13 @@ class _ImageCarouselState extends State<ImageCarousel> {
                     onDoubleTap: () {
                       if (!widget.completed && !widget.isCreator) {
                         HapticFeedback.mediumImpact();
-                        widget.vote(options[i]);
+                        _animationController.forward();
+                        Future.delayed(const Duration(milliseconds: 900), () {
+                          setState(() {
+                            _visible = false;
+                            widget.vote(options[i]);
+                          });
+                        });
                       }
                     },
                     child: Image.memory(
@@ -227,6 +247,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
             return Container(
               width: screenWidth,
+              height: screenWidth,
               child: Stack(
                 children: [
                   Container(
@@ -247,6 +268,16 @@ class _ImageCarouselState extends State<ImageCarousel> {
                       isCreator: widget.isCreator,
                     ),
                   ),
+                  _visible
+                  ? Align(
+                    alignment: Alignment.center,
+                    child: AnimatedCheck(
+                      progress: _animation,
+                      color: customColors.white,
+                      size: 100,
+                    ),
+                  )
+                  : Container(),
                 ],
               ),
             );

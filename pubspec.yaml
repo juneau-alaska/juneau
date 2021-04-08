@@ -8,6 +8,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  animated_check: ^1.0.1
   cupertino_icons: ^1.0.2
   dots_indicator: ^1.2.0
   edge_alert: ^0.0.1
