@@ -50,6 +50,7 @@ class _PositionalDotsState extends State<PositionalDots> {
   int votes;
   String votePercent;
   bool selected = false;
+  bool _visible = true;
   List options;
   double page;
 
@@ -63,6 +64,13 @@ class _PositionalDotsState extends State<PositionalDots> {
         setState(() {
           page = widget.pageController.page;
           currentPosition = page;
+
+          _visible = true;
+          Future.delayed(const Duration(milliseconds: 1500), () {
+            setState(() {
+              _visible = false;
+            });
+          });
         });
       }
     });
@@ -82,50 +90,62 @@ class _PositionalDotsState extends State<PositionalDots> {
 
     selected = widget.selectedOption == options[index]['_id'];
 
-
-    return Stack(
-      children: [
-        widget.completed || widget.isCreator
-        ? Stack(
-          children: [
-            Align(
-              alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 25),
+    return AnimatedOpacity(
+      opacity: _visible ? 1 : 0,
+      curve: Curves.easeOut,
+      duration: Duration(milliseconds: _visible ? 0 : 500),
+      child: Stack(
+        children: [
+          IgnorePointer(
+            child: Opacity(
+              opacity: widget.completed || widget.isCreator ? 0.50 : 0.0,
+              child: Container(
+                color: Colors.black45,
+              ),
+            ),
+          ),
+          widget.completed || widget.isCreator
+          ? Stack(
+            children: [
+              Align(
+                alignment: Alignment.center,
                   child: Text(
                     '$votePercent%',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 21.0,
-                      fontWeight: FontWeight.w300,
+                      fontSize: 28.0,
+                      fontWeight: FontWeight.bold
                     ),
                   ),
                 ),
+              selected
+                ? Center(child: Padding(
+                  padding: const EdgeInsets.only(top: 25.0),
+                  child: Icon(Icons.check, color: Colors.white, size: 18.0),
+                ))
+                : Container(),
+            ],
+          )
+              : Container(width: 0, height: 0),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 15.0),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: DotsIndicator(
+                dotsCount: widget.numImages,
+                position: currentPosition,
+                decorator: DotsDecorator(
+                  size: Size.square(7.0),
+                  color: Theme.of(context).hintColor,
+                  activeColor: Theme.of(context).buttonColor,
+                  activeSize: Size.square(7.0),
+                  spacing: const EdgeInsets.symmetric(horizontal: 3.0),
+                ),
               ),
-            selected
-              ? Center(child: Padding(
-                padding: const EdgeInsets.only(top: 25.0),
-                child: Icon(Icons.check, color: Colors.white, size: 18.0),
-              ))
-              : Container(),
-          ],
-        )
-            : Container(width: 0, height: 0),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: DotsIndicator(
-            dotsCount: widget.numImages,
-            position: currentPosition,
-            decorator: DotsDecorator(
-              size: Size.square(6.0),
-              color: Theme.of(context).dividerColor,
-              activeColor: Theme.of(context).buttonColor,
-              activeSize: Size.square(6.0),
-              spacing: const EdgeInsets.symmetric(horizontal: 2.5),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -163,7 +183,6 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    //..shuffle()
     List options = widget.options;
     double screenWidth = MediaQuery.of(context).size.width;
     List imageBytesList = [];
@@ -208,7 +227,6 @@ class _ImageCarouselState extends State<ImageCarousel> {
 
             return Container(
               width: screenWidth,
-              height: screenWidth + 31,
               child: Stack(
                 children: [
                   Container(
@@ -216,16 +234,6 @@ class _ImageCarouselState extends State<ImageCarousel> {
                     child: PageView(
                       controller: pageController,
                       children: imageWidgets,
-                    ),
-                  ),
-                  IgnorePointer(
-                    child: Opacity(
-                      opacity: widget.completed || widget.isCreator ? 0.35 : 0.0,
-                      child: Container(
-                        width: screenWidth,
-                        height: screenWidth,
-                        color: Colors.black45,
-                      ),
                     ),
                   ),
                   Positioned.fill(
@@ -344,8 +352,8 @@ class _CategoryButtonState extends State<CategoryButton> {
         ),
         border: Border.all(
           color: followingCategories.contains(pollCategory)
-            ? Theme.of(context).buttonColor
-            : Theme.of(context).primaryColor,
+            ? Theme.of(context).primaryColor
+            : Theme.of(context).buttonColor,
           width: 0.5,
           style: BorderStyle.solid,
         ),
@@ -370,8 +378,8 @@ class _CategoryButtonState extends State<CategoryButton> {
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   color: followingCategories.contains(pollCategory)
-                      ? Theme.of(context).backgroundColor
-                      : Theme.of(context).primaryColor,
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).backgroundColor,
                 ),
               ),
             ],

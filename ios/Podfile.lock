@@ -10,7 +10,7 @@ PODS:
   - keyboard_visibility (0.5.0):
     - Flutter
     - Reachability
-  - multi_image_picker (4.7.14):
+  - multi_image_picker (4.8.00):
     - BSImagePicker (~> 2.10.3)
     - Flutter
   - Reachability (3.2)
@@ -50,7 +50,7 @@ SPEC CHECKSUMS:
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   flutter_absolute_path: 5adb13678c88f0bdfba527f3851f9543d01dde66
   keyboard_visibility: 96a24de806fe6823c3ad956c01ba2ec6d056616f
-  multi_image_picker: c068931d08240565e0615fb01437d16984909183
+  multi_image_picker: 6dfd22d7e6441a1cb06f6876fe8cc5f32f7f6610
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
 
