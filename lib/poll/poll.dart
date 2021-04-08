@@ -84,7 +84,11 @@ class _PositionalDotsState extends State<PositionalDots> {
   Widget build(BuildContext context) {
     int index = currentPosition.toInt();
     votes = options[index]['votes'];
-    votePercent = (100 * votes ~/ widget.totalVotes).toString();
+    if (votes == 0) {
+      votePercent = '0';
+    } else {
+      votePercent = (100 * votes ~/ widget.totalVotes).toString();
+    }
     selected = widget.selectedOption == options[index]['_id'];
 
     return AnimatedOpacity(
@@ -107,7 +111,7 @@ class _PositionalDotsState extends State<PositionalDots> {
               Align(
                 alignment: Alignment.center,
                   child: Text(
-                    votes == 0 ? '0' : '$votePercent%',
+                    '$votePercent%',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 28.0,

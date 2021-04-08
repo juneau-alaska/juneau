@@ -42,7 +42,7 @@ class ImageMethods {
 
   Future<void> uploadFile(String url, Asset asset) async {
     try {
-      ByteData byteData = await asset.getThumbByteData(300, 300, quality: 60);
+      ByteData byteData = await asset.getThumbByteData(600, 600, quality: 80);
       var response = await http.put(url, body: byteData.buffer.asUint8List());
       if (response.statusCode == 200) {
         print('Successfully uploaded photo');

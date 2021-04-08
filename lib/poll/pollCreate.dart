@@ -130,7 +130,6 @@ class _PollCreateState extends State<PollCreate> {
     borderColor: Colors.transparent,
     contentPadding: EdgeInsets.symmetric(vertical: 10.0),
     maxLength: 150,
-    // autoFocus: true,
   );
 
   List<Asset> images = [];
