@@ -231,7 +231,7 @@ class _ImageCarouselState extends State<ImageCarousel> with SingleTickerProvider
                       if (!widget.completed && !widget.isCreator) {
                         HapticFeedback.mediumImpact();
                         _animationController.forward();
-                        Future.delayed(const Duration(milliseconds: 900), () {
+                        Future.delayed(const Duration(milliseconds: 1000), () {
                           setState(() {
                             _visible = false;
                             widget.vote(options[i]);
