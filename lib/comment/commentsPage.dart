@@ -322,8 +322,8 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
   }
 
   EdgeInsets padding = nested
-      ? EdgeInsets.fromLTRB(40.0, 5.0, 15.0, 5.0)
-      : EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 5.0);
+      ? EdgeInsets.fromLTRB(40.0, 8.0, 15.0, 8.0)
+      : EdgeInsets.fromLTRB(15.0, 8.0, 15.0, 8.0);
 
   double mediaWidth = MediaQuery.of(context).size.width;
 
@@ -501,7 +501,8 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: replyWidgets),
+                    children: replyWidgets,
+                ),
               )
             : Container(),
         !nested
@@ -530,7 +531,7 @@ Future<Widget> createCommentWidget(comment, context, {nested = false}) async {
                         ),
                       )
                     : Padding(
-                        padding: const EdgeInsets.fromLTRB(40.0, 0.0, 15.0, 5.0),
+                        padding: const EdgeInsets.fromLTRB(40.0, 5.0, 15.0, 5.0),
                         child: GestureDetector(
                           onTap: () async {
                             commentRepliesOpened[id] = null;
@@ -898,7 +899,7 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
                         child: ListView(
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 60.0),
+                              padding: const EdgeInsets.only(top: 10.0, bottom: 60.0),
                               child: CommentsWidget(),
                             ),
                           ],

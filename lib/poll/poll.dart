@@ -137,8 +137,8 @@ class _PositionalDotsState extends State<PositionalDots> {
                 position: currentPosition,
                 decorator: DotsDecorator(
                   size: Size.square(7.0),
-                  color: Theme.of(context).hintColor,
-                  activeColor: Theme.of(context).buttonColor,
+                  color: customColors.lightGrey,
+                  activeColor: customColors.white,
                   activeSize: Size.square(7.0),
                   spacing: const EdgeInsets.symmetric(horizontal: 3.0),
                 ),
