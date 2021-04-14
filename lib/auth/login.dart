@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -64,6 +65,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isPasswordValid = false;
   bool _isEmailValid = false;
   bool _isUsernameValid = false;
+  bool pending = false;
 
   @override
   void initState() {
@@ -120,14 +122,14 @@ class _LoginPageState extends State<LoginPage> {
                     child: emailInput,
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 5.0, bottom: 10.0),
+                    padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
                     child: passwordInput,
                   ),
                 ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 30.0),
+              padding: const EdgeInsets.only(bottom: 23.0),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
@@ -139,15 +141,24 @@ class _LoginPageState extends State<LoginPage> {
                   child: Text(
                     'Trouble logging in?',
                     style: TextStyle(
-                      color: Theme.of(context).buttonColor,
+                      color: Theme.of(context).highlightColor,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
               ),
             ),
-            FlatButton(
+            RawMaterialButton(
               onPressed: () {
+                if (pending) {
+                  return showAlert(context, "You're going too fast.", true);
+                }
+
+                pending = true;
+                Timer(Duration(milliseconds: 3000), () {
+                  pending = false;
+                });
+
                 String email = emailController.text.trim();
                 String password = passwordController.text.trim();
 
@@ -161,20 +172,25 @@ class _LoginPageState extends State<LoginPage> {
                   return showAlert(context, 'Incorrect email, username or password.');
                 }
               },
-              color: Theme.of(context).buttonColor,
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Text(
-                  'Log in',
-                  style: TextStyle(
-                    color: Theme.of(context).backgroundColor,
-                  ),
+              constraints: BoxConstraints(),
+              padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
+              fillColor: Theme.of(context).buttonColor,
+              elevation: 0.0,
+              child: Text(
+                'Log in',
+                style: TextStyle(
+                  color: Theme.of(context).backgroundColor,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                      color: Theme.of(context).buttonColor, width: 1, style: BorderStyle.solid),
-                  borderRadius: BorderRadius.circular(50)),
+                side: BorderSide(
+                  color: Theme.of(context).backgroundColor,
+                  width: 1,
+                  style: BorderStyle.solid,
+                ),
+                borderRadius: BorderRadius.circular(50),
+              ),
             ),
           ],
         ),

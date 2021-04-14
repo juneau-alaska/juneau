@@ -50,7 +50,7 @@ class UserMethods {
       return jsonResponse;
     } else {
       print('Request failed with status: ${response.statusCode}.');
-      return null;
+      return response.statusCode;
     }
   }
 
@@ -72,7 +72,7 @@ class UserMethods {
       return jsonResponse;
     } else {
       print('Request failed with status: ${response.statusCode}.');
-      return null;
+      return response.statusCode;
     }
   }
 

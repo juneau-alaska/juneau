@@ -123,10 +123,12 @@ class _SignUpPageState extends State<SignUpPage> {
             } else {
               var existingUser = await userMethods.getUserByEmail(email);
 
-              print(existingUser);
+              if (existingUser == 500) {
+                return showAlert(context, 'Unexpected error.');
+              }
 
               if (existingUser != null) {
-                return showAlert(context, 'Email address already in use');
+                return showAlert(context, 'Email address already in use.');
               }
 
               setState(() {
@@ -222,6 +224,10 @@ class _SignUpPageState extends State<SignUpPage> {
             String username = usernameController.text.trim().toLowerCase();
 
             var existingUser = await userMethods.getUserByUsername(username);
+
+            if (existingUser == 500) {
+              return showAlert(context, 'Unexpected error.');
+            }
 
             if (existingUser != null) {
               return showAlert(context, 'Username already in use');
