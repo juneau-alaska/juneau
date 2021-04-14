@@ -113,7 +113,7 @@ class _SignUpPageState extends State<SignUpPage> {
             ],
           ),
         ),
-        FlatButton(
+        RawMaterialButton(
           onPressed: () async {
             String email = emailController.text.trim();
             _isEmailValid = EmailValidator.validate(email);
@@ -136,21 +136,26 @@ class _SignUpPageState extends State<SignUpPage> {
               });
             }
           },
-          color: Theme.of(context).primaryColor,
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Text(
-              'Next',
-              style: TextStyle(
-                color: Theme.of(context).backgroundColor,
-              ),
+          constraints: BoxConstraints(),
+          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
+          fillColor: Theme.of(context).primaryColor,
+          elevation: 0.0,
+          child: Text(
+            'Next',
+            style: TextStyle(
+              color: Theme.of(context).backgroundColor,
+              fontWeight: FontWeight.w500,
             ),
           ),
           shape: RoundedRectangleBorder(
-              side: BorderSide(
-                  color: Theme.of(context).primaryColor, width: 1, style: BorderStyle.solid),
-              borderRadius: BorderRadius.circular(50)),
-        )
+            side: BorderSide(
+              color: Theme.of(context).backgroundColor,
+              width: 1,
+              style: BorderStyle.solid,
+            ),
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
       ];
     }
 
@@ -170,7 +175,7 @@ class _SignUpPageState extends State<SignUpPage> {
             ],
           ),
         ),
-        FlatButton(
+        RawMaterialButton(
           onPressed: () {
             String password = passwordController.text.trim();
             _isPasswordValid = validator.validatePassword(password);
@@ -185,21 +190,26 @@ class _SignUpPageState extends State<SignUpPage> {
               });
             }
           },
-          color: Theme.of(context).primaryColor,
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Text(
-              'Next',
-              style: TextStyle(
-                color: Theme.of(context).backgroundColor,
-              ),
+          constraints: BoxConstraints(),
+          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
+          fillColor: Theme.of(context).primaryColor,
+          elevation: 0.0,
+          child: Text(
+            'Next',
+            style: TextStyle(
+              color: Theme.of(context).backgroundColor,
+              fontWeight: FontWeight.w500,
             ),
           ),
           shape: RoundedRectangleBorder(
-              side: BorderSide(
-                  color: Theme.of(context).primaryColor, width: 1, style: BorderStyle.solid),
-              borderRadius: BorderRadius.circular(50)),
-        )
+            side: BorderSide(
+              color: Theme.of(context).backgroundColor,
+              width: 1,
+              style: BorderStyle.solid,
+            ),
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
       ];
     }
 
@@ -219,7 +229,7 @@ class _SignUpPageState extends State<SignUpPage> {
             ],
           ),
         ),
-        FlatButton(
+        RawMaterialButton(
           onPressed: () async {
             String username = usernameController.text.trim().toLowerCase();
 
@@ -241,21 +251,26 @@ class _SignUpPageState extends State<SignUpPage> {
               signUp(emailController.text, username, passwordController.text, context);
             }
           },
-          color: Theme.of(context).buttonColor,
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Text(
-              'Sign up',
-              style: TextStyle(
-                color: Theme.of(context).backgroundColor,
-              ),
+          constraints: BoxConstraints(),
+          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
+          fillColor: Theme.of(context).buttonColor,
+          elevation: 0.0,
+          child: Text(
+            'Sign up',
+            style: TextStyle(
+              color: Theme.of(context).backgroundColor,
+              fontWeight: FontWeight.w500,
             ),
           ),
           shape: RoundedRectangleBorder(
-              side: BorderSide(
-                  color: Theme.of(context).buttonColor, width: 1, style: BorderStyle.solid),
-              borderRadius: BorderRadius.circular(50)),
-        )
+            side: BorderSide(
+              color: Theme.of(context).backgroundColor,
+              width: 1,
+              style: BorderStyle.solid,
+            ),
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
       ];
     }
 

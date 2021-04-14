@@ -19,27 +19,37 @@ class _SignUpSelectPageState extends State<SignUpSelectPage> {
                     child: Text('Sign up',
                         style: TextStyle(fontSize: 45.0, fontWeight: FontWeight.bold)))),
             Column(children: [
-              FlatButton(
+              RawMaterialButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/signUp');
                 },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 15.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Icon(Icons.email),
-                      Center(
-                        child: Text('Sign up with email'),
+                constraints: BoxConstraints(),
+                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
+                fillColor: Theme.of(context).backgroundColor,
+                elevation: 0.0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(Icons.email),
+                    Center(
+                      child: Text(
+                        'Sign up with email',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      Container()
-                    ],
-                  ),
+                    ),
+                    Container()
+                  ],
                 ),
                 shape: RoundedRectangleBorder(
-                    side: BorderSide(
-                        color: Theme.of(context).hintColor, width: 1, style: BorderStyle.solid),
-                    borderRadius: BorderRadius.circular(50)),
+                  side: BorderSide(
+                    color: Theme.of(context).hintColor,
+                    width: 1,
+                    style: BorderStyle.solid,
+                  ),
+                  borderRadius: BorderRadius.circular(50),
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(30.0, 50.0, 30.0, 10.0),
