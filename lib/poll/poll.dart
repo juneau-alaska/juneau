@@ -733,22 +733,40 @@ class _PollWidgetState extends State<PollWidget> {
   void handleAction(String action) {
     switch (action) {
       case 'delete':
-        Widget cancelButton = FlatButton(
-          child: Text("CANCEL", style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
+        Widget cancelButton = RawMaterialButton(
           onPressed: () {
             HapticFeedback.mediumImpact();
             Navigator.pop(context);
           },
+          constraints: BoxConstraints(),
+          padding: EdgeInsets.symmetric(vertical: 15.0),
+          fillColor: Theme.of(context).backgroundColor,
+          elevation: 0.0,
+          child: Text(
+            'CANCEL',
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
         );
 
-        Widget continueButton = FlatButton(
-          child: Text("DELETE",
-              style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold, color: Colors.red)),
+        Widget continueButton = RawMaterialButton(
           onPressed: () {
             deletePoll();
             HapticFeedback.mediumImpact();
             Navigator.pop(context);
           },
+          constraints: BoxConstraints(),
+          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
+          fillColor: Theme.of(context).backgroundColor,
+          elevation: 0.0,
+          child: Text(
+            'DELETE',
+            style: TextStyle(
+              color: Colors.red,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         );
 
         AlertDialog alertDialogue = AlertDialog(

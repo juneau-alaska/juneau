@@ -50,7 +50,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
           icon: Icon(
             Icons.arrow_back,
             size: 25.0,
-            color: Theme.of(context).buttonColor,
+            color: Theme.of(context).primaryColor,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -76,7 +76,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               padding: const EdgeInsets.only(top: 10.0, bottom: 30.0),
               child: confirmInput,
             ),
-            FlatButton(
+            RawMaterialButton(
               onPressed: () async {
                 String password = passwordController.text.trim();
                 _isPasswordValid = validator.validatePassword(password);
@@ -94,20 +94,25 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 var response = await accountMethods.resetPassword(widget.userId, widget.token, password);
                 showAlert(context, response['msg'], response['success']);
               },
-              color: Theme.of(context).buttonColor,
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Text(
-                  'Submit',
-                  style: TextStyle(
-                    color: Theme.of(context).backgroundColor,
-                  ),
+              constraints: BoxConstraints(),
+              padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
+              fillColor: Theme.of(context).buttonColor,
+              elevation: 0.0,
+              child: Text(
+                'Submit',
+                style: TextStyle(
+                  color: Theme.of(context).backgroundColor,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               shape: RoundedRectangleBorder(
                 side: BorderSide(
-                  color: Theme.of(context).buttonColor, width: 1, style: BorderStyle.solid),
-                borderRadius: BorderRadius.circular(50)),
+                  color: Theme.of(context).backgroundColor,
+                  width: 1,
+                  style: BorderStyle.solid,
+                ),
+                borderRadius: BorderRadius.circular(50),
+              ),
             ),
           ],
         ),

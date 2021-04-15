@@ -241,7 +241,7 @@ class _ResultWidgetState extends State<ResultWidget> {
             fillColor:
                 following
                   ? Theme.of(context).backgroundColor
-                  : Theme.of(context).primaryColor,
+                  : Theme.of(context).buttonColor,
             elevation: 0.0,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.5),
@@ -258,7 +258,7 @@ class _ResultWidgetState extends State<ResultWidget> {
             ),
             shape: RoundedRectangleBorder(
                 side: BorderSide(
-                    color: following ? Theme.of(context).buttonColor : Theme.of(context).primaryColor, width: 0.5, style: BorderStyle.solid),
+                    color: following ? Theme.of(context).buttonColor : Theme.of(context).backgroundColor, width: 0.5, style: BorderStyle.solid),
                 borderRadius: BorderRadius.circular(20)),
           ),
         ],
