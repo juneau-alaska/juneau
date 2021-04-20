@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 OverlayEntry entry;
 
-void showAlert(context, text, [bool success = false]) {
+void showAlert(context, text, [bool success = false, bool blank = false]) {
   if (entry != null) {
     entry.remove();
   }
@@ -12,7 +12,7 @@ void showAlert(context, text, [bool success = false]) {
   Color color = success ? Colors.green : Colors.red;
 
   entry = OverlayEntry(builder: (BuildContext context) {
-    return AlertComponent(text: text, color: color);
+    return AlertComponent(text: text, color: color, blank: blank);
   });
 
   Navigator.of(context).overlay.insert(entry);
@@ -21,11 +21,13 @@ void showAlert(context, text, [bool success = false]) {
 class AlertComponent extends StatefulWidget {
   final text;
   final color;
+  final blank;
 
   AlertComponent({
     Key key,
     @required this.text,
     this.color,
+    this.blank,
   }) : super(key: key);
 
   @override
@@ -48,6 +50,11 @@ class _AlertComponentState extends State<AlertComponent> with SingleTickerProvid
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Align(
@@ -60,7 +67,7 @@ class _AlertComponentState extends State<AlertComponent> with SingleTickerProvid
               width: MediaQuery.of(context).size.width,
               height: 45,
               decoration: new BoxDecoration(
-                color: widget.color,
+                color: widget.blank ? Theme.of(context).buttonColor : widget.color,
                 borderRadius: new BorderRadius.circular(8.0),
               ),
               child: Center(

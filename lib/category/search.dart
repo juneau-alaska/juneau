@@ -47,6 +47,8 @@ class _ResultWidgetState extends State<ResultWidget> {
   StreamController pollListController = StreamController.broadcast();
   StreamController parentController = new StreamController.broadcast();
 
+  Timer _debounce;
+
   void dismissPoll(index) {
     if (mounted) {
       setState(() {
@@ -122,6 +124,7 @@ class _ResultWidgetState extends State<ResultWidget> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     pollListController.close();
     parentController.close();
     super.dispose();
@@ -146,7 +149,6 @@ class _ResultWidgetState extends State<ResultWidget> {
 
     bool isString = result is String;
     bool following = false;
-
 
     if (type == 'category') {
       followingList = followingCategories;
@@ -180,6 +182,41 @@ class _ResultWidgetState extends State<ResultWidget> {
       ),
     );
 
+    _onPressed() {
+      if (_debounce?.isActive ?? false) _debounce.cancel();
+      _debounce = Timer(const Duration(milliseconds: 500), () async {
+        HapticFeedback.mediumImpact();
+        var updatedUser;
+
+        if (type == 'category') {
+          updatedUser = await categoryMethods.followCategory(name, following, followingList);
+        } else if (type == 'user') {
+          updatedUser = await userMethods.followUser(name, following, followingList);
+        }
+
+        if (updatedUser != null) {
+          if (following) {
+            showAlert(context, 'Successfully unfollowed ' + type + ' "' + name + '"', true);
+          } else {
+            showAlert(
+              context, 'Successfully followed ' + type + ' "' + name + '"', true);
+          }
+
+          setState(() {
+            if (type == 'category') {
+              followingCategories = updatedUser['followingCategories'];
+              followingList = followingCategories;
+            } else if (type == 'user') {
+              followingUsers = updatedUser['followingUsers'];
+              followingList = followingUsers;
+            }
+          });
+        } else {
+          showAlert(context, 'Something went wrong, please try again');
+        }
+      });
+    }
+
     return Container(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -205,37 +242,7 @@ class _ResultWidgetState extends State<ResultWidget> {
                   ),
           ),
           RawMaterialButton(
-            onPressed: () async {
-              HapticFeedback.mediumImpact();
-              var updatedUser;
-
-              if (type == 'category') {
-                updatedUser = await categoryMethods.followCategory(name, following, followingList);
-              } else if (type == 'user') {
-                updatedUser = await userMethods.followUser(name, following, followingList);
-              }
-
-              if (updatedUser != null) {
-                if (following) {
-                  showAlert(context, 'Successfully unfollowed ' + type + ' "' + name + '"', true);
-                } else {
-                  showAlert(
-                      context, 'Successfully followed ' + type + ' "' + name + '"', true);
-                }
-
-                setState(() {
-                  if (type == 'category') {
-                    followingCategories = updatedUser['followingCategories'];
-                    followingList = followingCategories;
-                  } else if (type == 'user') {
-                    followingUsers = updatedUser['followingUsers'];
-                    followingList = followingUsers;
-                  }
-                });
-              } else {
-                showAlert(context, 'Something went wrong, please try again');
-              }
-            },
+            onPressed: _onPressed,
             constraints: BoxConstraints(),
             padding: EdgeInsets.symmetric(horizontal: 15.0),
             fillColor:

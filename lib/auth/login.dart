@@ -65,7 +65,25 @@ class _LoginPageState extends State<LoginPage> {
   bool _isPasswordValid = false;
   bool _isEmailValid = false;
   bool _isUsernameValid = false;
-  bool pending = false;
+  Timer _debounce;
+
+  _onPressed() {
+    if (_debounce?.isActive ?? false) _debounce.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      String email = emailController.text.trim();
+      String password = passwordController.text.trim();
+
+      _isPasswordValid = validator.validatePassword(password);
+      _isEmailValid = EmailValidator.validate(email);
+      _isUsernameValid = validator.validateUsername(email);
+
+      if (_isPasswordValid && (_isEmailValid || _isUsernameValid)) {
+        login(email, password, context);
+      } else {
+        showAlert(context, 'Incorrect email, username or password.');
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -79,6 +97,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
@@ -149,29 +168,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             RawMaterialButton(
-              onPressed: () {
-                if (pending) {
-                  return showAlert(context, "You're going too fast.", true);
-                }
-
-                pending = true;
-                Timer(Duration(milliseconds: 3000), () {
-                  pending = false;
-                });
-
-                String email = emailController.text.trim();
-                String password = passwordController.text.trim();
-
-                _isPasswordValid = validator.validatePassword(password);
-                _isEmailValid = EmailValidator.validate(email);
-                _isUsernameValid = validator.validateUsername(email);
-
-                if (_isPasswordValid && (_isEmailValid || _isUsernameValid)) {
-                  login(email, password, context);
-                } else {
-                  return showAlert(context, 'Incorrect email, username or password.');
-                }
-              },
+              onPressed: _onPressed,
               constraints: BoxConstraints(),
               padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
               fillColor: Theme.of(context).buttonColor,
