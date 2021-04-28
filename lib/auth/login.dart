@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:juneau/auth/forgotPassword.dart';
+import 'package:juneau/auth/password/forgotPassword.dart';
 import 'package:juneau/common/api.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
@@ -148,9 +148,9 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 23.0),
+              padding: const EdgeInsets.only(top: 5.0, bottom: 23.0),
               child: Align(
-                alignment: Alignment.centerLeft,
+                alignment: Alignment.centerRight,
                 child: GestureDetector(
                   onTap: () {
                     Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
@@ -161,7 +161,6 @@ class _LoginPageState extends State<LoginPage> {
                     'Trouble logging in?',
                     style: TextStyle(
                       color: Theme.of(context).highlightColor,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

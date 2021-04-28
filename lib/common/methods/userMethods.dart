@@ -206,6 +206,29 @@ class UserMethods {
       'success': success,
     };
   }
+
+  Future validateCode(String userId, String code) async {
+    String url = API_URL + 'user/validate_code';
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+    };
+
+    var body = jsonEncode({'userId': userId, 'code': code});
+
+    var response = await http.post(
+      url,
+      headers: headers,
+      body: body,
+    );
+
+    var jsonResponse = jsonDecode(response.body);
+
+    return {
+      'msg': jsonResponse['message'],
+      'status_code': response.statusCode,
+    };
+  }
 }
 
 UserMethods userMethods = new UserMethods();

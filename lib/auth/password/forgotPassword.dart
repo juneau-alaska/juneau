@@ -1,41 +1,68 @@
+import 'dart:async';
+
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:juneau/auth/password/resetPassword.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
-import 'package:juneau/common/methods/accountMethods.dart';
-import 'package:juneau/common/methods/validator.dart';
+import 'package:juneau/common/components/pageRoutes.dart';
+import 'package:juneau/common/methods/userMethods.dart';
 
-class ResetPasswordPage extends StatefulWidget {
-  final userId;
-  final token;
-
-  ResetPasswordPage({
-    Key key,
-    @required this.userId,
-    this.token,
-  }) : super(key: key);
-
+class ForgotPasswordPage extends StatefulWidget {
   @override
-  _ResetPasswordPageState createState() => _ResetPasswordPageState();
+  _ForgotPasswordPageState createState() => _ForgotPasswordPageState();
 }
 
-class _ResetPasswordPageState extends State<ResetPasswordPage> {
-  InputComponent passwordInput;
-  TextEditingController passwordController;
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+  InputComponent emailInput;
+  TextEditingController emailController;
 
-  InputComponent confirmInput;
-  TextEditingController confirmController;
+  bool _isEmailValid = false;
+  bool _isButtonDisabled = false;
 
-  bool _isPasswordValid = false;
+  Timer _debounce;
+
+  _onPressed() {
+    if (_debounce?.isActive ?? false) _debounce.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
+      if (_isButtonDisabled) {
+        return;
+      }
+      _isButtonDisabled = true;
+
+      String email = emailController.text.trim();
+
+      _isEmailValid = EmailValidator.validate(email);
+
+      if (!_isEmailValid) {
+        _isButtonDisabled = false;
+        return showAlert(context, 'Not a valid email address');
+      }
+
+      var response = await userMethods.requestPassword(email);
+      bool success = response['success'];
+      showAlert(context, response['msg'], success);
+      if (success) {
+        Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
+          return ResetPasswordPage();
+        }));
+      }
+    });
+  }
 
   @override
   void initState() {
-    passwordInput = new InputComponent(hintText: 'New password');
-    passwordController = passwordInput.controller;
-
-    confirmInput = new InputComponent(hintText: 'Confirm new password');
-    confirmController = confirmInput.controller;
+    emailInput = new InputComponent(hintText: 'Email');
+    emailController = emailInput.controller;
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    emailController.dispose();
+    super.dispose();
   }
 
   @override
@@ -62,44 +89,24 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'RESET PASSWORD',
+              'TROUBLE LOGGING IN?',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: passwordInput,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 30.0),
-              child: confirmInput,
+              padding: const EdgeInsets.only(top: 15.0, bottom: 30.0),
+              child: emailInput,
             ),
             RawMaterialButton(
-              onPressed: () async {
-                String password = passwordController.text.trim();
-                _isPasswordValid = validator.validatePassword(password);
-
-                String confirmPassword = confirmController.text.trim();
-
-                if (password != confirmPassword) {
-                  return showAlert(context, 'Passwords must match.');
-                } else if (password.length < 6 || password.length > 40) {
-                  return showAlert(context, 'Password must be between 6-40 characters.');
-                } else if (!_isPasswordValid) {
-                  return showAlert(context, 'Password contains invalid characters.');
-                }
-
-                var response = await accountMethods.resetPassword(widget.userId, widget.token, password);
-                showAlert(context, response['msg'], response['success']);
-              },
+              onPressed: _onPressed,
               constraints: BoxConstraints(),
               padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
               fillColor: Theme.of(context).buttonColor,
               elevation: 0.0,
               child: Text(
-                'Submit',
+                'Reset Password',
                 style: TextStyle(
                   color: Theme.of(context).backgroundColor,
                   fontWeight: FontWeight.w500,
@@ -120,5 +127,3 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     );
   }
 }
-
-
