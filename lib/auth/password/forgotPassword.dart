@@ -44,7 +44,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       showAlert(context, response['msg'], success);
       if (success) {
         Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
-          return ResetPasswordPage();
+          return ResetPasswordPage(userId: response['userId']);
         }));
       }
     });

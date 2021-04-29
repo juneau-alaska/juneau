@@ -202,6 +202,7 @@ class UserMethods {
     bool success = response.statusCode == 200;
 
     return {
+      'userId': jsonResponse['userId'],
       'msg': jsonResponse['message'],
       'success': success,
     };

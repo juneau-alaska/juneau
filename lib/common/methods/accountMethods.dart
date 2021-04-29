@@ -6,7 +6,7 @@ import 'package:juneau/common/api.dart';
 
 class AccountMethods {
 
-  Future resetPassword(String userId, String token, String password) async {
+  Future resetPassword(String userId, String password) async {
     String url = API_URL + 'account/reset_password';
 
     var headers = {
@@ -15,7 +15,6 @@ class AccountMethods {
 
     var body = jsonEncode({
       'userId': userId,
-      'token': token,
       'password': password,
     });
 

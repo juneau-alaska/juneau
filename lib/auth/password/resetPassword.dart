@@ -58,10 +58,31 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     super.dispose();
   }
 
+  bool isNum(String string) {
+    final numericRegex =
+    RegExp(r'^[0-9]+$');
+
+    return numericRegex.hasMatch(string);
+  }
+
   @override
   Widget build(BuildContext context) {
+
     UnderlineInputBorder borderOutline = UnderlineInputBorder(borderSide: BorderSide(color: Theme.of(context).hintColor, width: 0.5));
+
     final node = FocusScope.of(context);
+
+    void resetCode() {
+      numController1.text = '';
+      numController2.text = '';
+      numController3.text = '';
+      numController4.text = '';
+      numController5.text = '';
+      numController6.text = '';
+
+      node.requestFocus(node.children.first);
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
@@ -101,10 +122,16 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 6.0),
                         child: TextField(
-                          onChanged: (num) {
-                            node.nextFocus();
-                            if (numController2.text != '') {
-                              numController2.selection = TextSelection(baseOffset: 0, extentOffset: 1);
+                          onChanged: (s) {
+                            if (!isNum(s)) {
+                              return numController1.text = '';
+                            }
+
+                            if (s != '') {
+                              node.nextFocus();
+                              if (numController2.text != '') {
+                                numController2.selection = TextSelection(baseOffset: 0, extentOffset: 1);
+                              }
                             }
                           },
                           maxLength: 1,
@@ -123,7 +150,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           ),
                           keyboardType: TextInputType.number,
                           controller: numController1,
-                          onTap: () => numController1.selection = TextSelection(baseOffset: 0, extentOffset: 1),
+                          onTap: () => numController1.text != '' ? numController1.selection = TextSelection(baseOffset: 0, extentOffset: 1) : null,
                         ),
                       ),
                     ),
@@ -132,10 +159,16 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 6.0),
                         child: TextField(
-                          onChanged: (num) {
-                            node.nextFocus();
-                            if (numController3.text != '') {
-                              numController3.selection = TextSelection(baseOffset: 0, extentOffset: 1);
+                          onChanged: (s) {
+                            if (!isNum(s)) {
+                              return numController2.text = '';
+                            }
+
+                            if (s != '') {
+                              node.nextFocus();
+                              if (numController3.text != '') {
+                                numController3.selection = TextSelection(baseOffset: 0, extentOffset: 1);
+                              }
                             }
                           },
                           maxLength: 1,
@@ -153,7 +186,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           ),
                           keyboardType: TextInputType.number,
                           controller: numController2,
-                          onTap: () => numController2.selection = TextSelection(baseOffset: 0, extentOffset: 1),
+                          onTap: () => numController2.text != '' ? numController2.selection = TextSelection(baseOffset: 0, extentOffset: 1) : null,
                         ),
                       ),
                     ),
@@ -162,10 +195,16 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 6.0),
                         child: TextField(
-                          onChanged: (num) {
-                            node.nextFocus();
-                            if (numController4.text != '') {
-                              numController4.selection = TextSelection(baseOffset: 0, extentOffset: 1);
+                          onChanged: (s) {
+                            if (!isNum(s)) {
+                              return numController3.text = '';
+                            }
+
+                            if (s != '') {
+                              node.nextFocus();
+                              if (numController4.text != '') {
+                                numController4.selection = TextSelection(baseOffset: 0, extentOffset: 1);
+                              }
                             }
                           },
                           maxLength: 1,
@@ -183,7 +222,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           ),
                           keyboardType: TextInputType.number,
                           controller: numController3,
-                          onTap: () => numController3.selection = TextSelection(baseOffset: 0, extentOffset: 1),
+                          onTap: () => numController3.text != '' ? numController3.selection = TextSelection(baseOffset: 0, extentOffset: 1) : null,
                         ),
                       ),
                     ),
@@ -192,10 +231,16 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 6.0),
                         child: TextField(
-                          onChanged: (num) {
-                            node.nextFocus();
-                            if (numController5.text != '') {
-                              numController5.selection = TextSelection(baseOffset: 0, extentOffset: 1);
+                          onChanged: (s) {
+                            if (!isNum(s)) {
+                              return numController4.text = '';
+                            }
+
+                            if (s != '') {
+                              node.nextFocus();
+                              if (numController5.text != '') {
+                                numController5.selection = TextSelection(baseOffset: 0, extentOffset: 1);
+                              }
                             }
                           },
                           maxLength: 1,
@@ -213,7 +258,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           ),
                           keyboardType: TextInputType.number,
                           controller: numController4,
-                          onTap: () => numController4.selection = TextSelection(baseOffset: 0, extentOffset: 1),
+                          onTap: () => numController4.text != '' ? numController4.selection = TextSelection(baseOffset: 0, extentOffset: 1) : null,
                         ),
                       ),
                     ),
@@ -222,10 +267,16 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 6.0),
                         child: TextField(
-                          onChanged: (num) {
-                            node.nextFocus();
-                            if (numController6.text != '') {
-                              numController6.selection = TextSelection(baseOffset: 0, extentOffset: 1);
+                          onChanged: (s) {
+                            if (!isNum(s)) {
+                              return numController5.text = '';
+                            }
+
+                            if (s != '') {
+                              node.nextFocus();
+                              if (numController6.text != '') {
+                                numController6.selection = TextSelection(baseOffset: 0, extentOffset: 1);
+                              }
                             }
                           },
                           maxLength: 1,
@@ -243,7 +294,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           ),
                           keyboardType: TextInputType.number,
                           controller: numController5,
-                          onTap: () => numController5.selection = TextSelection(baseOffset: 0, extentOffset: 1),
+                          onTap: () => numController5.text != '' ? numController5.selection = TextSelection(baseOffset: 0, extentOffset: 1) : null,
                         ),
                       ),
                     ),
@@ -252,8 +303,11 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 6.0),
                         child: TextField(
-                          onChanged: (num) async {
-                            // TODO: Submit Code
+                          onChanged: (s) async {
+                            if (!isNum(s)) {
+                              return numController6.text = '';
+                            }
+
                             String num1 = numController1.text;
                             String num2 = numController2.text;
                             String num3 = numController3.text;
@@ -269,16 +323,21 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                               || num5 == ''
                               || num6 == ''
                             ) {
+                              resetCode();
                               return showAlert(context, 'Invalid code.');
                             }
 
                             String code = num1 + num2 + num3 + num4 + num5 + num6;
                             var res = await userMethods.validateCode(widget.userId, code);
+
                             if (res['status_code'] != 200) {
+                              resetCode();
                               return showAlert(context, res['msg']);
                             }
 
-                            // TODO: CHANGE VIEW
+                            setState(() {
+                              _isCodeView = false;
+                            });
                           },
                           maxLength: 1,
                           style: TextStyle(
@@ -295,36 +354,11 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           ),
                           keyboardType: TextInputType.number,
                           controller: numController6,
-                          onTap: () => numController6.selection = TextSelection(baseOffset: 0, extentOffset: 1),
+                          onTap: () => numController6.text != '' ? numController6.selection = TextSelection(baseOffset: 0, extentOffset: 1) : null,
                         ),
                       ),
                     ),
-
                   ],
-                ),
-              ),
-              RawMaterialButton(
-                onPressed: () async {
-
-                },
-                constraints: BoxConstraints(),
-                padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
-                fillColor: Theme.of(context).buttonColor,
-                elevation: 0.0,
-                child: Text(
-                  'Resend Code',
-                  style: TextStyle(
-                    color: Theme.of(context).backgroundColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    color: Theme.of(context).backgroundColor,
-                    width: 1,
-                    style: BorderStyle.solid,
-                  ),
-                  borderRadius: BorderRadius.circular(50),
                 ),
               ),
             ],
@@ -346,11 +380,11 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 10.0),
+                padding: const EdgeInsets.only(top: 15.0),
                 child: passwordInput,
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 10.0, bottom: 30.0),
+                padding: const EdgeInsets.only(top: 15.0, bottom: 30.0),
                 child: confirmInput,
               ),
               RawMaterialButton(
@@ -368,8 +402,13 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     return showAlert(context, 'Password contains invalid characters.');
                   }
 
-                  // var response = await accountMethods.resetPassword(widget.userId, widget.token, password);
-                  // showAlert(context, response['msg'], response['success']);
+                  var response = await accountMethods.resetPassword(widget.userId, password);
+                  bool success = response['success'];
+                  showAlert(context, response['msg'], success);
+
+                  if (success) {
+                    // TODO: LOGIN
+                  }
                 },
                 constraints: BoxConstraints(),
                 padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
