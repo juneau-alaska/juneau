@@ -1,55 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:juneau/auth/password/forgotPassword.dart';
-import 'package:juneau/common/api.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
+import 'package:juneau/common/methods/accountMethods.dart';
 import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/methods/validator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-void login(email, password, context) async {
-  email = email.trimRight();
-
-  String url = API_URL + 'login';
-  const headers = {HttpHeaders.contentTypeHeader: 'application/json'};
-
-  var body;
-
-  if (EmailValidator.validate(email)) {
-    body = jsonEncode({'email': email, 'password': password});
-  } else {
-    body = jsonEncode({'username': email, 'password': password});
-  }
-
-  var response = await http.post(url, headers: headers, body: body);
-
-  if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body),
-        token = jsonResponse['token'],
-        user = jsonResponse['user'];
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    if (token != null) {
-      prefs.setBool('isLoggedIn', true);
-      prefs.setString('token', token);
-    }
-
-    if (user != null) {
-      prefs.setString('userId', user['_id']);
-    }
-
-    Navigator.pushNamed(context, '/main');
-  } else {
-    return showAlert(context, 'Incorrect email, username or password.');
-  }
-}
+import 'package:email_validator/email_validator.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -78,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
       _isUsernameValid = validator.validateUsername(email);
 
       if (_isPasswordValid && (_isEmailValid || _isUsernameValid)) {
-        login(email, password, context);
+        accountMethods.login(email, password, context);
       } else {
         showAlert(context, 'Incorrect email, username or password.');
       }

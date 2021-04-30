@@ -1,15 +1,9 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:juneau/common/api.dart';
 
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
+import 'package:juneau/common/methods/accountMethods.dart';
 import 'package:juneau/common/methods/validator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ChangePasswordModal extends StatefulWidget {
   final user;
@@ -34,34 +28,6 @@ class _ChangePasswordModalState extends State<ChangePasswordModal> {
   TextEditingController confirmPasswordController;
 
   bool _isNewPasswordValid = false;
-
-  Future updatePassword(passwordInfo) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token = prefs.getString('token');
-    String userId = prefs.getString('userId');
-
-    String url = API_URL + 'account/' + userId + '/password';
-
-    var headers = {
-      HttpHeaders.contentTypeHeader: 'application/json',
-      HttpHeaders.authorizationHeader: token
-    };
-
-    var body = jsonEncode(passwordInfo);
-    var response = await http.put(url, headers: headers, body: body);
-
-    if (response.statusCode == 200) {
-      showAlert(changePasswordContext, 'Successfully changed password', true);
-      return true;
-    } else {
-      var jsonResponse = jsonDecode(response.body), msg = jsonResponse['msg'];
-      if (msg == null) {
-        msg = 'Something went wrong, please try again';
-      }
-      showAlert(changePasswordContext, msg);
-      return false;
-    }
-  }
 
   @override
   void initState() {
@@ -187,7 +153,7 @@ class _ChangePasswordModalState extends State<ChangePasswordModal> {
                     'newPassword': newPassword,
                   };
 
-                  bool updated = await updatePassword(passwordInfo);
+                  bool updated = await accountMethods.updatePassword(passwordInfo, changePasswordContext);
                   if (updated) {
                     Navigator.pop(context);
                   }

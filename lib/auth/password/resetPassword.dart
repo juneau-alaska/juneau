@@ -36,10 +36,10 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
   @override
   void initState() {
-    passwordInput = new InputComponent(hintText: 'New password');
+    passwordInput = new InputComponent(hintText: 'New password', obscureText: true);
     passwordController = passwordInput.controller;
 
-    confirmInput = new InputComponent(hintText: 'Confirm new password');
+    confirmInput = new InputComponent(hintText: 'Confirm new password', obscureText: true);
     confirmController = confirmInput.controller;
 
     super.initState();
