@@ -7,10 +7,12 @@ import 'package:juneau/common/methods/validator.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   final userId;
+  final email;
 
   ResetPasswordPage({
     Key key,
     @required this.userId,
+    this.email,
   }) : super(key: key);
 
   @override
@@ -407,7 +409,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   showAlert(context, response['msg'], success);
 
                   if (success) {
-                    // TODO: LOGIN
+                    accountMethods.login(widget.email, password, context);
                   }
                 },
                 constraints: BoxConstraints(),
