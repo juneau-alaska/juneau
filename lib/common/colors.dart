@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class CustomColors {
-  Color black = const Color(0xFF161616);
+  Color black = const Color(0xFF0f0f0f);
   Color white = const Color(0xFFeaeaea);
-  Color lightGrey = const Color(0xFFa0a0a0);
-  Color darkGrey = const Color(0xFF565555);
+  Color lightGrey = const Color(0xFF939393);
+  Color darkGrey = const Color(0xFF5e5d5d);
   Color blue = const Color(0xFF006eff);
 
   // DARK MODE COLORS
