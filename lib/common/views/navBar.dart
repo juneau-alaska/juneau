@@ -42,7 +42,7 @@ class _NavBarState extends State<NavBar> {
     return Container(
       height: 87.5,
       child: Padding(
-        padding: const EdgeInsets.only(top: 0.0),
+        padding: const EdgeInsets.only(top: 5.0),
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           elevation: 0.0,
@@ -87,21 +87,21 @@ class _NavBarState extends State<NavBar> {
           },
           items: [
             BottomNavigationBarItem(
-              icon: new Icon(Icons.home_outlined, size: 32.0),
-              activeIcon: new Icon(Icons.home, size: 32.0),
+              icon: new Icon(Icons.home, size: 28.0),
+              activeIcon: new Icon(Icons.home, size: 28.0),
               title: Text(''),
             ),
             BottomNavigationBarItem(
-              icon: new Icon(Icons.search, size: 30.0),
+              icon: new Icon(Icons.search, size: 28.0),
               title: Text(''),
             ),
             BottomNavigationBarItem(
-              icon: new Icon(Icons.add, size: 30.0),
+              icon: new Icon(Icons.add, size: 28.0),
               title: Text(''),
             ),
             BottomNavigationBarItem(
-              icon: new Icon(Icons.notifications_outlined, size: 30.0),
-              activeIcon: new Icon(Icons.notifications, size: 30.0),
+              icon: new Icon(Icons.notifications, size: 28.0),
+              activeIcon: new Icon(Icons.notifications, size: 28.0),
               title: Text(''),
             ),
             BottomNavigationBarItem(
@@ -122,7 +122,7 @@ class _NavBarState extends State<NavBar> {
                   ),
                 )
                   : CircleAvatar(
-                  radius: 11.5,
+                  radius: 12,
                   backgroundColor: Colors.transparent,
                   backgroundImage: AssetImage('images/profile.png'),
                 ),
@@ -144,7 +144,7 @@ class _NavBarState extends State<NavBar> {
                         ),
                       )
                     : CircleAvatar(
-                        radius: 11.5,
+                        radius: 12,
                         backgroundColor: Colors.transparent,
                         backgroundImage: AssetImage('images/profile.png'),
                       ),
