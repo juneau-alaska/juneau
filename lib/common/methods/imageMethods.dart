@@ -52,6 +52,18 @@ class ImageMethods {
     }
   }
 
+  Future<void> uploadProfilePhoto(String url, Asset asset) async {
+    try {
+      ByteData byteData = await asset.getThumbByteData(150, 150, quality: 80);
+      var response = await http.put(url, body: byteData.buffer.asUint8List());
+      if (response.statusCode == 200) {
+        print('Successfully uploaded photo');
+      }
+    } catch (e) {
+      throw ('Error uploading photo');
+    }
+  }
+
   Future deleteFile(String imgUrl) async {
     String url = API_URL + 'image/delete';
 

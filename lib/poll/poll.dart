@@ -14,6 +14,7 @@ import 'package:juneau/common/colors.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/methods/categoryMethods.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
+import 'package:juneau/common/methods/notificationMethods.dart';
 import 'package:juneau/common/methods/numMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/poll/pollMenu.dart';
@@ -601,7 +602,10 @@ class _PollWidgetState extends State<PollWidget> {
     var response = await http.put(url, headers: headers);
 
     if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body), updateOption = jsonResponse['option'];
+      notificationMethods.createNotification(user['_id'], poll['createdBy'], ' has voted on your poll.', pollId: poll['_id']);
+
+      var jsonResponse = jsonDecode(response.body),
+          updateOption = jsonResponse['option'];
 
       for (var i = 0; i < options.length; i++) {
         if (options[i]['_id'] == updateOption["_id"]) {

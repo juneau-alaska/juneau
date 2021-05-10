@@ -6,8 +6,7 @@ import 'package:juneau/common/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationMethods {
-
-  void createNotification(sender, receiver, message, redirect) async {
+  void createNotification(String sender, String receiver, String message, {String pollId, String commentId}) async {
     String url = API_URL + 'notification';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -20,12 +19,17 @@ class NotificationMethods {
 
     var body = jsonEncode({
       'sender': sender,
-      'receiver': receiver,
+      'receiver': [receiver],
       'message': message,
-      'redirect': redirect,
+      'pollId': pollId,
+      'commentId': commentId,
     });
 
-    await http.post(url, headers: headers, body: body);
+    var response = await http.post(url, headers: headers, body: body);
+
+    print(response.statusCode);
+    var jsonResponse = jsonDecode(response.body);
+    print(jsonResponse['message']);
   }
 }
 

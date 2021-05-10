@@ -268,7 +268,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
                         String uploadUrl = imageUrl['uploadUrl'];
                         String downloadUrl = imageUrl['downloadUrl'];
 
-                        await imageMethods.uploadFile(uploadUrl, selectedImage).then((result) async {
+                        await imageMethods.uploadProfilePhoto(uploadUrl, selectedImage).then((result) async {
                           String prevUrl = profilePhotoUrl;
                           // SAVE LINK TO USER
                           var updatedUser = await userMethods.updateUser(user['_id'], {

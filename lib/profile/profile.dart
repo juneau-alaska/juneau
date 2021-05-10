@@ -13,6 +13,7 @@ import 'package:juneau/common/components/keepAlivePage.dart';
 import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/components/pollListPopover.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
+import 'package:juneau/common/methods/notificationMethods.dart';
 import 'package:juneau/common/methods/pollMethods.dart';
 import 'package:juneau/poll/pollPreview.dart';
 import 'package:juneau/profile/editProfile.dart';
@@ -244,7 +245,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }));
   }
 
-  Future updateUser(followingUsers) async {
+  Future updateUser(followingUsers, follow) async {
     String url = API_URL + 'user/' + userId;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -260,6 +261,9 @@ class _ProfilePageState extends State<ProfilePage> {
     var response = await http.put(url, headers: headers, body: body);
 
     if (response.statusCode == 200) {
+      if (follow) {
+        notificationMethods.createNotification(userId, profileUser['_id'], ' started following you.');
+      }
       return jsonDecode(response.body);
     } else {
       var jsonResponse = jsonDecode(response.body), msg = jsonResponse['msg'];
@@ -435,7 +439,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     followingUsers.add(profileUserId);
                                   }
 
-                                  var updatedUser = await updateUser(followingUsers);
+                                  var updatedUser = await updateUser(followingUsers, !following);
                                   if (updatedUser != null) {
                                     setState(() {
                                       user = updatedUser;
