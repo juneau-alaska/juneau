@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:juneau/common/colors.dart';
+import 'package:juneau/common/methods/numMethods.dart';
 import 'package:juneau/poll/pollCreate.dart';
 
 class NavBar extends StatefulWidget {
@@ -7,6 +8,7 @@ class NavBar extends StatefulWidget {
   final navController;
   final profilePhoto;
   final profileController;
+  final unreadLength;
 
   NavBar({
     Key key,
@@ -14,6 +16,7 @@ class NavBar extends StatefulWidget {
     this.navController,
     this.profilePhoto,
     this.profileController,
+    this.unreadLength,
   }) : super(key: key);
 
   @override
@@ -23,11 +26,13 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   int _previousIndex = 0;
   int _selectedIndex = 0;
+  int unreadLength;
   var profilePhoto;
 
   @override
   void initState() {
     profilePhoto = widget.profilePhoto;
+    unreadLength = widget.unreadLength;
 
     widget.profileController.stream.listen((updatedProfilePhoto) {
       profilePhoto = updatedProfilePhoto;
@@ -75,6 +80,7 @@ class _NavBarState extends State<NavBar> {
                   _selectedIndex = _previousIndex;
                   break;
                 case 3:
+
                   break;
                 case 4:
                   _previousIndex = _selectedIndex;
@@ -100,7 +106,45 @@ class _NavBarState extends State<NavBar> {
               title: Text(''),
             ),
             BottomNavigationBarItem(
-              icon: new Icon(Icons.notifications, size: 28.0),
+              icon: Container(
+                height: 30.0,
+                child: Stack(
+                  children: [
+                    Center(
+                      child: new Icon(
+                        Icons.notifications,
+                        size: 28.0,
+                      ),
+                    ),
+                    if (unreadLength > 0) Align(
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 20.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.red[600],
+                            border: Border.all(
+                              color: Colors.red[600],
+                            ),
+                            borderRadius: BorderRadius.all(Radius.circular(20))
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(3.5, 0.0, 3.5, 1.5),
+                            child: Text(
+                              numberMethods.shortenNum(unreadLength).toString(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10.0,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               activeIcon: new Icon(Icons.notifications, size: 28.0),
               title: Text(''),
             ),

@@ -8,11 +8,12 @@ import 'package:juneau/auth/signUp.dart';
 import 'package:juneau/auth/signUpSelect.dart';
 import 'package:juneau/common/colors.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
+import 'package:juneau/common/methods/notificationMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/common/views/appBar.dart';
 import 'package:juneau/common/views/navBar.dart';
 import 'package:juneau/home/home.dart';
-import 'package:juneau/category/search.dart';
+import 'package:juneau/search/search.dart';
 import 'package:juneau/profile/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -120,6 +121,9 @@ class _MainScaffoldState extends State<MainScaffold> {
         profilePhoto = await imageMethods.getImage(profilePhotoUrl);
       }
 
+      List notifications = await notificationMethods.getNotifications(userId);
+      var unread = notifications.where((notification) => notification['read_by'].length == 0);
+
       homePage = HomePage(userId: userId);
       searchPage = SearchPage(userId: userId);
       profilePage = ProfilePage(
@@ -128,7 +132,9 @@ class _MainScaffoldState extends State<MainScaffold> {
           navigatorKey: _navigatorKey,
           navController: _navController,
           profilePhoto: profilePhoto,
-          profileController: _profileController);
+          profileController: _profileController,
+          unreadLength: unread.length,
+      );
       appBar = ApplicationBar(height: 0.0);
 
       _navController.stream.listen((index) async {

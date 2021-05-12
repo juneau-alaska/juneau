@@ -6,6 +6,31 @@ import 'package:juneau/common/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationMethods {
+  Future<List> getNotifications(String userId) async {
+    String url = API_URL + 'user/' + userId + '/notifications';
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    var response = await http.get(
+      url,
+      headers: headers,
+    );
+
+    var jsonResponse = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return jsonResponse['notifications'];
+    } else {
+      print(jsonResponse['message']);
+      return [];
+    }
+  }
+
   void createNotification(String sender, String receiver, String message, {String pollId, String commentId}) async {
     String url = API_URL + 'notification';
 
@@ -26,10 +51,9 @@ class NotificationMethods {
     });
 
     var response = await http.post(url, headers: headers, body: body);
-
     print(response.statusCode);
-    var jsonResponse = jsonDecode(response.body);
-    print(jsonResponse['message']);
+    // var jsonResponse = jsonDecode(response.body);
+    // print(jsonResponse['message']);
   }
 }
 
