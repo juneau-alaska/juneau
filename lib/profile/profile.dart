@@ -262,7 +262,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     if (response.statusCode == 200) {
       if (follow) {
-        notificationMethods.createNotification(userId, profileUser['_id'], ' started following you.');
+        notificationMethods.createNotification(userId, profileUser['_id'], 'started following you.');
       }
       return jsonDecode(response.body);
     } else {

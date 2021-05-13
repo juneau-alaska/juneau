@@ -602,7 +602,7 @@ class _PollWidgetState extends State<PollWidget> {
     var response = await http.put(url, headers: headers);
 
     if (response.statusCode == 200) {
-      notificationMethods.createNotification(user['_id'], poll['createdBy'], ' has voted on your poll.', pollId: poll['_id']);
+      notificationMethods.createNotification(user['_id'], poll['createdBy'], 'has voted on your poll.', pollId: poll['_id']);
 
       var jsonResponse = jsonDecode(response.body),
           updateOption = jsonResponse['option'];
@@ -813,7 +813,6 @@ class _PollWidgetState extends State<PollWidget> {
 
     bool isCreator = user['_id'] == pollCreator['_id'];
     bool completed = completedPolls != null ? completedPolls.indexOf(poll['_id']) >= 0 : false;
-    double screenWidth = MediaQuery.of(context).size.width;
     int totalVotes = 0;
     String prompt = poll['prompt'].trim();
     String selectedOption;

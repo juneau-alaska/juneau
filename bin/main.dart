@@ -15,6 +15,7 @@ import 'package:juneau/common/views/navBar.dart';
 import 'package:juneau/home/home.dart';
 import 'package:juneau/search/search.dart';
 import 'package:juneau/profile/profile.dart';
+import 'package:juneau/notification/notificationsPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(new MyApp());
@@ -102,6 +103,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   Widget homePage;
   Widget searchPage;
   Widget profilePage;
+  Widget notificationsPage;
 
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final PageController _pageController = PageController();
@@ -126,6 +128,7 @@ class _MainScaffoldState extends State<MainScaffold> {
 
       homePage = HomePage(userId: userId);
       searchPage = SearchPage(userId: userId);
+      notificationsPage = NotificationsPage(notifications: notifications);
       profilePage = ProfilePage(
           profileUser: user, profilePhoto: profilePhoto, profileController: _profileController);
       navBar = NavBar(
@@ -173,6 +176,7 @@ class _MainScaffoldState extends State<MainScaffold> {
                 children: [
                   homePage,
                   searchPage,
+                  notificationsPage,
                   profilePage,
                 ],
                 controller: _pageController,
