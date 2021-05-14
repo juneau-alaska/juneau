@@ -39,7 +39,8 @@ void openProfile(context, profileUser, {user}) {
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
-        body: ProfilePage(profileUser: profileUser, user: user));
+        body: ProfilePage(profileUser: profileUser, user: user),
+    );
   }));
 }
 

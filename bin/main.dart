@@ -128,7 +128,7 @@ class _MainScaffoldState extends State<MainScaffold> {
 
       homePage = HomePage(userId: userId);
       searchPage = SearchPage(userId: userId);
-      notificationsPage = NotificationsPage(notifications: notifications);
+      notificationsPage = NotificationsPage(user: user, notifications: notifications);
       profilePage = ProfilePage(
           profileUser: user, profilePhoto: profilePhoto, profileController: _profileController);
       navBar = NavBar(

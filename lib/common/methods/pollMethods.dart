@@ -63,6 +63,28 @@ class PollMethods {
       return [];
     }
   }
+
+  Future getPoll(String pollId) async {
+    String url = API_URL + 'poll/' + pollId;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    var response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+
+      return jsonResponse;
+    } else {
+      return null;
+    }
+  }
 }
 
 PollMethods pollMethods = new PollMethods();

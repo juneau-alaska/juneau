@@ -7,15 +7,18 @@ import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/profile/profile.dart';
+import 'package:juneau/poll/poll.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
 
 class NotificationItem extends StatefulWidget {
+  final user;
   final notification;
 
   NotificationItem({
     Key key,
-    @required this.notification,
+    @required this.user,
+    this.notification,
   }) : super(key: key);
 
   @override
@@ -25,6 +28,7 @@ class NotificationItem extends StatefulWidget {
 class _NotificationItemState extends State<NotificationItem> {
   var notification;
   var user;
+  var sender;
   var profilePhoto;
   DateTime createdAt;
   String time;
@@ -32,6 +36,7 @@ class _NotificationItemState extends State<NotificationItem> {
 
   @override
   void initState() {
+    user = widget.user;
     notification = widget.notification;
 
     createdAt = DateTime.parse(notification['created_at']);
@@ -46,8 +51,8 @@ class _NotificationItemState extends State<NotificationItem> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      user = await userMethods.getUser(notification['sender']);
-      String profilePhotoUrl = user['profilePhoto'];
+      sender = await userMethods.getUser(notification['sender']);
+      String profilePhotoUrl = sender['profilePhoto'];
       if (profilePhotoUrl != null) {
         profilePhoto = await imageMethods.getImage(profilePhotoUrl);
       }
@@ -59,15 +64,17 @@ class _NotificationItemState extends State<NotificationItem> {
 
   @override
   Widget build(BuildContext context) {
-    if (user != null) {
+    if (sender != null) {
       return GestureDetector(
         onTap: () {
           if (redirectType == 'poll') {
-            // MAKE openPoll FUNCTION in POLL.DART
+            openPoll(context, notification['pollId'], user: user);
+
           } else if (redirectType == 'comment') {
-            // IF TAGGED OR REPLIED TO
+            // TAGGED OR REPLIED TO COMMENT
+
           } else if (redirectType == 'user') {
-            openProfile(context, user);
+            openProfile(context, sender);
           }
         },
         child: Padding(
@@ -75,7 +82,6 @@ class _NotificationItemState extends State<NotificationItem> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // PROFILE PHOTO
               Padding(
                 padding: const EdgeInsets.only(right: 10.0),
                 child: profilePhoto != null
@@ -105,9 +111,9 @@ class _NotificationItemState extends State<NotificationItem> {
                     children: <TextSpan>[
                       TextSpan(
                         recognizer: TapGestureRecognizer()..onTap = () {
-                          openProfile(context, user);
+                          openProfile(context, sender);
                         },
-                        text: user['username'] + ' ',
+                        text: sender['username'] + ' ',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: notification['read_by'].length == 0

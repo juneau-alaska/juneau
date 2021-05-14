@@ -4,11 +4,13 @@ import 'package:juneau/common/methods/notificationMethods.dart';
 import 'package:juneau/notification/notification.dart';
 
 class NotificationsPage extends StatefulWidget {
+  final user;
   final notifications;
 
   NotificationsPage({
     Key key,
-    @required this.notifications,
+    @required this.user,
+    this.notifications,
   }) : super(key: key);
 
   @override
@@ -16,6 +18,7 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
+  var user;
   List notifications;
   List<Widget> notificationWidgets;
 
@@ -23,7 +26,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     List<Widget> notificationItems = [];
 
     for (int i=0; i<notifications.length; i++) {
-      notificationItems.add(new NotificationItem(notification: notifications[i]));
+      notificationItems.add(new NotificationItem(user: user, notification: notifications[i]));
     }
 
     return notificationItems;
@@ -31,6 +34,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   void initState() {
+    user = widget.user;
     notifications = widget.notifications;
     notificationWidgets = buildNotifications();
     super.initState();

@@ -12,10 +12,12 @@ import 'package:juneau/common/api.dart';
 import 'package:juneau/common/colors.dart';
 
 import 'package:juneau/common/components/alertComponent.dart';
+import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/methods/categoryMethods.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/common/methods/notificationMethods.dart';
 import 'package:juneau/common/methods/numMethods.dart';
+import 'package:juneau/common/methods/pollMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/poll/pollMenu.dart';
 import 'package:juneau/profile/profile.dart';
@@ -23,6 +25,35 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:animated_check/animated_check.dart';
+
+void openPoll(context, pollId, {user}) async {
+
+  var poll = await pollMethods.getPoll(pollId);
+
+  Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      appBar: AppBar(
+        toolbarHeight: 40.0,
+        backgroundColor: Theme.of(context).backgroundColor,
+        brightness: Theme.of(context).brightness,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            size: 25.0,
+            color: Theme.of(context).primaryColor,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: PollWidget(
+        poll: poll,
+        user: user,
+      ),
+    );
+  }));
+}
 
 class PositionalDots extends StatefulWidget {
   final pageController;
