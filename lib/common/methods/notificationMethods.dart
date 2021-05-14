@@ -50,10 +50,26 @@ class NotificationMethods {
       'commentId': commentId,
     });
 
-    var response = await http.post(url, headers: headers, body: body);
-    print(response.statusCode);
-    // var jsonResponse = jsonDecode(response.body);
-    // print(jsonResponse['message']);
+    await http.post(url, headers: headers, body: body);
+  }
+
+  void markManyAsRead(List ids, user) async {
+    String url = API_URL + 'notifications';
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    var body = jsonEncode({
+      'ids': ids,
+      'readerId': user['_id'],
+    });
+
+    await http.post(url, headers: headers, body: body);
   }
 }
 

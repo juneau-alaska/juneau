@@ -80,6 +80,7 @@ class _NavBarState extends State<NavBar> {
                   _selectedIndex = _previousIndex;
                   break;
                 case 3:
+                  unreadLength = 0;
                   _previousIndex = _selectedIndex;
                   widget.navController.add(2);
                   break;

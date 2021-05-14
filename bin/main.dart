@@ -124,11 +124,18 @@ class _MainScaffoldState extends State<MainScaffold> {
       }
 
       List notifications = await notificationMethods.getNotifications(userId);
-      var unread = notifications.where((notification) => notification['read_by'].length == 0);
+      List unreadIds = [];
+
+      for (var i=0; i<notifications.length; i++) {
+        var notification = notifications[i];
+        if (notification['read_by'].length == 0) {
+          unreadIds.add(notification['_id']);
+        }
+      }
 
       homePage = HomePage(userId: userId);
       searchPage = SearchPage(userId: userId);
-      notificationsPage = NotificationsPage(user: user, notifications: notifications);
+      notificationsPage = NotificationsPage(user: user, notifications: notifications, unreadIds: unreadIds);
       profilePage = ProfilePage(
           profileUser: user, profilePhoto: profilePhoto, profileController: _profileController);
       navBar = NavBar(
@@ -136,7 +143,7 @@ class _MainScaffoldState extends State<MainScaffold> {
           navController: _navController,
           profilePhoto: profilePhoto,
           profileController: _profileController,
-          unreadLength: unread.length,
+          unreadLength: unreadIds.length,
       );
       appBar = ApplicationBar(height: 0.0);
 

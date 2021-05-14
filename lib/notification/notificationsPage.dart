@@ -6,11 +6,13 @@ import 'package:juneau/notification/notification.dart';
 class NotificationsPage extends StatefulWidget {
   final user;
   final notifications;
+  final unreadIds;
 
   NotificationsPage({
     Key key,
     @required this.user,
     this.notifications,
+    this.unreadIds,
   }) : super(key: key);
 
   @override
@@ -37,6 +39,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
     user = widget.user;
     notifications = widget.notifications;
     notificationWidgets = buildNotifications();
+
+    notificationMethods.markManyAsRead(widget.unreadIds, user);
     super.initState();
   }
 
