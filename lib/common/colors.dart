@@ -5,7 +5,6 @@ class CustomColors {
   Color white = const Color(0xFFeaeaea);
   Color lightGrey = const Color(0xFF939393);
   Color darkGrey = const Color(0xFF5e5d5d);
-  Color blue = const Color(0xFF006eff);
 
   // DARK MODE COLORS
   Color lightPurple = const Color(0xFFA298DE);

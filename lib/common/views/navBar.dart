@@ -124,9 +124,9 @@ class _NavBarState extends State<NavBar> {
                         padding: const EdgeInsets.only(left: 20.0),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.red[600],
+                            color: Colors.redAccent,
                             border: Border.all(
-                              color: Colors.red[600],
+                              color: Colors.redAccent,
                             ),
                             borderRadius: BorderRadius.all(Radius.circular(20))
                           ),

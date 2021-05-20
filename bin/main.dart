@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
         primaryColor: customColors.black,
         hintColor: customColors.darkGrey,
         dividerColor: customColors.lightGrey,
-        highlightColor: customColors.blue,
+        highlightColor: Colors.blueAccent,
         // buttonColor: customColors.teal,
         buttonColor: customColors.black,
         textTheme: TextTheme(
@@ -60,7 +60,7 @@ class MyApp extends StatelessWidget {
         primaryColor: customColors.white,
         hintColor: customColors.lightGrey,
         dividerColor: customColors.darkGrey,
-        highlightColor: customColors.blue,
+        highlightColor: Colors.blueAccent,
         // buttonColor: customColors.lightPurple,
         buttonColor: customColors.white,
         textTheme: TextTheme(

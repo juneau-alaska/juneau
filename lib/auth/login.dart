@@ -106,20 +106,17 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 5.0, bottom: 23.0),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
-                      return ForgotPasswordPage();
-                    }));
-                  },
-                  child: Text(
-                    'Trouble logging in?',
-                    style: TextStyle(
-                      color: Theme.of(context).highlightColor,
-                    ),
+              padding: const EdgeInsets.only(top: 10.0, bottom: 25.0),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
+                    return ForgotPasswordPage();
+                  }));
+                },
+                child: Text(
+                  'Trouble logging in?',
+                  style: TextStyle(
+                    color: Theme.of(context).highlightColor,
                   ),
                 ),
               ),

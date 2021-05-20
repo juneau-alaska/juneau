@@ -986,21 +986,59 @@ class _PollWidgetState extends State<PollWidget> {
             )
             : Container(height: 20.0),
 
+          // IMAGES
           imageCarousel,
 
+          // VOTES AND COMMENTS ROW
           Align(
             alignment: Alignment.bottomLeft,
             child: Padding(
               padding: const EdgeInsets.all(15.0),
-              child: Text(
-                totalVotes == 1 ? '1 vote' : numberMethods.shortenNum(totalVotes) + ' votes',
-                style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.w500,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    totalVotes == 1 ? '1 vote' : numberMethods.shortenNum(totalVotes) + ' votes',
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  GestureDetector(
+                    onTap: () {
+                      widget.viewPoll(poll['_id']);
+                    },
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 3.0),
+                          child: Transform(
+                            alignment: Alignment.center,
+                            transform: Matrix4.rotationY(math.pi),
+                            child: Icon(
+                              Icons.messenger_outline,
+                              size: 20.0,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          poll['comments'] != null
+                            ? poll['comments'].length.toString()
+                            : '0',
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
+
 
           // Padding(
           //   padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 0.0),
@@ -1056,8 +1094,6 @@ class _PollWidgetState extends State<PollWidget> {
           //     ),
           //   ),
           // ),
-
-
         ],
       ),
     );

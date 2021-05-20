@@ -78,27 +78,27 @@ class _NotificationItemState extends State<NotificationItem> {
           }
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Padding(
-                padding: const EdgeInsets.only(right: 10.0),
+                padding: const EdgeInsets.only(right: 15.0),
                 child: profilePhoto != null
                   ? Container(
-                  width: 32,
-                  height: 32,
+                  width: 30,
+                  height: 30,
                   child: ClipOval(
                     child: Image.memory(
                       profilePhoto,
                       fit: BoxFit.cover,
-                      width: 32.0,
-                      height: 32.0,
+                      width: 30.0,
+                      height: 30.0,
                     ),
                   ),
                 )
                   : CircleAvatar(
-                  radius: 16,
+                  radius: 15,
                   backgroundColor: Colors.transparent,
                   backgroundImage: AssetImage('images/profile.png'),
                 ),

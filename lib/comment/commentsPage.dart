@@ -663,7 +663,7 @@ class BottomInput extends StatefulWidget {
 class _BottomInputState extends State<BottomInput> {
   RichTextController inputController = RichTextController({
     RegExp(r"\B@[a-zA-Z0-9_.]+\b"): TextStyle(
-      color: customColors.blue,
+      color: Colors.blueAccent,
     ),
   });
   bool isReply = false;
