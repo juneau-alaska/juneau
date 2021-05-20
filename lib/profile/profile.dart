@@ -67,6 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
   var user;
   var profilePhoto;
   String profilePhotoUrl;
+  String profileUserId;
   String userId;
   String prevId;
   Widget gridListView;
@@ -86,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
   var parentController;
 
   Future fetchPollData(bool next) async {
-    List polls = await pollMethods.getPollsFromUser(userId);
+    List polls = await pollMethods.getPollsFromUser(profileUserId);
 
     if (pollObjects == null ||
         (next && polls.length > 0) ||
@@ -118,7 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
     profilePhoto = widget.profilePhoto;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      String profileUserId = profileUser['_id'];
+      profileUserId = profileUser['_id'];
 
       if (user != null) {
         userId = user['_id'];

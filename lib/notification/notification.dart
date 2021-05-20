@@ -74,7 +74,7 @@ class _NotificationItemState extends State<NotificationItem> {
             // TAGGED OR REPLIED TO COMMENT
 
           } else if (redirectType == 'user') {
-            openProfile(context, sender);
+            openProfile(context, sender, user: user);
           }
         },
         child: Padding(
@@ -111,7 +111,7 @@ class _NotificationItemState extends State<NotificationItem> {
                     children: <TextSpan>[
                       TextSpan(
                         recognizer: TapGestureRecognizer()..onTap = () {
-                          openProfile(context, sender);
+                          openProfile(context, sender, user: user);
                         },
                         text: sender['username'] + ' ',
                         style: TextStyle(
