@@ -11,7 +11,7 @@ import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/controllers/richTextController.dart';
 import 'package:juneau/common/methods/commentMethods.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
-import 'package:juneau/common/methods/numMethods.dart';
+import 'package:juneau/common/methods/numberMethods.dart';
 
 import 'package:juneau/comment/comment.dart';
 import 'package:juneau/profile/profile.dart';
@@ -440,7 +440,7 @@ Future<bool> likeComment(String commentId, bool liked) async {
 //       ],
 //     ),
 //   );
-// // }
+// }
 //
 // void openReplies(String id, context) async {
 //   if (commentReplies[id].length == 0) {
@@ -801,14 +801,17 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
                       child: MediaQuery.removePadding(
                         context: context,
                         removeTop: true,
-                        child: ListView(
-                          children: commentWidgets,
-                          // children: [
-                          //   Padding(
-                          //     padding: const EdgeInsets.only(top: 10.0, bottom: 60.0),
-                          //     child: CommentsWidget(),
-                          //   ),
-                          // ],
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 10.0, bottom: 60.0),
+                          child: ListView(
+                            children: commentWidgets,
+                            // children: [
+                            //   Padding(
+                            //     padding: const EdgeInsets.only(top: 10.0, bottom: 60.0),
+                            //     child: CommentsWidget(),
+                            //   ),
+                            // ],
+                          ),
                         ),
                       ),
                     )

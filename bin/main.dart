@@ -214,13 +214,19 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: Center(
-          child: Text(
-        'ARTFOLK',
-        style: TextStyle(
-          fontSize: 28.0,
-          fontWeight: FontWeight.bold,
+        // child: Image(
+        //   image: MediaQuery.of(context).platformBrightness == Brightness.dark
+        //     ? AssetImage('images/icon_white.png')
+        //     : AssetImage('images/icon_black.png')
+        // ),
+        child: Text(
+          'ARTFOLK',
+          style: TextStyle(
+            fontSize: 28.0,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      )),
+      ),
     );
   }
 

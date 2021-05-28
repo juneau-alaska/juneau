@@ -5,11 +5,10 @@ import 'package:juneau/common/colors.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
+import 'package:juneau/common/methods/numberMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/profile/profile.dart';
 import 'package:juneau/poll/poll.dart';
-
-import 'package:timeago/timeago.dart' as timeago;
 
 class NotificationItem extends StatefulWidget {
   final user;
@@ -38,9 +37,7 @@ class _NotificationItemState extends State<NotificationItem> {
   void initState() {
     user = widget.user;
     notification = widget.notification;
-
-    createdAt = DateTime.parse(notification['created_at']);
-    time = timeago.format(createdAt, locale: 'en_short');
+    time = numberMethods.convertTime(notification['created_at']);
 
     if (notification['pollId'] != null) {
       redirectType = 'poll';
@@ -117,7 +114,7 @@ class _NotificationItemState extends State<NotificationItem> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: notification['read_by'].length == 0
-                            ? customColors.white
+                            ? Theme.of(context).primaryColor
                             : Theme.of(context).hintColor,
                         ),
                       ),
@@ -125,13 +122,14 @@ class _NotificationItemState extends State<NotificationItem> {
                         text: notification['message'] + ' ',
                         style: TextStyle(
                           color: notification['read_by'].length == 0
-                            ? customColors.white
+                            ? Theme.of(context).primaryColor
                             : Theme.of(context).hintColor,
                         ),
                       ),
                       TextSpan(
                         text: '$time',
                         style: TextStyle(
+                          fontSize: 12.0,
                           color: Theme.of(context).hintColor,
                         ),
                       ),

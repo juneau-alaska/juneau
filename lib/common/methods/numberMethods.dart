@@ -1,3 +1,5 @@
+import 'package:timeago/timeago.dart' as timeago;
+
 class NumberMethods {
   String shortenNum(int n) {
     String divN;
@@ -25,6 +27,15 @@ class NumberMethods {
     divSplit2 = divSplit[1].split('');
 
     return divSplit[0] + '.' + divSplit2[0] + sym;
+  }
+
+  String convertTime(time) {
+
+    DateTime dateTime = DateTime.parse(time);
+
+    String converted = timeago.format(dateTime, locale: 'en_short').replaceAll(new RegExp(r'~'), '');
+
+    return converted;
   }
 }
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:juneau/common/colors.dart';
-import 'package:juneau/common/methods/numMethods.dart';
+import 'package:juneau/common/methods/numberMethods.dart';
 import 'package:juneau/poll/pollCreate.dart';
 
 class NavBar extends StatefulWidget {

@@ -16,7 +16,7 @@ import 'package:juneau/common/components/pageRoutes.dart';
 import 'package:juneau/common/methods/categoryMethods.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/common/methods/notificationMethods.dart';
-import 'package:juneau/common/methods/numMethods.dart';
+import 'package:juneau/common/methods/numberMethods.dart';
 import 'package:juneau/common/methods/pollMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/poll/pollMenu.dart';
@@ -835,9 +835,8 @@ class _PollWidgetState extends State<PollWidget> {
       return new Container();
     }
 
-    DateTime createdAt = DateTime.parse(poll['createdAt']);
     String pollCategory = poll['category'];
-    String time = timeago.format(createdAt, locale: 'en_short'); // .replaceAll(new RegExp(r'~'), '');
+    String time = numberMethods.convertTime(poll['createdAt']);
 
     var completedPolls = user['completedPolls'];
     var selectedOptions = user['selectedOptions'];
