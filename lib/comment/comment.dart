@@ -12,11 +12,13 @@ import 'package:juneau/profile/profile.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class CommentWidget extends StatefulWidget {
+  final user;
   final comment;
 
   CommentWidget({
     Key key,
-    @required this.comment,
+    @required this.user,
+    this.comment,
   }) : super(key: key);
 
   @override
@@ -29,6 +31,16 @@ class _CommentWidgetState extends State<CommentWidget> {
   var profilePhoto;
 
   String time;
+  bool liked = false;
+  int likes = 0;
+
+  // RichTextController inputController = RichTextController({
+  //   RegExp(r"\B@[a-zA-Z0-9_.]+\b"): TextStyle(
+  //     color: Colors.blueAccent,
+  //   ),
+  // });
+  //
+  // RegExp regExp = RegExp(r"\B@[a-zA-Z0-9]+\b");
 
   @override
   void initState() {
@@ -55,73 +67,114 @@ class _CommentWidgetState extends State<CommentWidget> {
       width: MediaQuery.of(context).size.width,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-        child: Column(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 10.0),
-                  child: GestureDetector(
-                    child: profilePhoto != null
-                      ? Container(
-                      width: 24,
-                      height: 24,
-                      child: ClipOval(
-                        child: Image.memory(
-                          profilePhoto,
-                          fit: BoxFit.cover,
-                          width: 24.0,
-                          height: 24.0,
+            Padding(
+              padding: const EdgeInsets.only(top: 3.0, right: 10.0),
+              child: GestureDetector(
+                child: profilePhoto != null
+                  ? Container(
+                  width: 32,
+                  height: 32,
+                  child: ClipOval(
+                    child: Image.memory(
+                      profilePhoto,
+                      fit: BoxFit.cover,
+                      width: 32.0,
+                      height: 32.0,
+                    ),
+                  ),
+                )
+                  : CircleAvatar(
+                  radius: 16,
+                  backgroundColor: Colors.transparent,
+                  backgroundImage: AssetImage('images/profile.png'),
+                ),
+                onTap: () {
+                  openProfile(context, creator);
+                },
+              ),
+            ),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 5.0),
+                    child: RichText(
+                      text: TextSpan(
+                        text: '',
+                        children: <TextSpan>[
+                          if (creator != null)
+                            TextSpan(
+                              recognizer: TapGestureRecognizer()..onTap = () {
+                                openProfile(context, creator, user: widget.user);
+                              },
+                              text: creator['username'] + ' ',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                          TextSpan(
+                            text: comment['comment'],
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '$time',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).hintColor,
                         ),
                       ),
-                    )
-                      : CircleAvatar(
-                      radius: 12,
-                      backgroundColor: Colors.transparent,
-                      backgroundImage: AssetImage('images/profile.png'),
-                    ),
-                    onTap: () {
-                      openProfile(context, creator);
-                    },
-                  ),
-                ),
 
-                Expanded(
-                  child: RichText(
-                    text: TextSpan(
-                      text: '',
-                      children: <TextSpan>[
-                        TextSpan(
-                          recognizer: TapGestureRecognizer()..onTap = () {
-                            // openProfile(context, creator, user: user);
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                        child: GestureDetector(
+                          onTap: () {
+
                           },
-                          text: creator['username'] + ' ',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
+                          child: Text(
+                            'Reply',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).hintColor,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                        TextSpan(
-                          text: comment['comment'],
+                      ),
+
+                      GestureDetector(
+                        onTap: () {
+
+                        },
+                        child: Text(
+                          likes == 1 ? '1 Like' : '$likes Likes',
                           style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' $time',
-                          style: TextStyle(
-                            fontSize: 12.0,
+                            fontSize: 12,
                             color: Theme.of(context).hintColor,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ),
-
-
-              ],
+                ],
+              ),
             ),
           ],
         ),

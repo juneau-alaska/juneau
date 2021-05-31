@@ -75,7 +75,7 @@ class _NotificationItemState extends State<NotificationItem> {
           }
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.5),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -83,19 +83,19 @@ class _NotificationItemState extends State<NotificationItem> {
                 padding: const EdgeInsets.only(right: 15.0),
                 child: profilePhoto != null
                   ? Container(
-                  width: 30,
-                  height: 30,
+                  width: 24,
+                  height: 24,
                   child: ClipOval(
                     child: Image.memory(
                       profilePhoto,
                       fit: BoxFit.cover,
-                      width: 30.0,
-                      height: 30.0,
+                      width: 24.0,
+                      height: 24.0,
                     ),
                   ),
                 )
                   : CircleAvatar(
-                  radius: 15,
+                  radius: 12,
                   backgroundColor: Colors.transparent,
                   backgroundImage: AssetImage('images/profile.png'),
                 ),
@@ -115,7 +115,7 @@ class _NotificationItemState extends State<NotificationItem> {
                           fontWeight: FontWeight.bold,
                           color: notification['read_by'].length == 0
                             ? Theme.of(context).primaryColor
-                            : Theme.of(context).hintColor,
+                            : Theme.of(context).dividerColor,
                         ),
                       ),
                       TextSpan(
@@ -123,14 +123,16 @@ class _NotificationItemState extends State<NotificationItem> {
                         style: TextStyle(
                           color: notification['read_by'].length == 0
                             ? Theme.of(context).primaryColor
-                            : Theme.of(context).hintColor,
+                            : Theme.of(context).dividerColor,
                         ),
                       ),
                       TextSpan(
                         text: '$time',
                         style: TextStyle(
-                          fontSize: 12.0,
-                          color: Theme.of(context).hintColor,
+                          fontSize: 12.5,
+                          color: notification['read_by'].length == 0
+                            ? Theme.of(context).hintColor
+                            : Theme.of(context).dividerColor,
                         ),
                       ),
                     ],

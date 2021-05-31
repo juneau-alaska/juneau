@@ -708,14 +708,14 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
   AnimationController _controller;
   Animation<Offset> _animation;
 
-  var currentUser;
+  var user;
   String pollId;
 
   List<Widget> commentWidgets = [];
 
   @override
   void initState() {
-    currentUser = widget.user;
+    user = widget.user;
     pollId = widget.pollId;
 
     _controller = AnimationController(
@@ -735,7 +735,7 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
 
       for(var i=0; i<pollComments.length; i++) {
         var comment = pollComments[i];
-        Widget commentWidget = new CommentWidget(comment: comment);
+        Widget commentWidget = new CommentWidget(user: user, comment: comment);
         commentWidgets.add(commentWidget);
       }
 
@@ -747,7 +747,7 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
 
   @override
   void dispose() {
-    currentUser = null;
+    user = null;
     // commentList = null;
     // commentWidgets = null;
     _controller.dispose();
@@ -805,12 +805,6 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
                           padding: const EdgeInsets.only(top: 10.0, bottom: 60.0),
                           child: ListView(
                             children: commentWidgets,
-                            // children: [
-                            //   Padding(
-                            //     padding: const EdgeInsets.only(top: 10.0, bottom: 60.0),
-                            //     child: CommentsWidget(),
-                            //   ),
-                            // ],
                           ),
                         ),
                       ),
