@@ -6,12 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:juneau/common/api.dart';
-
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/components/inputComponent.dart';
 import 'package:juneau/common/methods/categoryMethods.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<List> getCategories(String partialText, context) async {
   String url = API_URL + 'categories';
@@ -89,43 +88,54 @@ class _CategorySearchSelectState extends State<CategorySearchSelect> {
             hasMatchingText = true;
           }
 
-          categoriesList.add(GestureDetector(
+          categoriesList.add(
+            GestureDetector(
               onTap: () {
                 Navigator.pop(context, name);
               },
               behavior: HitTestBehavior.opaque,
               child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(name),
-                        SizedBox(height: 1.0),
-                        Text(category['followers'].length.toString() + ' following',
-                            style: TextStyle(fontSize: 12.0, color: Theme.of(context).hintColor)),
-                      ],
-                    ),
-                  ))));
+                width: MediaQuery.of(context).size.width,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name),
+                      SizedBox(height: 1.0),
+                      Text(
+                        category['followers'].length.toString() + ' following',
+                        style: TextStyle(fontSize: 12.0, color: Theme.of(context).hintColor),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
         }
       }
 
       if (!hasMatchingText) {
         categoriesList[0] = GestureDetector(
-            onTap: () {
-              createCategory(text, context);
-            },
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-                width: MediaQuery.of(context).size.width,
-                child: Text(text,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: Theme.of(context).highlightColor,
-                    ))));
+          onTap: () {
+            createCategory(text, context);
+          },
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 16.0,
+                color: Theme.of(context).highlightColor,
+              ),
+            ),
+          ),
+        );
       }
     }
+
     if (this.mounted) {
       setState(() {});
     }

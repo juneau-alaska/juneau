@@ -5,14 +5,16 @@ import 'package:flutter/gestures.dart';
 
 import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 
-import 'package:juneau/common/colors.dart';
+import 'package:juneau/comment/commentsPage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
-import 'package:juneau/common/controllers/richTextController.dart';
 import 'package:juneau/common/methods/commentMethods.dart';
 import 'package:juneau/common/methods/categoryMethods.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/common/methods/numberMethods.dart';
+import 'package:juneau/common/methods/pollMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
+import 'package:juneau/common/components/pageRoutes.dart';
+import 'package:juneau/common/components/pollListPopover.dart';
 import 'package:juneau/profile/profile.dart';
 
 class CommentWidget extends StatefulWidget {
@@ -36,17 +38,72 @@ class CommentWidget extends StatefulWidget {
 class _CommentWidgetState extends State<CommentWidget> {
   var comment;
   var creator;
+  var user;
   var profilePhoto;
 
   String time;
+  bool pollOpen = false;
+  bool preventReload = false;
   bool liked = false;
   int likes = 0;
 
+  List polls;
+  List pollObjects = [];
+
   FocusNode focusNode;
   StreamController inputStreamController;
+  StreamController pollListController = StreamController.broadcast();
+  StreamController parentController = new StreamController.broadcast();
+
+
+  void dismissPoll(index) {
+    if (mounted) {
+      setState(() {
+        preventReload = false;
+        pollObjects.removeAt(index);
+        pollListController.add(pollObjects);
+      });
+    }
+  }
+
+  void viewPoll(String pollId) async {
+    if (!pollOpen) {
+      pollOpen = true;
+      final _formKey = GlobalKey<FormState>();
+
+      Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
+        return CommentsPage(user: user, pollId: pollId, formKey: _formKey);
+      }));
+
+      pollOpen = false;
+    }
+  }
+
+  void updatedUserModel(updatedUser) {
+    user = updatedUser;
+    parentController.add({'dataType': 'user', 'data': user});
+  }
+
+  void openListView(category) async {
+    Navigator.of(context).push(TransparentRoute(builder: (BuildContext context) {
+      return PollListPopover(
+        selectedIndex: null,
+        user: user,
+        title: category,
+        pollObjects: pollObjects,
+        pollListController: pollListController,
+        dismissPoll: dismissPoll,
+        viewPoll: viewPoll,
+        updatedUserModel: updatedUserModel,
+        parentController: parentController,
+        tag: null,
+      );
+    }));
+  }
 
   @override
   void initState() {
+    user = widget.user;
     focusNode = widget.focusNode;
     inputStreamController = widget.inputStreamController;
 
@@ -68,8 +125,15 @@ class _CommentWidgetState extends State<CommentWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void dispose() {
+    inputStreamController.close();
+    pollListController.close();
+    parentController.close();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     List<String> commentSplit = comment['comment'].split(' ');
     List<TextSpan> textChildren = [];
 
@@ -80,7 +144,7 @@ class _CommentWidgetState extends State<CommentWidget> {
       textChildren.add(
         TextSpan(
           recognizer: TapGestureRecognizer()..onTap = () {
-            openProfile(context, creator, user: widget.user);
+            openProfile(context, creator, user: user);
           },
           text: creator['username'] + ' ',
           style: TextStyle(
@@ -115,12 +179,20 @@ class _CommentWidgetState extends State<CommentWidget> {
         textChildren.add(
           TextSpan(
             recognizer: TapGestureRecognizer()..onTap = () async {
-              String categoryStr = text.substring(1);
-              var category; // = await categoryMethods.getCategory(categoryStr);
-              if (category != null) {
-                // TODO: SHOW POLLS IN CATEGORY
+              String category = text.substring(1);
+              polls = await pollMethods.getPollsFromCategory(category);
+              if (polls != null) {
+                for (int i = 0; i < polls.length; i++) {
+                  var poll = polls[i];
+                  pollObjects.add({
+                    'index': i,
+                    'poll': poll,
+                  });
+                }
+
+                openListView(category);
               } else {
-                showAlert(context, "Category doesn't exist");
+                showAlert(context, "Failed to retrieve polls in this category.");
               }
             },
             text: text + ' ',
