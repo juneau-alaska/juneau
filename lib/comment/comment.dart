@@ -148,8 +148,8 @@ class _CommentWidgetState extends State<CommentWidget> {
           },
           text: creator['username'] + ' ',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
             color: Theme.of(context).primaryColor,
+            fontWeight: FontWeight.bold,
           ),
         )
       );
