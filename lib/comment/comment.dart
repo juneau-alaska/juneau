@@ -1,24 +1,32 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 
 import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
+
+import 'package:juneau/common/colors.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/controllers/richTextController.dart';
 import 'package:juneau/common/methods/commentMethods.dart';
+import 'package:juneau/common/methods/categoryMethods.dart';
 import 'package:juneau/common/methods/imageMethods.dart';
 import 'package:juneau/common/methods/numberMethods.dart';
 import 'package:juneau/common/methods/userMethods.dart';
 import 'package:juneau/profile/profile.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 class CommentWidget extends StatefulWidget {
   final user;
   final comment;
+  final focusNode;
+  final inputStreamController;
 
   CommentWidget({
     Key key,
     @required this.user,
     this.comment,
+    this.focusNode,
+    this.inputStreamController,
   }) : super(key: key);
 
   @override
@@ -34,16 +42,14 @@ class _CommentWidgetState extends State<CommentWidget> {
   bool liked = false;
   int likes = 0;
 
-  // RichTextController inputController = RichTextController({
-  //   RegExp(r"\B@[a-zA-Z0-9_.]+\b"): TextStyle(
-  //     color: Colors.blueAccent,
-  //   ),
-  // });
-  //
-  // RegExp regExp = RegExp(r"\B@[a-zA-Z0-9]+\b");
+  FocusNode focusNode;
+  StreamController inputStreamController;
 
   @override
   void initState() {
+    focusNode = widget.focusNode;
+    inputStreamController = widget.inputStreamController;
+
     comment = widget.comment;
     time = numberMethods.convertTime(comment['createdAt']);
 
@@ -63,6 +69,77 @@ class _CommentWidgetState extends State<CommentWidget> {
 
   @override
   Widget build(BuildContext context) {
+
+    List<String> commentSplit = comment['comment'].split(' ');
+    List<TextSpan> textChildren = [];
+
+    RegExp regExpUsername = RegExp(r"\B@[a-zA-Z0-9]+\b");
+    RegExp regExpCategory = RegExp(r"\B#[a-zA-Z0-9]+\b");
+
+    if (creator != null) {
+      textChildren.add(
+        TextSpan(
+          recognizer: TapGestureRecognizer()..onTap = () {
+            openProfile(context, creator, user: widget.user);
+          },
+          text: creator['username'] + ' ',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).primaryColor,
+          ),
+        )
+      );
+    }
+
+    for (var i = 0; i < commentSplit.length; i++) {
+      String text = commentSplit[i];
+
+      if (regExpUsername.hasMatch(text)) {
+        textChildren.add(
+          TextSpan(
+            recognizer: TapGestureRecognizer()..onTap = () async {
+              String username = text.substring(1);
+              var user = await userMethods.getUserByUsername(username);
+              if (user != null) {
+                openProfile(context, user);
+              } else {
+                showAlert(context, "User doesn't exist");
+              }
+            },
+            text: text + ' ',
+            style: TextStyle(
+              color: Theme.of(context).highlightColor,
+            ),
+          ));
+      } else if (regExpCategory.hasMatch(text)) {
+        textChildren.add(
+          TextSpan(
+            recognizer: TapGestureRecognizer()..onTap = () async {
+              String categoryStr = text.substring(1);
+              var category; // = await categoryMethods.getCategory(categoryStr);
+              if (category != null) {
+                // TODO: SHOW POLLS IN CATEGORY
+              } else {
+                showAlert(context, "Category doesn't exist");
+              }
+            },
+            text: text + ' ',
+            style: TextStyle(
+              color: Theme.of(context).indicatorColor,
+            ),
+          ));
+      } else {
+        textChildren.add(
+          TextSpan(
+            text: text + ' ',
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+        );
+      }
+    }
+
     return Container(
       width: MediaQuery.of(context).size.width,
       child: Padding(
@@ -107,25 +184,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                     child: RichText(
                       text: TextSpan(
                         text: '',
-                        children: <TextSpan>[
-                          if (creator != null)
-                            TextSpan(
-                              recognizer: TapGestureRecognizer()..onTap = () {
-                                openProfile(context, creator, user: widget.user);
-                              },
-                              text: creator['username'] + ' ',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                          TextSpan(
-                            text: comment['comment'],
-                            style: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                            ),
-                          ),
-                        ],
+                        children: textChildren,
                       ),
                     ),
                   ),
@@ -145,7 +204,8 @@ class _CommentWidgetState extends State<CommentWidget> {
                         padding: const EdgeInsets.symmetric(horizontal: 15.0),
                         child: GestureDetector(
                           onTap: () {
-
+                            inputStreamController.add({'parentCommentId': comment['_id'], 'parentCommentUser': creator['username']});
+                            focusNode.nextFocus();
                           },
                           child: Text(
                             'Reply',

@@ -7,6 +7,7 @@ import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 import 'package:http/http.dart' as http;
 import 'package:juneau/common/api.dart';
 
+import 'package:juneau/common/colors.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/controllers/richTextController.dart';
 import 'package:juneau/common/methods/commentMethods.dart';
@@ -538,38 +539,48 @@ Future<bool> likeComment(String commentId, bool liked) async {
 // }
 
 class BottomInput extends StatefulWidget {
+  final pollId;
+  final focusNode;
+  final inputStreamController;
+
+  BottomInput({
+    Key key,
+    @required this.pollId,
+    this.focusNode,
+    this.inputStreamController,
+  }) : super(key: key);
+
   @override
   _BottomInputState createState() => _BottomInputState();
 }
 
 class _BottomInputState extends State<BottomInput> {
-  RichTextController inputController = RichTextController({
-    RegExp(r"\B@[a-zA-Z0-9_.]+\b"): TextStyle(
-      color: Colors.blueAccent,
-    ),
-  });
   bool isReply = false;
-  String parentId;
-  String repliedToUser;
   bool preventSubmit = false;
+
+  String pollId;
+  String parentCommentId;
+  String parentCommentUser;
+
+  RichTextController inputController;
 
   void resetInput() {
     inputController.text = "";
     isReply = false;
-    parentId = null;
+    parentCommentId = null;
   }
 
-  FocusNode focusNode;
   StreamController inputStreamController;
 
   @override
   void initState() {
-    focusNode = FocusNode();
-    inputStreamController = StreamController();
-    inputStreamController.stream.listen((obj) {
+    pollId = widget.pollId;
+
+    inputStreamController = widget.inputStreamController;
+    inputStreamController.stream.listen((data) {
       setState(() {
-        parentId = obj['commentId'];
-        repliedToUser = obj['repliedToUser'];
+        parentCommentId = data['commentId'];
+        parentCommentUser = data['parentCommentUser'];
         isReply = true;
       });
     });
@@ -589,7 +600,6 @@ class _BottomInputState extends State<BottomInput> {
 
   @override
   void dispose() {
-    focusNode.dispose();
     inputStreamController.close();
     inputController.dispose();
     super.dispose();
@@ -604,7 +614,16 @@ class _BottomInputState extends State<BottomInput> {
 
   @override
   Widget build(BuildContext context) {
-    inputController.text = repliedToUser != null ? '@$repliedToUser ' : '';
+    inputController = RichTextController({
+      RegExp(r"\B@[a-zA-Z0-9_.]+\b"): TextStyle(
+        color: Theme.of(context).highlightColor,
+      ),
+      RegExp(r"\B#[a-zA-Z0-9_.]+\b"): TextStyle(
+        color: Theme.of(context).indicatorColor,
+      ),
+    });
+
+    inputController.text = parentCommentUser != null ? '@$parentCommentUser ' : '';
     inputController.selection =
       TextSelection.fromPosition(TextPosition(offset: inputController.text.length));
 
@@ -621,7 +640,7 @@ class _BottomInputState extends State<BottomInput> {
             children: [
               Flexible(
                 child: TextField(
-                  focusNode: focusNode,
+                  focusNode: widget.focusNode,
                   style: TextStyle(fontWeight: FontWeight.w300),
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
@@ -645,36 +664,36 @@ class _BottomInputState extends State<BottomInput> {
                   preventSubmit = true;
 
                   if (isReply) {
-                    // openReplies(parentId, context);
+                    // openReplies(parentCommentId, context);
 
                     // if (text != null || text.replaceAll(new RegExp(r"\s+"), "").length > 0) {
-                    //   var comment = await commentMethods.createComment(text, pollId, context, parentCommentId: parentId);
-                    //   commentReplies[parentId].add(comment);
+                    //   var comment = await commentMethods.createComment(text, pollId, context, parentCommentId: parentCommentId);
+                    //   commentReplies[parentCommentId].add(comment);
                     //
                     //   bool addedToComment =
-                    //   await commentMethods.updateCommentReplies(parentId, comment['_id'], context);
+                    //   await commentMethods.updateCommentReplies(parentCommentId, comment['_id'], context);
                     //
                     //   if (addedToComment) {
                     //     Widget commentWidget =
                     //     await createCommentWidget(comment, context, nested: true);
-                    //     commentReplyWidgets[parentId].insert(0, commentWidget);
+                    //     commentReplyWidgets[parentCommentId].insert(0, commentWidget);
                     //     rebuildStreamController.add({'list': commentList});
                     //     resetInput();
                     //   }
                     // }
                     // focusNode.unfocus();
                   } else {
-                    // if (text != null || text.replaceAll(new RegExp(r"\s+"), "").length > 0) {
-                    //   var comment = await commentMethods.createComment(text, pollId, context);
-                    //   bool addedToPoll = await commentMethods.updatePollComments(pollId, comment['_id'], context);
-                    //
-                    //   if (addedToPoll) {
-                    //     Widget commentWidget = await createCommentWidget(comment, context);
-                    //     commentList.insert(0, comment);
-                    //     commentStreamController.add({'widget': commentWidget});
-                    //     resetInput();
-                    //   }
-                    // }
+                    if (text != null || text.replaceAll(new RegExp(r"\s+"), "").length > 0) {
+                      var comment = await commentMethods.createComment(text, pollId, context);
+                      bool addedToPoll = await commentMethods.updatePollComments(pollId, comment['_id'], context);
+
+                      if (addedToPoll) {
+                        // Widget commentWidget = await createCommentWidget(comment, context);
+                        // commentList.insert(0, comment);
+                        // commentStreamController.add({'widget': commentWidget});
+                        resetInput();
+                      }
+                    }
                   }
 
                   preventSubmit = false;
@@ -713,10 +732,16 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
 
   List<Widget> commentWidgets = [];
 
+  Widget bottomInput;
+  FocusNode focusNode = FocusNode();
+  StreamController inputStreamController = StreamController();
+
   @override
   void initState() {
     user = widget.user;
     pollId = widget.pollId;
+
+    bottomInput = BottomInput(pollId: pollId, focusNode: focusNode, inputStreamController: inputStreamController);
 
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -735,7 +760,7 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
 
       for(var i=0; i<pollComments.length; i++) {
         var comment = pollComments[i];
-        Widget commentWidget = new CommentWidget(user: user, comment: comment);
+        Widget commentWidget = new CommentWidget(user: user, comment: comment, focusNode: focusNode, inputStreamController: inputStreamController);
         commentWidgets.add(commentWidget);
       }
 
@@ -748,6 +773,8 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
   @override
   void dispose() {
     user = null;
+    focusNode.dispose();
+    inputStreamController.close();
     // commentList = null;
     // commentWidgets = null;
     _controller.dispose();
@@ -755,10 +782,10 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
   }
 
   void back() {
-    // focusNode.unfocus();
+    focusNode.unfocus();
     _controller.reverse();
     // commentStreamController.close();
-    // inputStreamController.close();
+    inputStreamController.close();
     Navigator.pop(context);
   }
 
@@ -815,7 +842,7 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
                 ],
               )),
           ),
-          BottomInput(),
+          bottomInput,
         ]),
       ),
     );
