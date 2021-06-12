@@ -41,6 +41,7 @@ class _CommentWidgetState extends State<CommentWidget> {
   var user;
   var profilePhoto;
 
+  String commentId;
   String time;
   bool pollOpen = false;
   bool preventReload = false;
@@ -104,10 +105,13 @@ class _CommentWidgetState extends State<CommentWidget> {
   @override
   void initState() {
     user = widget.user;
+    comment = widget.comment;
     focusNode = widget.focusNode;
     inputStreamController = widget.inputStreamController;
 
-    comment = widget.comment;
+    commentId = comment['_id'];
+    likes = comment['likes'];
+    liked = user['likedComments'].contains(commentId);
     time = numberMethods.convertTime(comment['createdAt']);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -197,7 +201,7 @@ class _CommentWidgetState extends State<CommentWidget> {
             },
             text: text + ' ',
             style: TextStyle(
-              color: Theme.of(context).indicatorColor,
+              color: Theme.of(context).highlightColor,
             ),
           ));
       } else {
@@ -291,14 +295,24 @@ class _CommentWidgetState extends State<CommentWidget> {
                       ),
 
                       GestureDetector(
-                        onTap: () {
-
+                        onTap: () async {
+                          var updatedComment = await commentMethods.likeComment(commentId, liked);
+                          var updatedUser = await userMethods.updateUserLikedComments(commentId, liked);
+                          if (updatedComment != null) {
+                            comment = updatedComment;
+                          }
+                          if (updatedUser != null) {
+                            user = updatedUser;
+                          }
+                          liked = user['likedComments'].contains(commentId);
+                          likes = comment['likes'];
+                          setState(() {});
                         },
                         child: Text(
                           likes == 1 ? '1 Like' : '$likes Likes',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Theme.of(context).hintColor,
+                            color: liked ? Theme.of(context).primaryColor : Theme.of(context).hintColor,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

@@ -76,66 +76,66 @@ Future getUser(String username) async {
   }
 }
 
-Future<bool> updateUserLikedComments(String commentId, bool liked) async {
-  String url = API_URL + 'user/';
+// Future<bool> updateUserLikedComments(String commentId, bool liked) async {
+//   String url = API_URL + 'user/';
+//
+//   SharedPreferences prefs = await SharedPreferences.getInstance();
+//   var token = prefs.getString('token'), userId = prefs.getString('userId');
+//
+//   var headers = {
+//     HttpHeaders.contentTypeHeader: 'application/json',
+//     HttpHeaders.authorizationHeader: token
+//   };
+//
+//   var response = await http.get(url + userId, headers: headers), body;
+//
+//   if (response.statusCode == 200) {
+//     var jsonResponse = jsonDecode(response.body), likedComments = jsonResponse['likedComments'];
+//
+//     if (liked && likedComments.contains(commentId)) {
+//       likedComments.remove(commentId);
+//     } else {
+//       likedComments.add(commentId);
+//     }
+//
+//     jsonResponse['likedComments'] = likedComments;
+//
+//     body = jsonEncode(jsonResponse);
+//
+//     response = await http.put(url + userId, headers: headers, body: body);
+//
+//     if (response.statusCode == 200) {
+//       return true;
+//     } else {
+//       return false;
+//     }
+//   } else {
+//     return false;
+//   }
+// }
 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var token = prefs.getString('token'), userId = prefs.getString('userId');
-
-  var headers = {
-    HttpHeaders.contentTypeHeader: 'application/json',
-    HttpHeaders.authorizationHeader: token
-  };
-
-  var response = await http.get(url + userId, headers: headers), body;
-
-  if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body), likedComments = jsonResponse['likedComments'];
-
-    if (liked && likedComments.contains(commentId)) {
-      likedComments.remove(commentId);
-    } else {
-      likedComments.add(commentId);
-    }
-
-    jsonResponse['likedComments'] = likedComments;
-
-    body = jsonEncode(jsonResponse);
-
-    response = await http.put(url + userId, headers: headers, body: body);
-
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-}
-
-Future<bool> likeComment(String commentId, bool liked) async {
-  String url = API_URL + 'comment/like/' + commentId;
-
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var token = prefs.getString('token');
-
-  var headers = {
-    HttpHeaders.contentTypeHeader: 'application/json',
-    HttpHeaders.authorizationHeader: token
-  };
-
-  var body = jsonEncode({'liked': liked});
-
-  var response = await http.put(url, headers: headers, body: body);
-
-  if (response.statusCode == 200) {
-    bool updated = await updateUserLikedComments(commentId, liked);
-    return updated;
-  } else {
-    return false;
-  }
-}
+// Future<bool> likeComment(String commentId, bool liked) async {
+//   String url = API_URL + 'comment/like/' + commentId;
+//
+//   SharedPreferences prefs = await SharedPreferences.getInstance();
+//   var token = prefs.getString('token');
+//
+//   var headers = {
+//     HttpHeaders.contentTypeHeader: 'application/json',
+//     HttpHeaders.authorizationHeader: token
+//   };
+//
+//   var body = jsonEncode({'liked': liked});
+//
+//   var response = await http.put(url, headers: headers, body: body);
+//
+//   if (response.statusCode == 200) {
+//     bool updated = await updateUserLikedComments(commentId, liked);
+//     return updated;
+//   } else {
+//     return false;
+//   }
+// }
 
 // Future<List> buildComments(comments, context, {isReply = false}) async {
 //   List<Widget> widgets = [];
@@ -619,7 +619,7 @@ class _BottomInputState extends State<BottomInput> {
         color: Theme.of(context).highlightColor,
       ),
       RegExp(r"\B#[a-zA-Z0-9_.]+\b"): TextStyle(
-        color: Theme.of(context).indicatorColor,
+        color: Theme.of(context).highlightColor,
       ),
     });
 

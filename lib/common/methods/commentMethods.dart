@@ -137,6 +137,30 @@ class CommentMethods {
       return false;
     }
   }
+
+  Future likeComment(String commentId, bool liked) async {
+    String url = API_URL + 'comment/like/' + commentId;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    var body = jsonEncode({'liked': liked});
+
+    var response = await http.put(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      var comment = jsonDecode(response.body)['comment'];
+
+      return comment;
+    } else {
+      return null;
+    }
+  }
 }
 
 CommentMethods commentMethods = new CommentMethods();

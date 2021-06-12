@@ -230,6 +230,46 @@ class UserMethods {
       'status_code': response.statusCode,
     };
   }
+
+  Future updateUserLikedComments(String commentId, bool liked) async {
+    String url = API_URL + 'user/';
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token'), userId = prefs.getString('userId');
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    var response = await http.get(url + userId, headers: headers), body;
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body), likedComments = jsonResponse['likedComments'];
+
+      if (liked && likedComments.contains(commentId)) {
+        likedComments.remove(commentId);
+      } else {
+        likedComments.add(commentId);
+      }
+
+      jsonResponse['likedComments'] = likedComments;
+
+      body = jsonEncode(jsonResponse);
+
+      response = await http.put(url + userId, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        var user = jsonDecode(response.body)['user'];
+
+        return user;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
 }
 
 UserMethods userMethods = new UserMethods();
