@@ -3,22 +3,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
 import 'package:http/http.dart' as http;
+import 'package:juneau/comment/comment.dart';
 import 'package:juneau/common/api.dart';
-
-import 'package:juneau/common/colors.dart';
-import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/controllers/richTextController.dart';
 import 'package:juneau/common/methods/commentMethods.dart';
-import 'package:juneau/common/methods/imageMethods.dart';
-import 'package:juneau/common/methods/numberMethods.dart';
-
-import 'package:juneau/comment/comment.dart';
-import 'package:juneau/profile/profile.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 // var currentUser;
 // List<Widget> commentWidgets;
@@ -579,7 +570,7 @@ class _BottomInputState extends State<BottomInput> {
     inputStreamController = widget.inputStreamController;
     inputStreamController.stream.listen((data) {
       setState(() {
-        parentCommentId = data['commentId'];
+        parentCommentId = data['parentCommentId'];
         parentCommentUser = data['parentCommentUser'];
         isReply = true;
       });
@@ -606,11 +597,11 @@ class _BottomInputState extends State<BottomInput> {
   }
 
   OutlineInputBorder borderOutline = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(10.0),
-    borderSide: BorderSide(
-      color: Colors.transparent,
-      width: 0.5,
-    ));
+      borderRadius: BorderRadius.circular(10.0),
+      borderSide: BorderSide(
+        color: Colors.transparent,
+        width: 0.5,
+      ));
 
   @override
   Widget build(BuildContext context) {
@@ -625,89 +616,98 @@ class _BottomInputState extends State<BottomInput> {
 
     inputController.text = parentCommentUser != null ? '@$parentCommentUser ' : '';
     inputController.selection =
-      TextSelection.fromPosition(TextPosition(offset: inputController.text.length));
+        TextSelection.fromPosition(TextPosition(offset: inputController.text.length));
 
     return Positioned(
       bottom: 0.0,
       child: Container(
-        width: MediaQuery.of(context).size.width,
-        color: Theme.of(context).backgroundColor,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 30.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Flexible(
-                child: TextField(
-                  focusNode: widget.focusNode,
-                  style: TextStyle(fontWeight: FontWeight.w300),
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-                    hintText: 'Add a comment',
-                    hintStyle: TextStyle(
-                      color: Theme.of(context).hintColor,
-                    ),
-                    focusedBorder: borderOutline,
-                    enabledBorder: borderOutline),
-                  controller: inputController,
+          width: MediaQuery.of(context).size.width,
+          color: Theme.of(context).backgroundColor,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 30.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: TextField(
+                    focusNode: widget.focusNode,
+                    style: TextStyle(fontWeight: FontWeight.w300),
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+                        hintText: 'Add a comment',
+                        hintStyle: TextStyle(
+                          color: Theme.of(context).hintColor,
+                        ),
+                        focusedBorder: borderOutline,
+                        enabledBorder: borderOutline),
+                    controller: inputController,
+                  ),
                 ),
-              ),
-              GestureDetector(
-                onTap: () async {
-                  String text = inputController.text;
+                GestureDetector(
+                    onTap: () async {
+                      String text = inputController.text;
 
-                  if (text == '' || preventSubmit) {
-                    return;
-                  }
-
-                  preventSubmit = true;
-
-                  if (isReply) {
-                    // openReplies(parentCommentId, context);
-
-                    // if (text != null || text.replaceAll(new RegExp(r"\s+"), "").length > 0) {
-                    //   var comment = await commentMethods.createComment(text, pollId, context, parentCommentId: parentCommentId);
-                    //   commentReplies[parentCommentId].add(comment);
-                    //
-                    //   bool addedToComment =
-                    //   await commentMethods.updateCommentReplies(parentCommentId, comment['_id'], context);
-                    //
-                    //   if (addedToComment) {
-                    //     Widget commentWidget =
-                    //     await createCommentWidget(comment, context, nested: true);
-                    //     commentReplyWidgets[parentCommentId].insert(0, commentWidget);
-                    //     rebuildStreamController.add({'list': commentList});
-                    //     resetInput();
-                    //   }
-                    // }
-                    // focusNode.unfocus();
-                  } else {
-                    if (text != null || text.replaceAll(new RegExp(r"\s+"), "").length > 0) {
-                      var comment = await commentMethods.createComment(text, pollId, context);
-                      bool addedToPoll = await commentMethods.updatePollComments(pollId, comment['_id'], context);
-
-                      if (addedToPoll) {
-                        // Widget commentWidget = await createCommentWidget(comment, context);
-                        // commentList.insert(0, comment);
-                        // commentStreamController.add({'widget': commentWidget});
-                        resetInput();
+                      if (text == '' || preventSubmit) {
+                        return;
                       }
-                    }
-                  }
 
-                  preventSubmit = false;
-                },
-                child: Text(
-                  'COMMENT',
-                  style: TextStyle(
-                    fontSize: 15.0,
-                    color: Theme.of(context).highlightColor,
-                    fontWeight: FontWeight.w700),
-                ))
-            ],
-          ),
-        )),
+                      preventSubmit = true;
+
+                      if (isReply) {
+                        // openReplies(parentCommentId, context);
+
+                        if (text != null || text.replaceAll(new RegExp(r"\s+"), "").length > 0) {
+                          var comment = await commentMethods.createComment(text, pollId, context,
+                              parentCommentId: parentCommentId);
+                          // commentReplies[parentCommentId].add(comment);
+
+                          bool addedToComment = await commentMethods.updateCommentReplies(
+                              parentCommentId, comment['_id'], context);
+                          bool addedToPoll = await commentMethods.updatePollComments(
+                              pollId, comment['_id'], context);
+
+                          resetInput();
+
+                          // if (addedToComment) {
+                          // Widget commentWidget =
+                          // await createCommentWidget(comment, context, nested: true);
+                          // commentReplyWidgets[parentCommentId].insert(0, commentWidget);
+                          // rebuildStreamController.add({'list': commentList});
+                          // resetInput();
+                          // }
+                        }
+
+                        widget.focusNode.unfocus();
+                      } else {
+                        if (text != null || text.replaceAll(new RegExp(r"\s+"), "").length > 0) {
+                          var comment = await commentMethods.createComment(text, pollId, context);
+                          bool addedToPoll = await commentMethods.updatePollComments(
+                              pollId, comment['_id'], context);
+
+                          resetInput();
+
+                          // if (addedToPoll) {
+                          // Widget commentWidget = await createCommentWidget(comment, context);
+                          // commentList.insert(0, comment);
+                          // commentStreamController.add({'widget': commentWidget});
+                          // resetInput();
+                          // }
+                        }
+                      }
+
+                      preventSubmit = false;
+                    },
+                    child: Text(
+                      'COMMENT',
+                      style: TextStyle(
+                          fontSize: 15.0,
+                          color: Theme.of(context).highlightColor,
+                          fontWeight: FontWeight.w700),
+                    ))
+              ],
+            ),
+          )),
     );
   }
 }
@@ -741,7 +741,8 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
     user = widget.user;
     pollId = widget.pollId;
 
-    bottomInput = BottomInput(pollId: pollId, focusNode: focusNode, inputStreamController: inputStreamController);
+    bottomInput = BottomInput(
+        pollId: pollId, focusNode: focusNode, inputStreamController: inputStreamController);
 
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -756,11 +757,16 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
     ));
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      List pollComments = await commentMethods.getCommentsByPollID(pollId, context);
+      List pollComments = await commentMethods.getComments(pollId, context);
 
-      for(var i=0; i<pollComments.length; i++) {
+      for (var i = 0; i < pollComments.length; i++) {
         var comment = pollComments[i];
-        Widget commentWidget = new CommentWidget(user: user, comment: comment, focusNode: focusNode, inputStreamController: inputStreamController);
+        Widget commentWidget = new CommentWidget(
+            user: user,
+            comment: comment,
+            pollId: pollId,
+            focusNode: focusNode,
+            inputStreamController: inputStreamController);
         commentWidgets.add(commentWidget);
       }
 
@@ -805,42 +811,42 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
             position: _animation,
             textDirection: TextDirection.rtl,
             child: Container(
-              height: MediaQuery.of(context).size.height,
-              color: Theme.of(context).backgroundColor,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(15.0, 50.0, 15.0, 0.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            back();
-                          },
-                          child: Icon(Icons.arrow_back, size: 25)),
-                      ],
-                    ),
-                  ),
-                  commentWidgets.length > 0
-                  ? Expanded(
-                      child: MediaQuery.removePadding(
-                        context: context,
-                        removeTop: true,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 10.0, bottom: 60.0),
-                          child: ListView(
-                            children: commentWidgets,
-                          ),
-                        ),
+                height: MediaQuery.of(context).size.height,
+                color: Theme.of(context).backgroundColor,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(15.0, 50.0, 15.0, 0.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                              onTap: () {
+                                back();
+                              },
+                              child: Icon(Icons.arrow_back, size: 25)),
+                        ],
                       ),
-                    )
-                  : Center(
-                    child: Text('No comments'),
-                  ),
-                ],
-              )),
+                    ),
+                    commentWidgets.length > 0
+                        ? Expanded(
+                            child: MediaQuery.removePadding(
+                              context: context,
+                              removeTop: true,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 10.0, bottom: 60.0),
+                                child: ListView(
+                                  children: commentWidgets,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Center(
+                            child: Text('No comments'),
+                          ),
+                  ],
+                )),
           ),
           bottomInput,
         ]),

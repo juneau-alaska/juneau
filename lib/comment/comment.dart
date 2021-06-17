@@ -20,15 +20,19 @@ import 'package:juneau/profile/profile.dart';
 class CommentWidget extends StatefulWidget {
   final user;
   final comment;
+  final pollId;
   final focusNode;
   final inputStreamController;
+  final isReply;
 
   CommentWidget({
     Key key,
     @required this.user,
     this.comment,
+    this.pollId,
     this.focusNode,
     this.inputStreamController,
+    this.isReply,
   }) : super(key: key);
 
   @override
@@ -46,10 +50,15 @@ class _CommentWidgetState extends State<CommentWidget> {
   bool pollOpen = false;
   bool preventReload = false;
   bool liked = false;
-  int likes = 0;
+  bool repliesOpen = false;
 
+  List replies;
+  List<Widget> replyWidgets = [];
   List polls;
   List pollObjects = [];
+
+  int likes = 0;
+  int replyCount = 0;
 
   FocusNode focusNode;
   StreamController inputStreamController;
@@ -110,8 +119,14 @@ class _CommentWidgetState extends State<CommentWidget> {
     inputStreamController = widget.inputStreamController;
 
     commentId = comment['_id'];
+
     likes = comment['likes'];
     liked = user['likedComments'].contains(commentId);
+
+    if (comment['replies'] != null) {
+      replyCount = comment['replies'].length;
+    }
+
     time = numberMethods.convertTime(comment['createdAt']);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -216,114 +231,163 @@ class _CommentWidgetState extends State<CommentWidget> {
       }
     }
 
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 3.0, right: 10.0),
-              child: GestureDetector(
-                child: profilePhoto != null
-                  ? Container(
-                  width: 32,
-                  height: 32,
-                  child: ClipOval(
-                    child: Image.memory(
-                      profilePhoto,
-                      fit: BoxFit.cover,
-                      width: 32.0,
-                      height: 32.0,
+    return Padding(
+      padding: widget.isReply == true ? EdgeInsets.only(top: 20.0) : EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 3.0, right: 10.0),
+            child: GestureDetector(
+              child: profilePhoto != null
+                ? Container(
+                width: 32,
+                height: 32,
+                child: ClipOval(
+                  child: Image.memory(
+                    profilePhoto,
+                    fit: BoxFit.cover,
+                    width: 32.0,
+                    height: 32.0,
+                  ),
+                ),
+              )
+                : CircleAvatar(
+                radius: 16,
+                backgroundColor: Colors.transparent,
+                backgroundImage: AssetImage('images/profile.png'),
+              ),
+              onTap: () {
+                openProfile(context, creator);
+              },
+            ),
+          ),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+
+              Container(
+                width: widget.isReply == true ? MediaQuery.of(context).size.width - 124 : MediaQuery.of(context).size.width - 82,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 5.0),
+                  child: RichText(
+                    text: TextSpan(
+                      text: '',
+                      children: textChildren,
                     ),
                   ),
-                )
-                  : CircleAvatar(
-                  radius: 16,
-                  backgroundColor: Colors.transparent,
-                  backgroundImage: AssetImage('images/profile.png'),
                 ),
-                onTap: () {
-                  openProfile(context, creator);
-                },
               ),
-            ),
 
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
+                  Text(
+                    '$time',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).hintColor,
+                    ),
+                  ),
 
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 5.0),
-                    child: RichText(
-                      text: TextSpan(
-                        text: '',
-                        children: textChildren,
-                      ),
-                    ),
-                  ),
-
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '$time',
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        String parentCommentId = comment['parentCommentId'] == null ? comment['_id'] : comment['parentCommentId'];
+                        inputStreamController.add({'parentCommentId': parentCommentId, 'parentCommentUser': creator['username']});
+                        focusNode.nextFocus();
+                      },
+                      child: Text(
+                        'Reply',
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).hintColor,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
+                    ),
+                  ),
 
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                        child: GestureDetector(
-                          onTap: () {
-                            inputStreamController.add({'parentCommentId': comment['_id'], 'parentCommentUser': creator['username']});
-                            focusNode.nextFocus();
-                          },
-                          child: Text(
-                            'Reply',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).hintColor,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
+                  GestureDetector(
+                    onTap: () async {
+                      var updatedComment = await commentMethods.likeComment(commentId, liked);
+                      var updatedUser = await userMethods.updateUserLikedComments(commentId, liked);
+                      if (updatedComment != null) {
+                        comment = updatedComment;
+                      }
+                      if (updatedUser != null) {
+                        user = updatedUser;
+                      }
+                      liked = user['likedComments'].contains(commentId);
+                      likes = comment['likes'];
+                      setState(() {});
+                    },
+                    child: Text(
+                      likes == 1 ? '1 Like' : '$likes Likes',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: liked ? Theme.of(context).primaryColor : Theme.of(context).hintColor,
+                        fontWeight: FontWeight.w600,
                       ),
-
-                      GestureDetector(
-                        onTap: () async {
-                          var updatedComment = await commentMethods.likeComment(commentId, liked);
-                          var updatedUser = await userMethods.updateUserLikedComments(commentId, liked);
-                          if (updatedComment != null) {
-                            comment = updatedComment;
-                          }
-                          if (updatedUser != null) {
-                            user = updatedUser;
-                          }
-                          liked = user['likedComments'].contains(commentId);
-                          likes = comment['likes'];
-                          setState(() {});
-                        },
-                        child: Text(
-                          likes == 1 ? '1 Like' : '$likes Likes',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: liked ? Theme.of(context).primaryColor : Theme.of(context).hintColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
+
+              if (!repliesOpen && replyCount > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: GestureDetector(
+                    onTap: () async {
+                      replies = await commentMethods.getComments(widget.pollId, context, parentCommentId: commentId);
+
+                      for (var i = 0; i < replies.length; i++) {
+                        var comment = replies[i];
+                        Widget commentWidget = new CommentWidget(
+                          user: user,
+                          comment: comment,
+                          pollId: widget.pollId,
+                          focusNode: focusNode,
+                          inputStreamController: inputStreamController,
+                          isReply: true,
+                        );
+                        replyWidgets.add(commentWidget);
+                      }
+
+                      repliesOpen = true;
+                      setState(() {});
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 3.0, bottom: 1.0),
+                          child: Icon(
+                            Icons.arrow_downward,
+                            size: 14,
+                            color: Theme.of(context).hintColor,
+                          ),
+                        ),
+                        Text(
+                          replyCount == 1 ? 'Show $replyCount reply' : 'Show $replyCount replies',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(context).hintColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                Column(
+                  children: replyWidgets,
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
