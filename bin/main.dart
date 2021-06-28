@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
         primaryColor: customColors.black,
         hintColor: customColors.darkGrey,
         dividerColor: customColors.lightGrey,
-        highlightColor: Colors.blue,
+        highlightColor: Colors.blue[700],
         indicatorColor: Colors.red,
         buttonColor: customColors.black,
         textTheme: TextTheme(

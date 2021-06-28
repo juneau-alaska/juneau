@@ -9,12 +9,14 @@ import 'package:keyboard_visibility/keyboard_visibility.dart';
 class BottomInput extends StatefulWidget {
   final pollId;
   final focusNode;
+  final commentStreamController;
   final inputStreamController;
 
   BottomInput({
     Key key,
     @required this.pollId,
     this.focusNode,
+    this.commentStreamController,
     this.inputStreamController,
   }) : super(key: key);
 
@@ -39,14 +41,12 @@ class _BottomInputState extends State<BottomInput> {
     parentCommentUser = null;
   }
 
-  StreamController inputStreamController;
 
   @override
   void initState() {
     pollId = widget.pollId;
 
-    inputStreamController = widget.inputStreamController;
-    inputStreamController.stream.listen((data) {
+    widget.inputStreamController.stream.listen((data) {
       setState(() {
         parentCommentId = data['parentCommentId'];
         parentCommentUser = data['parentCommentUser'];
@@ -57,10 +57,14 @@ class _BottomInputState extends State<BottomInput> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       inputController = RichTextController({
         RegExp(r"\B@[a-zA-Z0-9_.]+\b"): TextStyle(
-          color: Theme.of(context).highlightColor,
+          color: Theme
+            .of(context)
+            .highlightColor,
         ),
         RegExp(r"\B#[a-zA-Z0-9_.]+\b"): TextStyle(
-          color: Theme.of(context).highlightColor,
+          color: Theme
+            .of(context)
+            .highlightColor,
         ),
       });
 
@@ -87,132 +91,159 @@ class _BottomInputState extends State<BottomInput> {
 
   @override
   void dispose() {
-    inputStreamController.close();
     inputController.dispose();
     super.dispose();
   }
 
   OutlineInputBorder borderOutline = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10.0),
-      borderSide: BorderSide(
-        color: Colors.transparent,
-        width: 0.5,
-      ));
+    borderRadius: BorderRadius.circular(10.0),
+    borderSide: BorderSide(
+      color: Colors.transparent,
+      width: 0.5,
+    ));
 
   @override
   Widget build(BuildContext context) {
     if (inputController != null) {
       inputController.text = parentCommentUser != null ? '@$parentCommentUser ' : '';
       inputController.selection =
-          TextSelection.fromPosition(TextPosition(offset: inputController.text.length));
+        TextSelection.fromPosition(TextPosition(offset: inputController.text.length));
     }
 
     return Positioned(
       bottom: 0.0,
       child: Container(
-          width: MediaQuery.of(context).size.width,
-          color: Theme.of(context).backgroundColor,
-          child: Column(
-            children: [
-              if (isReply)
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  color: Theme.of(context).dividerColor,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 13.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Replying to $parentCommentUser',
-                          style: TextStyle(
-                            color: Theme.of(context).hintColor,
-                          ),
+        width: MediaQuery
+          .of(context)
+          .size
+          .width,
+        color: Theme
+          .of(context)
+          .backgroundColor,
+        child: Column(
+          children: [
+            if (isReply)
+              Container(
+                width: MediaQuery
+                  .of(context)
+                  .size
+                  .width,
+                color: Theme
+                  .of(context)
+                  .dividerColor,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 13.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Replying to $parentCommentUser',
+                        style: TextStyle(
+                          color: Theme
+                            .of(context)
+                            .hintColor,
                         ),
-                        GestureDetector(
-                          onTap: ()  {
-                            resetInput();
-                            setState(() {});
-                          },
-                          child: Icon(
-                            Icons.close,
-                            size: 16.0,
-                            color: Theme.of(context).hintColor,
-                          ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          resetInput();
+                          setState(() {});
+                        },
+                        child: Icon(
+                          Icons.close,
+                          size: 16.0,
+                          color: Theme
+                            .of(context)
+                            .hintColor,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 30.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: TextField(
-                        focusNode: widget.focusNode,
-                        style: TextStyle(fontWeight: FontWeight.w300),
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-                            hintText: 'Add a comment',
-                            hintStyle: TextStyle(
-                              color: Theme.of(context).hintColor,
-                            ),
-                            focusedBorder: borderOutline,
-                            enabledBorder: borderOutline),
-                        controller: inputController,
-                      ),
-                    ),
-                    GestureDetector(
-                        onTap: () async {
-                          String text = inputController.text;
-
-                          if (text == '' || preventSubmit) {
-                            return;
-                          }
-
-                          preventSubmit = true;
-
-                          if (isReply) {
-                            if (text != null || text.replaceAll(new RegExp(r"\s+"), "").length > 0) {
-                              var comment = await commentMethods.createComment(text, pollId, context,
-                                  parentCommentId: parentCommentId);
-
-                              bool addedToComment = await commentMethods.updateCommentReplies(
-                                  parentCommentId, comment['_id'], context);
-                              bool addedToPoll = await commentMethods.updatePollComments(
-                                  pollId, comment['_id'], context);
-
-                              resetInput();
-                            }
-
-                            widget.focusNode.unfocus();
-                          } else {
-                            if (text != null || text.replaceAll(new RegExp(r"\s+"), "").length > 0) {
-                              var comment = await commentMethods.createComment(text, pollId, context);
-                              bool addedToPoll = await commentMethods.updatePollComments(
-                                  pollId, comment['_id'], context);
-
-                              resetInput();
-                            }
-                          }
-
-                          preventSubmit = false;
-                        },
-                        child: Text(
-                          'COMMENT',
-                          style: TextStyle(
-                              fontSize: 15.0,
-                              color: Theme.of(context).highlightColor,
-                              fontWeight: FontWeight.w700),
-                        ))
-                  ],
-                ),
               ),
-            ],
-          )),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 30.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: TextField(
+                      focusNode: widget.focusNode,
+                      style: TextStyle(fontWeight: FontWeight.w300),
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+                        hintText: 'Add a comment',
+                        hintStyle: TextStyle(
+                          color: Theme
+                            .of(context)
+                            .hintColor,
+                        ),
+                        focusedBorder: borderOutline,
+                        enabledBorder: borderOutline),
+                      controller: inputController,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      String text = inputController.text;
+
+                      if (text == '' || preventSubmit) {
+                        return;
+                      }
+
+                      preventSubmit = true;
+
+                      if (isReply) {
+                        if (text != null || text
+                          .replaceAll(new RegExp(r"\s+"), "")
+                          .length > 0) {
+                          var comment = await commentMethods.createComment(text, pollId, context,
+                            parentCommentId: parentCommentId);
+
+                          bool addedToComment = await commentMethods.updateCommentReplies(
+                            parentCommentId, comment['_id'], context);
+                          bool addedToPoll = await commentMethods.updatePollComments(
+                            pollId, comment['_id'], context);
+
+                          resetInput();
+                        }
+
+                        widget.focusNode.unfocus();
+                      } else {
+                        if (text != null || text
+                          .replaceAll(new RegExp(r"\s+"), "")
+                          .length > 0) {
+                          var comment = await commentMethods.createComment(text, pollId, context);
+                          bool addedToPoll = await commentMethods.updatePollComments(
+                            pollId, comment['_id'], context);
+
+                          if (addedToPoll) {
+                            // TODO: ADD COMMENT TO TOP OF LIST OF COMMENTS AND SCROLL UP AND HIGHLIGHT COMMENT
+                            widget.commentStreamController.add(comment);
+                            resetInput();
+                          } else {
+                            // TODO: ALERT FAILED TO SAVE COMMENT
+                          }
+                        }
+                      }
+
+                      preventSubmit = false;
+                    },
+                    child: Text(
+                      'COMMENT',
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        color: Theme
+                          .of(context)
+                          .highlightColor,
+                        fontWeight: FontWeight.w700),
+                    ))
+                ],
+              ),
+            ),
+          ],
+        )),
     );
   }
 }
@@ -239,7 +270,10 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
 
   Widget bottomInput;
   FocusNode focusNode = FocusNode();
+
+  StreamController commentStreamController = StreamController();
   StreamController inputStreamController = StreamController();
+  ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -247,12 +281,39 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
     pollId = widget.pollId;
 
     bottomInput = BottomInput(
-        pollId: pollId, focusNode: focusNode, inputStreamController: inputStreamController);
+      pollId: pollId,
+      focusNode: focusNode,
+      inputStreamController: inputStreamController,
+      commentStreamController: commentStreamController,
+    );
+
+    commentStreamController.stream.listen((comment) {
+      Widget commentWidget = CommentWidget(
+        user: user,
+        comment: comment,
+        pollId: pollId,
+        focusNode: focusNode,
+        inputStreamController: inputStreamController,
+      );
+      commentWidgets.insert(0, commentWidget);
+      if (mounted) {
+        setState(() {
+          Future.delayed(const Duration(milliseconds: 500), () {
+            _scrollController.animateTo(
+              0,
+              duration: Duration(milliseconds: 500),
+              curve: Curves.fastOutSlowIn,
+            );
+          });
+        });
+      }
+    });
 
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
-    )..forward();
+    )
+      ..forward();
     _animation = Tween<Offset>(
       begin: const Offset(-1.0, 0.0),
       end: const Offset(0.0, 0.0),
@@ -267,11 +328,11 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
       for (var i = 0; i < pollComments.length; i++) {
         var comment = pollComments[i];
         Widget commentWidget = new CommentWidget(
-            user: user,
-            comment: comment,
-            pollId: pollId,
-            focusNode: focusNode,
-            inputStreamController: inputStreamController);
+          user: user,
+          comment: comment,
+          pollId: pollId,
+          focusNode: focusNode,
+          inputStreamController: inputStreamController);
         commentWidgets.add(commentWidget);
       }
 
@@ -285,7 +346,9 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
   void dispose() {
     user = null;
     focusNode.dispose();
+    commentStreamController.close();
     inputStreamController.close();
+    _scrollController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -293,6 +356,7 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
   void back() {
     focusNode.unfocus();
     _controller.reverse();
+    commentStreamController.close();
     inputStreamController.close();
     Navigator.pop(context);
   }
@@ -313,42 +377,48 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
             position: _animation,
             textDirection: TextDirection.rtl,
             child: Container(
-                height: MediaQuery.of(context).size.height,
-                color: Theme.of(context).backgroundColor,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(15.0, 50.0, 15.0, 0.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                              onTap: () {
-                                back();
-                              },
-                              child: Icon(Icons.arrow_back, size: 25)),
-                        ],
+              height: MediaQuery
+                .of(context)
+                .size
+                .height,
+              color: Theme
+                .of(context)
+                .backgroundColor,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(15.0, 50.0, 15.0, 0.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            back();
+                          },
+                          child: Icon(Icons.arrow_back, size: 25)),
+                      ],
+                    ),
+                  ),
+                  commentWidgets.length > 0
+                    ? Expanded(
+                    child: MediaQuery.removePadding(
+                      context: context,
+                      removeTop: true,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 10.0, bottom: 60.0),
+                        child: ListView(
+                          children: commentWidgets,
+                          controller: _scrollController,
+                        ),
                       ),
                     ),
-                    commentWidgets.length > 0
-                        ? Expanded(
-                            child: MediaQuery.removePadding(
-                              context: context,
-                              removeTop: true,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 10.0, bottom: 60.0),
-                                child: ListView(
-                                  children: commentWidgets,
-                                ),
-                              ),
-                            ),
-                          )
-                        : Center(
-                            child: Text('No comments'),
-                          ),
-                  ],
-                )),
+                  )
+                    : Center(
+                    child: Text('No comments'),
+                  ),
+                ],
+              )),
           ),
           bottomInput,
         ]),

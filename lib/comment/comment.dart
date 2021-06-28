@@ -231,7 +231,8 @@ class _CommentWidgetState extends State<CommentWidget> {
       }
     }
 
-    return Padding(
+    return Container(
+      key: UniqueKey(),
       padding: widget.isReply == true ? EdgeInsets.only(top: 20.0) : EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -325,11 +326,11 @@ class _CommentWidgetState extends State<CommentWidget> {
                       setState(() {});
                     },
                     child: Text(
-                      likes == 1 ? '1 Like' : '$likes Likes',
+                      likes == 0 ? 'Like' : likes == 1 ? '1 Like' : '$likes Likes',
                       style: TextStyle(
                         fontSize: 12,
                         color: liked ? Theme.of(context).primaryColor : Theme.of(context).hintColor,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: liked ? FontWeight.bold : FontWeight.w600,
                       ),
                     ),
                   ),
