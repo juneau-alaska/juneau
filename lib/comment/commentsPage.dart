@@ -288,24 +288,23 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
     );
 
     commentStreamController.stream.listen((comment) {
-      Widget commentWidget = CommentWidget(
-        user: user,
-        comment: comment,
-        pollId: pollId,
-        focusNode: focusNode,
-        inputStreamController: inputStreamController,
-      );
-      commentWidgets.insert(0, commentWidget);
+      setState(() {
+        Widget commentWidget = CommentWidget(
+          user: user,
+          comment: comment,
+          pollId: pollId,
+          focusNode: focusNode,
+          inputStreamController: inputStreamController,
+        );
+        commentWidgets.insert(0, commentWidget);
+
+        _scrollController.animateTo(
+          0,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.fastOutSlowIn,
+        );
+      });
       if (mounted) {
-        setState(() {
-          Future.delayed(const Duration(milliseconds: 500), () {
-            _scrollController.animateTo(
-              0,
-              duration: Duration(milliseconds: 500),
-              curve: Curves.fastOutSlowIn,
-            );
-          });
-        });
       }
     });
 

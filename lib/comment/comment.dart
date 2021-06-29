@@ -232,7 +232,6 @@ class _CommentWidgetState extends State<CommentWidget> {
     }
 
     return Container(
-      key: UniqueKey(),
       padding: widget.isReply == true ? EdgeInsets.only(top: 20.0) : EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
