@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:juneau/comment/comment.dart';
 import 'package:juneau/common/controllers/richTextController.dart';
+import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/methods/commentMethods.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 
@@ -10,6 +11,7 @@ class BottomInput extends StatefulWidget {
   final pollId;
   final focusNode;
   final commentStreamController;
+  final replyStreamController;
   final inputStreamController;
 
   BottomInput({
@@ -17,6 +19,7 @@ class BottomInput extends StatefulWidget {
     @required this.pollId,
     this.focusNode,
     this.commentStreamController,
+    this.replyStreamController,
     this.inputStreamController,
   }) : super(key: key);
 
@@ -206,6 +209,11 @@ class _BottomInputState extends State<BottomInput> {
                           bool addedToPoll = await commentMethods.updatePollComments(
                             pollId, comment['_id'], context);
 
+                          if (addedToPoll) {
+                            widget.replyStreamController.add(comment);
+                          } else {
+                            showAlert(context, "Failed to reply to comment, please try again.");
+                          }
                           resetInput();
                         }
 
@@ -224,6 +232,7 @@ class _BottomInputState extends State<BottomInput> {
                             resetInput();
                           } else {
                             // TODO: ALERT FAILED TO SAVE COMMENT
+                            showAlert(context, "Failed to post comment, please try again.");
                           }
                         }
                       }
@@ -272,6 +281,7 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
   FocusNode focusNode = FocusNode();
 
   StreamController commentStreamController = StreamController();
+  StreamController replyStreamController = StreamController.broadcast();
   StreamController inputStreamController = StreamController();
   ScrollController _scrollController = ScrollController();
 
@@ -285,6 +295,7 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
       focusNode: focusNode,
       inputStreamController: inputStreamController,
       commentStreamController: commentStreamController,
+      replyStreamController: replyStreamController,
     );
 
     commentStreamController.stream.listen((comment) {
@@ -295,14 +306,17 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
           pollId: pollId,
           focusNode: focusNode,
           inputStreamController: inputStreamController,
+          replyStreamController: replyStreamController,
         );
         commentWidgets.insert(0, commentWidget);
 
-        _scrollController.animateTo(
-          0,
-          duration: Duration(milliseconds: 500),
-          curve: Curves.fastOutSlowIn,
-        );
+        if (_scrollController.offset != 0) {
+          _scrollController.animateTo(
+            0,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.fastOutSlowIn,
+          );
+        }
       });
       if (mounted) {
       }
@@ -331,7 +345,9 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
           comment: comment,
           pollId: pollId,
           focusNode: focusNode,
-          inputStreamController: inputStreamController);
+          inputStreamController: inputStreamController,
+          replyStreamController: replyStreamController,
+        );
         commentWidgets.add(commentWidget);
       }
 
@@ -346,6 +362,7 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
     user = null;
     focusNode.dispose();
     commentStreamController.close();
+    replyStreamController.close();
     inputStreamController.close();
     _scrollController.dispose();
     _controller.dispose();
@@ -356,6 +373,7 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
     focusNode.unfocus();
     _controller.reverse();
     commentStreamController.close();
+    replyStreamController.close();
     inputStreamController.close();
     Navigator.pop(context);
   }

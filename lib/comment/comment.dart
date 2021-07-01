@@ -23,6 +23,7 @@ class CommentWidget extends StatefulWidget {
   final pollId;
   final focusNode;
   final inputStreamController;
+  final replyStreamController;
   final isReply;
 
   CommentWidget({
@@ -32,6 +33,7 @@ class CommentWidget extends StatefulWidget {
     this.pollId,
     this.focusNode,
     this.inputStreamController,
+    this.replyStreamController,
     this.isReply,
   }) : super(key: key);
 
@@ -39,7 +41,7 @@ class CommentWidget extends StatefulWidget {
   _CommentWidgetState createState() => _CommentWidgetState();
 }
 
-class _CommentWidgetState extends State<CommentWidget> {
+class _CommentWidgetState extends State<CommentWidget> with AutomaticKeepAliveClientMixin<CommentWidget> {
   var comment;
   var creator;
   var user;
@@ -64,7 +66,6 @@ class _CommentWidgetState extends State<CommentWidget> {
   StreamController inputStreamController;
   StreamController pollListController = StreamController.broadcast();
   StreamController parentController = new StreamController.broadcast();
-
 
   void dismissPoll(index) {
     if (mounted) {
@@ -112,6 +113,9 @@ class _CommentWidgetState extends State<CommentWidget> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     user = widget.user;
     comment = widget.comment;
@@ -129,6 +133,25 @@ class _CommentWidgetState extends State<CommentWidget> {
 
     time = numberMethods.convertTime(comment['createdAt']);
 
+    if (widget.isReply == null) {
+      widget.replyStreamController.stream.listen((reply) {
+        if (reply['parentCommentId'] == comment['_id']) {
+          replyWidgets.insert(0, new CommentWidget(
+            user: user,
+            comment: reply,
+            pollId: widget.pollId,
+            focusNode: focusNode,
+            inputStreamController: inputStreamController,
+            isReply: true,
+          ));
+        }
+
+        if (!mounted) {
+          setState(() {});
+        }
+      });
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       creator = await userMethods.getUser(comment['createdBy']);
 
@@ -145,7 +168,6 @@ class _CommentWidgetState extends State<CommentWidget> {
 
   @override
   void dispose() {
-    inputStreamController.close();
     pollListController.close();
     parentController.close();
     super.dispose();
@@ -153,6 +175,8 @@ class _CommentWidgetState extends State<CommentWidget> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     List<String> commentSplit = comment['comment'].split(' ');
     List<TextSpan> textChildren = [];
 
