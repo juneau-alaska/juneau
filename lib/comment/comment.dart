@@ -47,12 +47,12 @@ class _CommentWidgetState extends State<CommentWidget> with AutomaticKeepAliveCl
   var user;
   var profilePhoto;
 
+  String prevId;
   String commentId;
   String time;
   bool pollOpen = false;
   bool preventReload = false;
   bool liked = false;
-  bool repliesOpen = false;
 
   List replies;
   List<Widget> replyWidgets = [];
@@ -360,12 +360,17 @@ class _CommentWidgetState extends State<CommentWidget> with AutomaticKeepAliveCl
                 ],
               ),
 
-              if (!repliesOpen && replyCount > 0)
+              Column(
+                children: replyWidgets,
+              ),
+
+              if (replyCount > 0)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: GestureDetector(
                     onTap: () async {
-                      replies = await commentMethods.getComments(widget.pollId, context, parentCommentId: commentId);
+                      print(prevId);
+                      replies = await commentMethods.getComments(widget.pollId, context, parentCommentId: commentId, prevId: prevId);
 
                       for (var i = 0; i < replies.length; i++) {
                         var comment = replies[i];
@@ -380,8 +385,10 @@ class _CommentWidgetState extends State<CommentWidget> with AutomaticKeepAliveCl
                         replyWidgets.add(commentWidget);
                       }
 
-                      repliesOpen = true;
-                      setState(() {});
+                      setState(() {
+                        prevId = replies.last['_id'];
+                        replyCount -= replies.length;
+                      });
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -405,10 +412,6 @@ class _CommentWidgetState extends State<CommentWidget> with AutomaticKeepAliveCl
                     ),
                   ),
                 )
-              else
-                Column(
-                  children: replyWidgets,
-                ),
             ],
           ),
         ],

@@ -7,7 +7,7 @@ import 'package:juneau/common/components/alertComponent.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CommentMethods {
-  Future<List> getComments(String pollId, context, {String parentCommentId}) async {
+  Future<List> getComments(String pollId, context, {String parentCommentId, String prevId}) async {
     String url = API_URL + 'comments';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -18,7 +18,7 @@ class CommentMethods {
       HttpHeaders.authorizationHeader: token
     };
 
-    var body = jsonEncode({'pollId': pollId, 'parentCommentId': parentCommentId});
+    var body = jsonEncode({'pollId': pollId, 'parentCommentId': parentCommentId, 'prevId': prevId});
 
     var response = await http.post(url, headers: headers, body: body);
 
@@ -54,12 +54,7 @@ class CommentMethods {
     var response = await http.post(url, headers: headers, body: body);
 
     if (response.statusCode == 200) {
-      var comment = jsonDecode(response.body); //,
-          // id = jsonResponse['_id'];
-
-      // commentReplies[id] = [];
-      // commentReplyWidgets[id] = [];
-      // commentRepliesOpened[id] = false;
+      var comment = jsonDecode(response.body);
 
       return comment;
     } else {
