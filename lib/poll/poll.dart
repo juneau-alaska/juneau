@@ -23,7 +23,6 @@ import 'package:juneau/poll/pollMenu.dart';
 import 'package:juneau/profile/profile.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timeago/timeago.dart' as timeago;
 import 'package:animated_check/animated_check.dart';
 
 void openPoll(context, pollId, {user}) async {

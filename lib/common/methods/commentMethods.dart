@@ -156,6 +156,22 @@ class CommentMethods {
       return null;
     }
   }
+
+  Future<bool> deleteComment(String commentId) async {
+    String url = API_URL + 'comment/' + commentId;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    var headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: token
+    };
+
+    var response = await http.delete(url, headers: headers);
+
+    return response.statusCode == 200;
+  }
 }
 
 CommentMethods commentMethods = new CommentMethods();

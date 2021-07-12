@@ -2,8 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-
-import 'package:flutter_swipe_action_cell/flutter_swipe_action_cell.dart';
+import 'package:flutter/services.dart';
 
 import 'package:juneau/comment/commentsPage.dart';
 import 'package:juneau/common/components/alertComponent.dart';
@@ -53,6 +52,7 @@ class _CommentWidgetState extends State<CommentWidget> with AutomaticKeepAliveCl
   bool pollOpen = false;
   bool preventReload = false;
   bool liked = false;
+  bool deleted = false;
 
   List replies;
   List<Widget> replyWidgets = [];
@@ -255,6 +255,10 @@ class _CommentWidgetState extends State<CommentWidget> with AutomaticKeepAliveCl
       }
     }
 
+    if (deleted) {
+      return Container();
+    }
+
     return Container(
       padding: widget.isReply == true ? EdgeInsets.only(top: 20.0) : EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
       child: Row(
@@ -357,6 +361,84 @@ class _CommentWidgetState extends State<CommentWidget> with AutomaticKeepAliveCl
                       ),
                     ),
                   ),
+
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        Widget cancelButton = RawMaterialButton(
+                          onPressed: () {
+                            HapticFeedback.mediumImpact();
+                            Navigator.pop(context);
+                          },
+                          constraints: BoxConstraints(),
+                          padding: EdgeInsets.symmetric(vertical: 15.0),
+                          fillColor: Theme.of(context).backgroundColor,
+                          elevation: 0.0,
+                          child: Text(
+                            'CANCEL',
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                        );
+
+                        Widget continueButton = RawMaterialButton(
+                          onPressed: () async {
+                            deleted = await commentMethods.deleteComment(commentId);
+                            HapticFeedback.mediumImpact();
+                            Navigator.pop(context);
+
+                            if (deleted) {
+                              setState(() {
+                                showAlert(context, "Comment successfully deleted.", true);
+                              });
+                            } else {
+                              showAlert(context, "Failed to delete comment.");
+                            }
+                          },
+                          constraints: BoxConstraints(),
+                          padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
+                          fillColor: Theme.of(context).backgroundColor,
+                          elevation: 0.0,
+                          child: Text(
+                            'DELETE',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+
+                        AlertDialog alertDialogue = AlertDialog(
+                          backgroundColor: Theme.of(context).backgroundColor,
+                          title:
+                          Text("Are you sure?", style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w700)),
+                          content: Text("Comments that are deleted cannot be retrieved.",
+                            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w300)),
+                          actions: [
+                            cancelButton,
+                            continueButton,
+                          ],
+                        );
+
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return alertDialogue;
+                          },
+                        );
+                      },
+                      child: Text(
+                        'Delete',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.red,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               ),
 
