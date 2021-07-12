@@ -369,7 +369,6 @@ class _CommentWidgetState extends State<CommentWidget> with AutomaticKeepAliveCl
                   padding: const EdgeInsets.only(top: 8.0),
                   child: GestureDetector(
                     onTap: () async {
-                      print(prevId);
                       replies = await commentMethods.getComments(widget.pollId, context, parentCommentId: commentId, prevId: prevId);
 
                       for (var i = 0; i < replies.length; i++) {

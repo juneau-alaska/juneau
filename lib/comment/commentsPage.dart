@@ -6,6 +6,7 @@ import 'package:juneau/common/controllers/richTextController.dart';
 import 'package:juneau/common/components/alertComponent.dart';
 import 'package:juneau/common/methods/commentMethods.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class BottomInput extends StatefulWidget {
   final pollId;
@@ -273,7 +274,9 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
   Animation<Offset> _animation;
 
   var user;
+  String prevId;
   String pollId;
+  bool preventReload = false;
 
   List<Widget> commentWidgets = [];
 
@@ -284,6 +287,33 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
   StreamController replyStreamController = StreamController.broadcast();
   StreamController inputStreamController = StreamController();
   ScrollController _scrollController = ScrollController();
+
+  RefreshController refreshController = RefreshController(initialRefresh: false);
+
+  void _fetchData() async {
+    List pollComments = await commentMethods.getComments(pollId, context, prevId: prevId);
+
+    if (prevId == null) {
+      commentWidgets = [];
+    }
+
+    prevId = pollComments.last['_id'];
+
+    for (var i = 0; i < pollComments.length; i++) {
+      var comment = pollComments[i];
+      Widget commentWidget = new CommentWidget(
+        user: user,
+        comment: comment,
+        pollId: pollId,
+        focusNode: focusNode,
+        inputStreamController: inputStreamController,
+        replyStreamController: replyStreamController,
+      );
+      commentWidgets.add(commentWidget);
+    }
+
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -336,22 +366,7 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
     ));
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      List pollComments = await commentMethods.getComments(pollId, context);
-
-      for (var i = 0; i < pollComments.length; i++) {
-        var comment = pollComments[i];
-        Widget commentWidget = new CommentWidget(
-          user: user,
-          comment: comment,
-          pollId: pollId,
-          focusNode: focusNode,
-          inputStreamController: inputStreamController,
-          replyStreamController: replyStreamController,
-        );
-        commentWidgets.add(commentWidget);
-      }
-
-      setState(() {});
+      _fetchData();
     });
 
     super.initState();
@@ -366,16 +381,31 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
     inputStreamController.close();
     _scrollController.dispose();
     _controller.dispose();
+    refreshController.dispose();
     super.dispose();
   }
 
   void back() {
-    focusNode.unfocus();
-    _controller.reverse();
-    commentStreamController.close();
-    replyStreamController.close();
-    inputStreamController.close();
+    // focusNode.unfocus();
+    // _controller.reverse();
+    // commentStreamController.close();
+    // replyStreamController.close();
+    // inputStreamController.close();
+    // refreshController.dispose();
     Navigator.pop(context);
+  }
+
+  Future<void> _onRefresh() async {
+    preventReload = false;
+    prevId = null;
+    _fetchData();
+    refreshController.refreshCompleted();
+  }
+
+  Future<void> _onLoading() async {
+    preventReload = false;
+    _fetchData();
+    refreshController.loadComplete();
   }
 
   @override
@@ -424,9 +454,20 @@ class _CommentsPageState extends State<CommentsPage> with SingleTickerProviderSt
                       removeTop: true,
                       child: Padding(
                         padding: const EdgeInsets.only(top: 10.0, bottom: 60.0),
-                        child: ListView(
-                          children: commentWidgets,
-                          controller: _scrollController,
+                        child: SmartRefresher(
+                          enablePullDown: true,
+                          enablePullUp: true,
+                          header: ClassicHeader(),
+                          footer: ClassicFooter(
+                            loadStyle: LoadStyle.ShowWhenLoading,
+                          ),
+                          controller: refreshController,
+                          onRefresh: _onRefresh,
+                          onLoading: _onLoading,
+                          child: ListView(
+                            children: commentWidgets,
+                            controller: _scrollController,
+                          ),
                         ),
                       ),
                     ),
